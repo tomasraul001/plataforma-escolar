@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User { 
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  email     String  @unique
+  name      String
+  password  String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  trainerClasses Class[]      @relation("TrainerClasses")
+  enrollments    Enrollment[]
+  auditLogs      AuditLog[]
+  updatedGrades  Grade[]      @relation("GradeUpdater")
+
+}
+
+// 2. ÁREA DE FORMAÇÃO (Informática, Mecânica, etc)
+model TrainingArea {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  code        String?   @unique // Sigla: INF, ELE, MEC
+  description String?
+  active      Boolean   @default(true)
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  classes     Class[]
+}
+
+// 3. TURMA
+model Class {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  code           String      @unique // Ex: INF-2026-001
+  secretKey      String      @unique // A chave que o aluno usa para entrar
+  status         String      @default("OPEN") // OPEN, CLOSED, ARCHIVED
+  startDate      DateTime?
+  endDate        DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  // Relacionamentos
+  trainerId        String              @db.ObjectId
+  trainer          User                @relation("TrainerClasses", fields: [trainerId], references: [id])
+  trainingAreaId   String?             @db.ObjectId
+  trainingArea     TrainingArea?       @relation(fields: [trainingAreaId], references: [id])
+  enrollments      Enrollment[]
+  assessments      Assessment[]
+  auditLogs        AuditLog[]
+  gradebookTemplate GradebookTemplate?
+}
+
+// 4. INSCRIÇÃO (A ligação entre Aluno e Turma)
+model Enrollment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  joinedAt  DateTime @default(now())
+  status    String   @default("ACTIVE") // ACTIVE, DROPPED, COMPLETED
+
+  classId   String   @db.ObjectId
+  class     Class    @relation(fields: [classId], references: [id])
+  
+  // 1. Opcional: Se o aluno tiver conta, preenchemos aqui
+  studentId String?  @db.ObjectId 
+  student   User?    @relation(fields: [studentId], references: [id])
+  
+  // 2. Fallback: Se o aluno não tiver conta, o formador digita o nome aqui
+  manualName String? 
+  
+  grades    Grade[]
+
+  // Garante que um aluno com conta não entre duas vezes na mesma turma
+  @@unique([classId, studentId]) 
+}
+
+// 5. AVALIAÇÃO (Teste 1, Exame, etc)
+model Assessment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  weight    Float    @default(1.0)
+  createdAt DateTime @default(now())
+
+  classId   String   @db.ObjectId
+  class     Class    @relation(fields: [classId], references: [id])
+  grades    Grade[]
+}
+
+// 5.1. TEMPLATE DE PLANILHA (Configuração fixa da planilha de notas)
+model GradebookTemplate {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  classId   String   @unique @db.ObjectId
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  columns   Json     // Configuração fixa: [{id, name, weight, order, type}]
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 6. NOTAS
+model Grade {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  value        Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assessmentId String   @db.ObjectId
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  enrollmentId String   @db.ObjectId
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+  updatedById  String   @db.ObjectId
+  updatedBy    User     @relation("GradeUpdater", fields: [updatedById], references: [id])
+}
+
+// 7. LOGS DE AUDITORIA (Para saber quem alterou o quê)
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  action    String   // Ex: GRADE_UPDATED, CLASS_CLOSED
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id])
+  classId   String?  @db.ObjectId
+  class     Class?   @relation(fields: [classId], references: [id])
+}
+
+
+
