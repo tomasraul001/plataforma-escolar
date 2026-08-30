@@ -27,13 +27,13 @@ export default function LandingPage() {
           <div className="flex gap-4 justify-center">
             <Link
               to="/cadastro"
-              className="bg-white text-blue-950 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-colors"
+              className="bg-white text-blue-950 px-8 py-4 sm:py-2 rounded-lg font-bold text-lg hover:bg-blue-50 transition-colors"
             >
               Começar Agora
             </Link>
             <Link
               to="/login"
-              className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/10 transition-colors"
+              className="border-2 border-white text-white px-8 py-4 sm:py-2 rounded-lg font-bold text-lg hover:bg-white/10 transition-colors"
             >
               Entrar
             </Link>
