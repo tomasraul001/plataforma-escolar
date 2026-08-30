@@ -6,14 +6,23 @@ import authRouter from './modules/auth/auth.routes.js';
 import userRouter from './modules/users/users.routes.js';
 import classesRouter from './modules/classes/classes.routes.js';
 import enrollmentsRouter from './modules/enrollments/enrollments.routes.js';
-import assessmentsRouter from './modules/assessments/assessments.routes.js';
+import assessmentsRouter from './modules/modules/assessments/assessments.routes.js';
 import gradesRouter from './modules/grades/grades.routes.js';
 import reportsRouter from './modules/reports/reports.routes.js';
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+  process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null,
+].filter(Boolean);
+
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
@@ -31,7 +40,8 @@ process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
 });
 
-const server = app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
 
 server.on('error', (error) => {
   console.error('Server error:', error);
