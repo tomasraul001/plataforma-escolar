@@ -6,7 +6,7 @@ import authRouter from './modules/auth/auth.routes.js';
 import userRouter from './modules/users/users.routes.js';
 import classesRouter from './modules/classes/classes.routes.js';
 import enrollmentsRouter from './modules/enrollments/enrollments.routes.js';
-import assessmentsRouter from './modules/modules/assessments/assessments.routes.js';
+import assessmentsRouter from './modules/assessments/assessments.routes.js';
 import gradesRouter from './modules/grades/grades.routes.js';
 import reportsRouter from './modules/reports/reports.routes.js';
 
