@@ -49,7 +49,7 @@ export default function Login(){
             <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-8 md:p-10">
                 <div className="flex flex-col items-center mb-8">
                     <h3 className="font-bold text-3xl text-white mb-1">Bem-vindo de volta</h3>
-                    <p className="text-blue-200 text-sm">Acessa a tua conta para continuar</p>
+                    <p className="text-blue-400 text-sm">Acessa a tua conta para continuar</p>
                 </div>
 
                 <form className="flex flex-col gap-5" onSubmit={handleLogin}>
@@ -68,8 +68,8 @@ export default function Login(){
                 </form>
 
                 <div className="flex justify-center items-center gap-2 mt-6">
-                    <span className="text-blue-200">Não tens conta?</span>
-                    <Link to="/cadastro" className="text-violet-300 font-semibold hover:text-violet-200 hover:underline transition-colors">Cadastre-se</Link>
+                    <span className="text-blue-400">Não tens conta?</span>
+                    <Link to="/cadastro" className="text-violet-500 font-semibold hover:text-violet-200 hover:underline transition-colors">Cadastre-se</Link>
                 </div>
             </div>
         </section>

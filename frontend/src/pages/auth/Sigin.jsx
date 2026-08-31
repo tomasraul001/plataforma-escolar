@@ -44,7 +44,7 @@ export default function Sigin(){
             <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-8 md:p-10">
                 <div className="flex flex-col items-center mb-8">
                     <h3 className="font-bold text-3xl text-white mb-1">Criar Conta</h3>
-                    <p className="text-blue-200 text-sm">Regista-te para aceder à plataforma</p>
+                    <p className="text-blue-400 text-sm">Regista-te para aceder à plataforma</p>
                 </div>
 
                 <form className="flex flex-col gap-5" onSubmit={handleSigin}>
@@ -71,8 +71,8 @@ export default function Sigin(){
                 </form>
 
                 <div className="flex justify-center items-center gap-2 mt-6">
-                    <span className="text-blue-200">Já tens conta?</span>
-                    <Link to="/Login" className="text-violet-300 font-semibold hover:text-violet-200 hover:underline transition-colors">Faz Login</Link>
+                    <span className="text-blue-400">Já tens conta?</span>
+                    <Link to="/Login" className="text-violet-500 font-semibold hover:text-violet-200 hover:underline transition-colors">Faz Login</Link>
                 </div>
             </div>
         </section>
