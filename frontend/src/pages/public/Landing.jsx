@@ -3,13 +3,13 @@ import iconeLogo from "../../assets/logo.png"
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950/50 via-blue-900/50 to-indigo-900/50 flex flex-col">
-      <header className="p-6 w-full">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+    <div className="min-h-screen  bg-gradient-to-br from-blue-950/50 via-blue-900/50 to-indigo-900/50 flex flex-col">
+      <header className="p-6">
+        <div className="w-full mx-auto flex justify-between items-center">
           <img className="w-40 rounded rounded-2xl" src={iconeLogo} />
-          <nav className="flex gap-6">
-            <Link to="/login" className="border-2 border-white text-white px-4 rounded-lg py-2 hover:text-blue-200">Entrar</Link>
-            <Link to="/cadastro" className="bg-white text-blue-950 px-4 py-2 rounded-lg font-medium hover:bg-blue-50">
+          <nav className="flex gap-4 ">
+            <Link to="/login" className="border-2 border-white text-white px-3 rounded-lg py-1 hover:text-blue-200 text-sm">Entrar</Link>
+            <Link to="/cadastro" className="bg-white text-blue-950 px-3 py-1 rounded-lg font-medium hover:bg-blue-50 text-sm">
               Cadastrar
             </Link>
           </nav>
