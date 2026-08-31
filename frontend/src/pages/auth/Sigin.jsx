@@ -38,24 +38,41 @@ export default function Sigin(){
     }
 
     return (
-        <section className="bg-blue-950 h-screen flex justify-center items-center">
-            <div className="flex flex-col  border border-gray-500 shadow-lg p-8 md:p-15 rounded-lg">
-                <h3 className="font-bold text-2xl text-center text-white mb-2">Cadastro</h3>
+        <section className="flex min-h-screen justify-center items-center px-4 py-10">
+            <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-8 md:p-10">
+                <div className="flex flex-col items-center mb-8">
+                    <h3 className="font-bold text-3xl text-white mb-1">Criar Conta</h3>
+                    <p className="text-blue-200 text-sm">Regista-te para aceder à plataforma</p>
+                </div>
 
-                <form className="flex flex-col gap-6 p-5 w-full" onSubmit={handleSigin}>
-                    <input className="bg-gray-700 text-white p-1  placeholder:text-gray-400 border border-gray-600 focus:outline-white rounded" type="text" placeholder="Nome" ref={inputName} />  
-                    <input className="bg-gray-700 text-white p-1 placeholder:text-gray-400 border border-gray-600 focus:outline-white rounded" type="email" placeholder="Email" ref={inputEmail}/>  
-                    <input className="bg-gray-700 text-white p-1  placeholder:text-gray-400 border border-gray-600 focus:outline-white rounded" type="password" placeholder="Senha" ref={inputPassword}/> 
-                    <input type="text" placeholder="Access Key" className="bg-gray-700 text-white p-1 px-2 placeholder:text-gray-400 border border-gray-600 focus:outline-none rounded" ref={inputKey} /> 
+                <form className="flex flex-col gap-5" onSubmit={handleSigin}>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-blue-100" htmlFor="name">Nome</label>
+                        <input id="name" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="text" placeholder="O teu nome" ref={inputName} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-blue-100" htmlFor="email">Email</label>
+                        <input id="email" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="email" placeholder="exemplo@email.com" ref={inputEmail} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-blue-100" htmlFor="password">Senha</label>
+                        <input id="password" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="password" placeholder="••••••••" ref={inputPassword} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-blue-100" htmlFor="accessKey">Chave de Acesso</label>
+                        <input id="accessKey" type="text" placeholder="Insere a chave fornecida" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" ref={inputKey} />
+                    </div>
                     <button disabled={loading}
-                        className={` bg-violet-700 text-white mt-2 p-1 font-bold rounded hover:bg-violet-500 cursor-pointer transition-color ${loading ? 'opacity-50 cursor-wait' : ''}`} type="submit" >
-                        {loading ? 'Processando...' : 'Submeter'}
+                        className={`w-full mt-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white py-3.5 font-bold rounded-lg hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-900/40 transition-all cursor-pointer active:scale-[0.98] ${loading ? 'opacity-60 cursor-wait' : ''}`} type="submit">
+                        {loading ? 'Processando...' : 'Criar Conta'}
                     </button>
-                </form>  
+                </form>
 
-                <Link  to="/Login" className="text-blue-500 text-center m-2 hover:text-blue-600 hover:underline transition-color" >Ja tens conta? Faça Login </Link>
+                <div className="flex justify-center items-center gap-2 mt-6">
+                    <span className="text-blue-200">Já tens conta?</span>
+                    <Link to="/Login" className="text-violet-300 font-semibold hover:text-violet-200 hover:underline transition-colors">Faz Login</Link>
+                </div>
             </div>
-            
         </section>
     )
 }
