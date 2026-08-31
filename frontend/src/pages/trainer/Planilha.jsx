@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
 
 const FIXED_COLUMNS = [
   { id: "teste1", name: "Teste 1", weight: 1, order: 1 },
@@ -14,6 +15,7 @@ export default function Planilha() {
   const { classId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast().toast;
   const [planilhaData, setPlanilhaData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -52,7 +54,7 @@ export default function Planilha() {
       setGradeInputs(initialInputs);
     } catch (error) {
       console.error("Erro ao carregar planilha:", error);
-      alert("Erro ao carregar planilha");
+      toast.error("Erro ao carregar planilha");
       navigate("/formador");
     } finally {
       setLoading(false);

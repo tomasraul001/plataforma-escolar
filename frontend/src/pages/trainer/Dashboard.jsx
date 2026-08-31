@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
 
 export default function TrainerDashboard() {
   const { user } = useAuth();
+  const toast = useToast().toast;
   const navigate = useNavigate();
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,12 +63,11 @@ export default function TrainerDashboard() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Erro ao baixar PDF:", error);
-      alert("Erro ao baixar PDF: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao baixar PDF: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 
-  const fetchClassDetails = async (classId) => {
-    try {
+  const fetchClassDetails = async (classId) => {    try {
       const [assessRes, enrollRes] = await Promise.all([
         api.get(`/assessments/${classId}`),
         api.get(`/enrollments/turma/${classId}/alunos`),
@@ -85,7 +86,7 @@ export default function TrainerDashboard() {
       setShowGradebook(true);
     } catch (error) {
       console.error("Erro ao buscar pauta:", error);
-      alert("Erro ao carregar pauta");
+      toast.error("Erro ao carregar pauta");
     }
   };
 
@@ -96,9 +97,9 @@ export default function TrainerDashboard() {
       setShowCreateClass(false);
       setNewClassForm({ name: "", trainingAreaId: "", startDate: "", endDate: "" });
       fetchMyClasses();
-      alert("Turma criada com sucesso!");
+      toast.success("Turma criada com sucesso!");
     } catch (error) {
-      alert("Erro ao criar turma: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao criar turma: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 
@@ -109,9 +110,9 @@ export default function TrainerDashboard() {
       setShowCreateAssessment(false);
       setNewAssessmentForm({ name: "", weight: 1 });
       await fetchClassDetails(selectedClass.id);
-      alert("Avaliação criada com sucesso!");
+      toast.success("Avaliação criada com sucesso!");
     } catch (error) {
-      alert("Erro ao criar avaliação: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao criar avaliação: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 
@@ -141,10 +142,10 @@ export default function TrainerDashboard() {
         grades: gradesToSave,
       });
       setGradeInputs({});
-      alert("Notas salvas com sucesso!");
+      toast.success("Notas salvas com sucesso!");
       if (selectedClass) fetchGradebook(selectedClass.id);
     } catch (error) {
-      alert("Erro ao salvar notas: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao salvar notas: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 
@@ -153,7 +154,7 @@ export default function TrainerDashboard() {
       await api.patch(`/classes/${classId}`, { status: newStatus });
       fetchMyClasses();
     } catch (error) {
-      alert("Erro ao atualizar status: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao atualizar status: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 

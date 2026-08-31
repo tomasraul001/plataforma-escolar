@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useRef, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
+import { useToast } from "../../contexts/ToastContext"
 
 export default function Login(){
     let inputEmail = useRef()
@@ -8,6 +9,7 @@ export default function Login(){
     let navigate = useNavigate()
     let [loading, setLoading] = useState(false)
     const { login } = useAuth()
+    const toast = useToast().toast
 
     async function handleLogin(event){
         event.preventDefault();
@@ -33,10 +35,10 @@ export default function Login(){
                 default:
                     navigate('/welcome')
             }
-            alert("Login efetuado com sucesso")
+            toast.success("Login efetuado com sucesso")
         }catch (error){
             console.log('email ou senha errados',error)
-            alert("Email ou senha incorreto")
+            toast.error("Email ou senha incorreto")
         }finally{
             setLoading(false)
         }

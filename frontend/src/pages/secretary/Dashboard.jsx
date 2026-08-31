@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
 
 export default function SecretaryDashboard() {
   const { user } = useAuth();
+  const toast = useToast().toast;
   const [stats, setStats] = useState({ openClasses: 0, closedClasses: 0, trainers: 0, students: 0 });
   const [closedClasses, setClosedClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export default function SecretaryDashboard() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Erro ao baixar PDF:", error);
-      alert("Erro ao baixar PDF: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao baixar PDF: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 

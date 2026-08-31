@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const toast = useToast().toast;
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showJoinModal, setShowJoinModal] = useState(false);
@@ -35,7 +37,7 @@ export default function StudentDashboard() {
       setSecretKey("");
       fetchMyClasses();
     } catch (error) {
-      alert("Erro ao entrar na turma: " + (error.response?.data?.message || "Chave inválida"));
+      toast.error("Erro ao entrar na turma: " + (error.response?.data?.message || "Chave inválida"));
     }
   };
 
@@ -46,7 +48,7 @@ export default function StudentDashboard() {
       setGradesData(res.data);
       setShowGradesModal(true);
     } catch (error) {
-      alert("Erro ao carregar notas: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao carregar notas: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 

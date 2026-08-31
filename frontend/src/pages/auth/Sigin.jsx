@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { useRef, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
+import { useToast } from "../../contexts/ToastContext"
 
 export default function Sigin(){
     let inputName = useRef()
@@ -10,14 +11,15 @@ export default function Sigin(){
 
     let [loading, setLoading] = useState(false)
     const { register } = useAuth()
+    const toast = useToast().toast
 
     async function handleSigin(event){
         event.preventDefault();
 
         const accessKey = inputKey.current.value
 
-        if(!inputKey.current.value) return alert("Insira a chave de acesso!")
-        if(!inputName.current.value || !inputEmail.current.value || !inputPassword.current.value) return alert("Preencha todos os campos")
+        if(!inputKey.current.value) return toast.error("Insira a chave de acesso!")
+        if(!inputName.current.value || !inputEmail.current.value || !inputPassword.current.value) return toast.error("Preencha todos os campos")
 
         try{
             setLoading(true)
@@ -28,10 +30,10 @@ export default function Sigin(){
                 accessKey: accessKey
             })
 
-            alert("Usuario criado com sucesso")
+            toast.success("Usuario criado com sucesso")
         }catch (error){
             console.log('Erro ao criar usuario', error)
-            alert("Erro ao criar usuario")
+            toast.error("Erro ao criar usuario")
         }finally{
             setLoading(false)
         }

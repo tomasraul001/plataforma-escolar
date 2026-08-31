@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
 
 export default function CoordinatorDashboard() {
   const { user } = useAuth();
+  const toast = useToast().toast;
   const [stats, setStats] = useState({ openClasses: 0, closedClasses: 0, trainers: 0, students: 0 });
   const [activeClasses, setActiveClasses] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -63,7 +65,7 @@ export default function CoordinatorDashboard() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Erro ao baixar PDF:", error);
-      alert("Erro ao baixar PDF: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao baixar PDF: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 
@@ -74,9 +76,9 @@ export default function CoordinatorDashboard() {
       setShowAreaModal(false);
       setAreaForm({ name: "", code: "", description: "", active: true });
       fetchAreas();
-      alert("Área criada com sucesso!");
+      toast.success("Área criada com sucesso!");
     } catch (error) {
-      alert("Erro ao criar área: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao criar área: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 
@@ -99,9 +101,9 @@ export default function CoordinatorDashboard() {
       setEditingArea(null);
       setAreaForm({ name: "", code: "", description: "", active: true });
       fetchAreas();
-      alert("Área atualizada com sucesso!");
+      toast.success("Área atualizada com sucesso!");
     } catch (error) {
-      alert("Erro ao atualizar área: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao atualizar área: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 
@@ -110,9 +112,9 @@ export default function CoordinatorDashboard() {
     try {
       await api.delete(`/classes/areas/${id}`);
       fetchAreas();
-      alert("Área excluída com sucesso!");
+      toast.success("Área excluída com sucesso!");
     } catch (error) {
-      alert("Erro ao excluir: " + (error.response?.data?.message || "Erro desconhecido"));
+      toast.error("Erro ao excluir: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
 
