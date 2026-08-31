@@ -26,6 +26,8 @@ app.use(cors({
 }));
 
 
+app.get("/", (req, res) => res.json({ status: "ok" }));
+
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/classes', classesRouter);
