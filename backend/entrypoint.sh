@@ -1,3 +1,4 @@
 #!/bin/sh
-npx prisma db push
+npx prisma generate
+npx prisma migrate deploy
 exec node src/app.js

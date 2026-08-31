@@ -10,12 +10,12 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User { 
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(uuid())
   email     String  @unique
   name      String
   password  String
@@ -33,7 +33,7 @@ model User {
 
 // 2. ÁREA DE FORMAÇÃO (Informática, Mecânica, etc)
 model TrainingArea {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(uuid())
   name        String    @unique
   code        String?   @unique // Sigla: INF, ELE, MEC
   description String?
@@ -45,7 +45,7 @@ model TrainingArea {
 
 // 3. TURMA
 model Class {
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  id             String      @id @default(uuid())
   name           String
   code           String      @unique // Ex: INF-2026-001
   secretKey      String      @unique // A chave que o aluno usa para entrar
@@ -57,9 +57,9 @@ model Class {
   updatedAt      DateTime    @updatedAt
 
   // Relacionamentos
-  trainerId        String              @db.ObjectId
+  trainerId        String
   trainer          User                @relation("TrainerClasses", fields: [trainerId], references: [id])
-  trainingAreaId   String?             @db.ObjectId
+  trainingAreaId   String?
   trainingArea     TrainingArea?       @relation(fields: [trainingAreaId], references: [id])
   enrollments      Enrollment[]
   assessments      Assessment[]
@@ -69,15 +69,15 @@ model Class {
 
 // 4. INSCRIÇÃO (A ligação entre Aluno e Turma)
 model Enrollment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(uuid())
   joinedAt  DateTime @default(now())
   status    String   @default("ACTIVE") // ACTIVE, DROPPED, COMPLETED
 
-  classId   String   @db.ObjectId
+  classId   String
   class     Class    @relation(fields: [classId], references: [id])
   
   // 1. Opcional: Se o aluno tiver conta, preenchemos aqui
-  studentId String?  @db.ObjectId 
+  studentId String? 
   student   User?    @relation(fields: [studentId], references: [id])
   
   // 2. Fallback: Se o aluno não tiver conta, o formador digita o nome aqui
@@ -91,20 +91,20 @@ model Enrollment {
 
 // 5. AVALIAÇÃO (Teste 1, Exame, etc)
 model Assessment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(uuid())
   name      String
   weight    Float    @default(1.0)
   createdAt DateTime @default(now())
 
-  classId   String   @db.ObjectId
+  classId   String
   class     Class    @relation(fields: [classId], references: [id])
   grades    Grade[]
 }
 
 // 5.1. TEMPLATE DE PLANILHA (Configuração fixa da planilha de notas)
 model GradebookTemplate {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  classId   String   @unique @db.ObjectId
+  id        String   @id @default(uuid())
+  classId   String   @unique
   class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
   columns   Json     // Configuração fixa: [{id, name, weight, order, type}]
   isActive  Boolean  @default(true)
@@ -114,29 +114,29 @@ model GradebookTemplate {
 
 // 6. NOTAS
 model Grade {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  id           String   @id @default(uuid())
   value        Float
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  assessmentId String   @db.ObjectId
+  assessmentId String
   assessment   Assessment @relation(fields: [assessmentId], references: [id])
-  enrollmentId String   @db.ObjectId
+  enrollmentId String
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
-  updatedById  String   @db.ObjectId
+  updatedById  String
   updatedBy    User     @relation("GradeUpdater", fields: [updatedById], references: [id])
 }
 
 // 7. LOGS DE AUDITORIA (Para saber quem alterou o quê)
 model AuditLog {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(uuid())
   action    String   // Ex: GRADE_UPDATED, CLASS_CLOSED
   metadata  Json?
   createdAt DateTime @default(now())
 
-  userId    String?  @db.ObjectId
+  userId    String?
   user      User?    @relation(fields: [userId], references: [id])
-  classId   String?  @db.ObjectId
+  classId   String?
   class     Class?   @relation(fields: [classId], references: [id])
 }
 
