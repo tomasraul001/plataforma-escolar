@@ -4,7 +4,7 @@ import iconeLogo from "../../assets/logo.png"
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-950/50 via-blue-900/50 to-indigo-900/50 flex flex-col">
-      <header className="p-6">
+      <header className="p-6 w-full">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <img className="w-40 rounded rounded-2xl" src={iconeLogo} />
           <nav className="flex gap-6">
