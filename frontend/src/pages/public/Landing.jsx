@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom"
+import icone from "../../assets/logo.jpeg"
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-blue-950/50 via-blue-900/50 to-indigo-900/50 flex flex-col">
       <header className="p-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="text-xl md:text-2xl font-bold text-white">Plataforma Escolar</div>
+          <img className="w-12 rounded rounded-2xl" src={icone} />
           <nav className="flex gap-6">
             <Link to="/login" className="border-2 border-white text-white px-4 rounded-lg py-2 hover:text-blue-200">Entrar</Link>
             <Link to="/cadastro" className="bg-white text-blue-950 px-4 py-2 rounded-lg font-medium hover:bg-blue-50">
