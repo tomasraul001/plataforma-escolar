@@ -11,16 +11,8 @@ export default function TrainerDashboard() {
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateClass, setShowCreateClass] = useState(false);
-  const [showCreateAssessment, setShowCreateAssessment] = useState(false);
-  const [showGradebook, setShowGradebook] = useState(false);
-  const [selectedClass, setSelectedClass] = useState(null);
   const [areas, setAreas] = useState([]);
-  const [assessments, setAssessments] = useState([]);
-  const [enrollments, setEnrollments] = useState([]);
-  const [gradebook, setGradebook] = useState(null);
   const [newClassForm, setNewClassForm] = useState({ name: "", trainingAreaId: "", startDate: "", endDate: "" });
-  const [newAssessmentForm, setNewAssessmentForm] = useState({ name: "", weight: 1 });
-  const [gradeInputs, setGradeInputs] = useState({});
 
   useEffect(() => {
     fetchMyClasses();
@@ -67,29 +59,6 @@ export default function TrainerDashboard() {
     }
   };
 
-  const fetchClassDetails = async (classId) => {    try {
-      const [assessRes, enrollRes] = await Promise.all([
-        api.get(`/assessments/${classId}`),
-        api.get(`/enrollments/turma/${classId}/alunos`),
-      ]);
-      setAssessments(assessRes.data);
-      setEnrollments(enrollRes.data);
-    } catch (error) {
-      console.error("Erro ao buscar detalhes:", error);
-    }
-  };
-
-  const fetchGradebook = async (classId) => {
-    try {
-      const res = await api.get(`/grades/pauta/${classId}`);
-      setGradebook(res.data);
-      setShowGradebook(true);
-    } catch (error) {
-      console.error("Erro ao buscar pauta:", error);
-      toast.error("Erro ao carregar pauta");
-    }
-  };
-
   const handleCreateClass = async (e) => {
     e.preventDefault();
     try {
@@ -103,52 +72,6 @@ export default function TrainerDashboard() {
     }
   };
 
-  const handleCreateAssessment = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post("/assessments", { ...newAssessmentForm, classId: selectedClass.id });
-      setShowCreateAssessment(false);
-      setNewAssessmentForm({ name: "", weight: 1 });
-      await fetchClassDetails(selectedClass.id);
-      toast.success("Avaliação criada com sucesso!");
-    } catch (error) {
-      toast.error("Erro ao criar avaliação: " + (error.response?.data?.message || "Erro desconhecido"));
-    }
-  };
-
-  const handleGradeChange = (enrollmentId, assessmentId, value) => {
-    setGradeInputs(prev => ({
-      ...prev,
-      [`${enrollmentId}-${assessmentId}`]: value,
-    }));
-  };
-
-  const handleSaveGrades = async () => {
-    const gradesToSave = [];
-    Object.entries(gradeInputs).forEach(([key, value]) => {
-      if (value !== "" && value !== null) {
-        const [enrollmentId, assessmentId] = key.split("-");
-        gradesToSave.push({ enrollmentId, value: Math.round(parseFloat(value)) });
-      }
-    });  
-
-
-    if (gradesToSave.length === 0) return;
-
-    try {
-      const firstAssessmentId = Object.keys(gradeInputs)[0]?.split("-")[1];
-      await api.post("/grades/bulk", {
-        assessmentId: firstAssessmentId,
-        grades: gradesToSave,
-      });
-      setGradeInputs({});
-      toast.success("Notas salvas com sucesso!");
-      if (selectedClass) fetchGradebook(selectedClass.id);
-    } catch (error) {
-      toast.error("Erro ao salvar notas: " + (error.response?.data?.message || "Erro desconhecido"));
-    }
-  };
-
   const handleUpdateClassStatus = async (classId, newStatus) => {
     try {
       await api.patch(`/classes/${classId}`, { status: newStatus });
@@ -156,17 +79,6 @@ export default function TrainerDashboard() {
     } catch (error) {
       toast.error("Erro ao atualizar status: " + (error.response?.data?.message || "Erro desconhecido"));
     }
-  };
-
-  const handleOpenGradebook = (cls) => {
-    setSelectedClass(cls);
-    fetchGradebook(cls.id);
-  };
-
-  const handleOpenAssessments = (cls) => {
-    setSelectedClass(cls);
-    fetchClassDetails(cls.id);
-    setShowCreateAssessment(true);
   };
 
   if (loading) {
@@ -225,49 +137,54 @@ export default function TrainerDashboard() {
                 {cls.secretKey && <p>Chave: <span className="font-mono text-gray-900">{cls.secretKey}</span></p>}
               </div>
               <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => handleOpenGradebook(cls)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
-                >
-                  📋 Pauta
-                </button>
-                <button
-                  onClick={() => handleDownloadPauta(cls.id)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-sm flex-1"
-                  disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
-                  title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para gerar PDF" : ""}
-                >
-                  📄 PDF
-                </button>
-                <button
-                  onClick={() => navigate(`/formador/planilha/${cls.id}`)}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-sm flex-1"
-                  disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
-                  title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para acessar a planilha" : ""}
-                >
-                  📊 Planilha
-                </button>
-                <button
-                  onClick={() => handleOpenAssessments(cls)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm flex-1"
-                >
-                  📝 Avaliações
-                </button>
-                {cls.status === "DRAFT" && (
+                {cls.status === "CLOSED" || cls.status === "ARCHIVED" ? (
                   <button
-                    onClick={() => handleUpdateClassStatus(cls.id, "OPEN")}
-                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                    onClick={() => navigate(`/formador/pautas/${cls.id}`)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
                   >
-                    Abrir
+                    📋 Pauta
                   </button>
-                )}
-                {cls.status === "OPEN" && (
-                  <button
-                    onClick={() => handleUpdateClassStatus(cls.id, "CLOSED")}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm flex-1"
-                  >
-                    Fechar
-                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => navigate(`/formador/pautas/${cls.id}`)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                    >
+                      📋 Pauta
+                    </button>
+                    <button
+                      onClick={() => handleDownloadPauta(cls.id)}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
+                      title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para gerar PDF" : ""}
+                    >
+                      📄 PDF
+                    </button>
+                    <button
+                      onClick={() => navigate(`/formador/planilha/${cls.id}`)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
+                      title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para acessar a planilha" : ""}
+                    >
+                      📊 Planilha
+                    </button>
+                    {cls.status === "DRAFT" && (
+                      <button
+                        onClick={() => handleUpdateClassStatus(cls.id, "OPEN")}
+                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      >
+                        Abrir
+                      </button>
+                    )}
+                    {cls.status === "OPEN" && (
+                      <button
+                        onClick={() => handleUpdateClassStatus(cls.id, "CLOSED")}
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      >
+                        Fechar
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -339,169 +256,6 @@ export default function TrainerDashboard() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Avaliações */}
-      {showCreateAssessment && selectedClass && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">Avaliações - {selectedClass.name}</h3>
-              <button
-                onClick={() => { setShowCreateAssessment(false); setSelectedClass(null); }}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
-              >
-                ×
-              </button>
-            </div>
-
-            {/* Form Nova Avaliação */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h4 className="font-semibold text-gray-900 mb-3">Nova Avaliação</h4>
-              <form onSubmit={handleCreateAssessment} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
-                  <input
-                    type="text"
-                    value={newAssessmentForm.name}
-                    onChange={(e) => setNewAssessmentForm({ ...newAssessmentForm, name: e.target.value })}
-                    placeholder="Ex: Teste 1, Prova Prática, Exame Final"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Peso</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0.5"
-                    value={newAssessmentForm.weight}
-                    onChange={(e) => setNewAssessmentForm({ ...newAssessmentForm, weight: parseFloat(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div className="md:col-span-3 flex justify-end">
-                  <button type="submit" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
-                    Adicionar Avaliação
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Lista de Avaliações */}
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Avaliações Cadastradas</h4>
-              {assessments.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">Nenhuma avaliação cadastrada</p>
-              ) : (
-                <div className="space-y-2">
-                  {assessments.map((a) => (
-                    <div key={a.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{a.name}</p>
-                        <p className="text-sm text-gray-500">Peso: {a.weight}</p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (confirm(`Excluir avaliação "${a.name}"?`)) {
-                            api.delete(`/assessments/${a.id}`).then(() => fetchClassDetails(selectedClass.id));
-                          }
-                        }}
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Pauta */}
-      {showGradebook && gradebook && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">Pauta - {gradebook.class.name}</h3>
-                <p className="text-gray-600">Código: {gradebook.class.code} | Status: {gradebook.class.status}</p>
-              </div>
-              <button
-                onClick={() => { setShowGradebook(false); setGradebook(null); }}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
-              >
-                ×
-              </button>
-            </div>
-
-            {gradebook.students.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">Nenhum aluno inscrito nesta turma</p>
-              </div>
-            ) : (
-              <><div className="overflow-x-auto">
-                  <table className="w-full min-w-[720px] text-sm">
-                    <thead>
-                      <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
-                        <th className="pb-2 px-3">Aluno</th>
-                        {gradebook.assessments.map((a) => (
-                          <th key={a.id} className="pb-2 px-3 text-center">{a.name}</th>
-                        ))}
-                        <th className="pb-2 px-3 text-center font-semibold">Média</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {gradebook.students.map((s) => (
-                        <tr key={s.enrollmentId} className="hover:bg-gray-50">
-                          <td className="py-3 px-3">
-                            <p className="font-medium text-gray-900">{s.student.name}</p>
-                          </td>
-                          {gradebook.assessments.map((a) => {
-                            const grade = s.grades.find(g => g.assessmentId === a.id);
-                            const inputKey = `${s.enrollmentId}-${a.id}`;
-                            return (
-                              <td key={a.id} className="py-3 px-3 text-center">
-                                <input
-                                  type="number"
-                                  step="0.1"
-                                  min="0"
-                                  max="20"
-                                  value={gradeInputs[inputKey] ?? (grade?.value ?? "")}
-                                  onChange={(e) => handleGradeChange(s.enrollmentId, a.id, e.target.value)}
-                                  className="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                  placeholder="—" />
-                              </td>
-                            );
-                          })}
-                          <td className="py-3 px-3 text-center font-bold text-gray-900">
-                            {s.media !== null && s.media !== undefined ? Math.round(s.media) : "—"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div><div className="mt-6 flex justify-end gap-3">
-                    <button
-                      onClick={() => { setShowGradebook(false); setGradebook(null); setGradeInputs({}); } }
-                      className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
-                    >
-                      Fechar
-                    </button>
-                    <button
-                      onClick={handleSaveGrades}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium"
-                    >
-                      Salvar Notas
-                    </button>
-                  </div></>
-            )}
           </div>
         </div>
       )}
