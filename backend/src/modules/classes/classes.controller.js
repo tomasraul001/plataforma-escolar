@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { ensureDefaultAssessments } from "../grades/planilha.controller.js";
 
 function generateSecretKey() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -45,6 +46,9 @@ export const createClass = async (req, res) => {
         trainingArea: true,
       },
     });
+
+    // Criar avaliações padrão automaticamente (Teste 1, Teste 2, Trabalho, Exame)
+    await ensureDefaultAssessments(newClass.id);
 
     res.status(201).json({
       message: "Turma criada com sucesso",

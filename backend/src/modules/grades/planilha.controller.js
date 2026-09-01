@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { getAssessmentPercent, calculateMediaByAssessments, calculateMediaByGradeEntries } from "./assessmentWeights.js";
 
 // Configuração fixa da planilha (hardcoded conforme requisitos)
 const DEFAULT_COLUMNS = [
@@ -11,6 +12,27 @@ const DEFAULT_COLUMNS = [
 const TOTAL_WEIGHT = 9; // 2+2+2+3 = 9 (para cálculo de percentual)
 const EXAM_WEIGHT_PERCENT = 60; // 60% para exame
 const OTHER_WEIGHT_PERCENT = 40; // 40% para testes + trabalho
+
+// Garante que as avaliações padrão existam (Teste 1, Teste 2, Trabalho, Exame)
+export const ensureDefaultAssessments = async (classId) => {
+  const existing = await prisma.assessment.findMany({
+    where: { classId },
+    select: { name: true },
+  });
+  const existingNames = new Set(existing.map((a) => a.name));
+
+  for (const col of DEFAULT_COLUMNS) {
+    if (!existingNames.has(col.name)) {
+      await prisma.assessment.create({
+        data: {
+          name: col.name,
+          weight: getAssessmentPercent(col.name),
+          classId,
+        },
+      });
+    }
+  }
+};
 
 export const getPlanilha = async (req, res) => {
   const { classId } = req.params;
@@ -49,6 +71,9 @@ export const getPlanilha = async (req, res) => {
       });
     }
 
+    // Garantir que as avaliações padrão existam
+    await ensureDefaultAssessments(classId);
+
     // Buscar alunos matriculados ativos
     const enrollments = await prisma.enrollment.findMany({
       where: { classId, status: "ACTIVE" },
@@ -86,31 +111,18 @@ export const getPlanilha = async (req, res) => {
       });
 
       const studentGrades = {};
-      let totalWeightedSum = 0;
-      let totalWeight = 0;
-
       DEFAULT_COLUMNS.forEach((col) => {
         const assessment = assessments.find((a) => a.name === col.name);
         const gradeValue = assessment ? gradesMap[assessment.id] : null;
-        
+
         studentGrades[col.id] = {
           value: gradeValue,
           assessmentId: assessment?.id || null,
         };
-
-        // Calcular média ponderada: testes + trabalho = 40%, exame = 60%
-        if (gradeValue !== null) {
-          if (col.id === "exame") {
-            totalWeightedSum += gradeValue * 0.6;
-            totalWeight += 0.6;
-          } else {
-            totalWeightedSum += gradeValue * (0.4 / 3); // 40% dividido entre 3
-            totalWeight += 0.4 / 3;
-          }
-        }
       });
 
-      const media = totalWeight > 0 ? parseFloat((totalWeightedSum / totalWeight).toFixed(2)) : null;
+      // Média 40% testes/trabalho + 60% exame (aritmética)
+      const media = calculateMediaByAssessments(gradesMap, assessments);
 
       return {
         enrollmentId: enrollment.id,
@@ -196,7 +208,7 @@ export const autoSaveGrade = async (req, res) => {
       const newAssessment = await prisma.assessment.create({
         data: {
           name: assessmentName,
-          weight: columnId === "exame" ? 3 : 1, // Exame tem peso maior
+          weight: getAssessmentPercent(assessmentName),
           classId,
         },
       });
@@ -255,39 +267,12 @@ async function recalculateStudentMedia(enrollmentId) {
     where: { id: enrollmentId },
     include: {
       grades: { include: { assessment: true } },
-      class: { include: { assessments: true } },
     },
   });
 
-  if (!enrollment) return;
+  if (!enrollment) return null;
 
-  const gradesMap = {};
-  enrollment.grades.forEach((g) => {
-    gradesMap[g.assessmentId] = g.value;
-  });
-
-  const classAssessments = enrollment.class.assessments;
-  let totalWeightedSum = 0;
-  let totalWeight = 0;
-
-  classAssessments.forEach((a) => {
-    const gradeValue = gradesMap[a.id];
-    if (gradeValue !== undefined) {
-      // Determinar peso baseado no nome
-      let weight = 1;
-      if (a.name === "Exame") weight = 3; // 60%
-      else weight = 1; // 40% / 3 ≈ 13.33% cada
-
-      totalWeightedSum += gradeValue * weight;
-      totalWeight += weight;
-    }
-  });
-
-  const media = totalWeight > 0 ? parseFloat((totalWeightedSum / totalWeight).toFixed(2)) : null;
-
-  // Atualizar média na enrollment (se houver campo) ou deixar calculado em tempo real
-  // Por enquanto, retornamos apenas
-  return media;
+  return calculateMediaByGradeEntries(enrollment.grades);
 }
 
 // Inicializar template da planilha

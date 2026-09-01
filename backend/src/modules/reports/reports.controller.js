@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import prisma from "../../config/prisma.js";
+import { calculateMediaByAssessments } from "../grades/assessmentWeights.js";
 
 export const generatePautaPDF = async (req, res) => {
   const { classId } = req.params;
@@ -31,25 +32,14 @@ export const generatePautaPDF = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    // Calcular médias
+    // Calcular médias (40% testes/trabalho + 60% exame)
     const studentsWithGrades = classData.enrollments.map((enrollment) => {
       const gradesMap = {};
       enrollment.grades.forEach((g) => {
         gradesMap[g.assessmentId] = g.value;
       });
 
-      let totalWeight = 0;
-      let weightedSum = 0;
-
-      classData.assessments.forEach((a) => {
-        const grade = gradesMap[a.id];
-        if (grade !== undefined) {
-          weightedSum += grade * a.weight;
-          totalWeight += a.weight;
-        }
-      });
-
-      const media = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : "—";
+      const media = calculateMediaByAssessments(gradesMap, classData.assessments) ?? "—";
 
       return {
         enrollmentId: enrollment.id,
@@ -57,7 +47,6 @@ export const generatePautaPDF = async (req, res) => {
         grades: classData.assessments.map((a) => ({
           assessmentId: a.id,
           assessmentName: a.name,
-          weight: a.weight,
           value: gradesMap[a.id] ?? null,
         })),
         media,
@@ -128,16 +117,8 @@ export const generatePautaPDF = async (req, res) => {
         gradesMap[g.assessmentId] = g.value;
       });
 
-      let totalWeight = 0;
-      let weightedSum = 0;
-      classData.assessments.forEach((a) => {
-        const grade = gradesMap[a.id];
-        if (grade !== undefined) {
-          weightedSum += grade * a.weight;
-          totalWeight += a.weight;
-        }
-      });
-      const media = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : "—";
+      let media = calculateMediaByAssessments(gradesMap, classData.assessments);
+      if (media === null) media = "—";
 
       // Verificar se precisa de nova página
       if (doc.y > 500) {

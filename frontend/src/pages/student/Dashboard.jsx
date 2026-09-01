@@ -195,7 +195,6 @@ export default function StudentDashboard() {
                         <thead>
                           <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
                             <th className="pb-2 px-3">Avaliação</th>
-                            <th className="pb-2 px-3 text-center">Peso</th>
                             <th className="pb-2 px-3 text-center">Nota</th>
                           </tr>
                         </thead>
@@ -203,7 +202,6 @@ export default function StudentDashboard() {
                           {s.grades.map((g) => (
                             <tr key={g.assessmentId} className="hover:bg-gray-50">
                               <td className="py-3 px-3">{g.assessmentName}</td>
-                              <td className="py-3 px-3 text-center">{g.weight}</td>
                               <td className="py-3 px-3 text-center font-bold text-gray-900">
                                 {g.value !== null ? g.value : <span className="text-gray-400">—</span>}
                               </td>

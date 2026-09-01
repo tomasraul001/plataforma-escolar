@@ -58,9 +58,10 @@ export default function Notas() {
 
   const selected = myClasses.find((c) => c.id === selectedClass) || null;
 
-  const totalWeight = grades.reduce((acc, g) => acc + (g.assessment?.weight || 0), 0);
-  const weightedSum = grades.reduce((acc, g) => acc + ((g.value || 0) * (g.assessment?.weight || 0)), 0);
-  const media = totalWeight > 0 ? (weightedSum / totalWeight).toFixed(2) : null;
+  const percentWeight = (name) => (name === "Exame" ? 60 : 40 / 3);
+  const totalWeight = grades.reduce((acc, g) => acc + percentWeight(g.assessment?.name), 0);
+  const weightedSum = grades.reduce((acc, g) => acc + (g.value || 0) * percentWeight(g.assessment?.name), 0);
+  const media = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : null;
 
   if (loadingClasses) {
     return (
@@ -126,7 +127,6 @@ export default function Notas() {
                   <thead>
                     <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
                       <th className="pb-3 px-4">Avaliação</th>
-                      <th className="pb-3 px-4 text-center">Peso</th>
                       <th className="pb-3 px-4 text-center">Nota</th>
                     </tr>
                   </thead>
@@ -134,7 +134,6 @@ export default function Notas() {
                     {grades.map((g) => (
                       <tr key={g.id} className="hover:bg-gray-50">
                         <td className="py-4 px-4 font-medium text-gray-900">{g.assessment?.name || "—"}</td>
-                        <td className="py-4 px-4 text-center text-gray-600">{g.assessment?.weight ?? "—"}</td>
                         <td className="py-4 px-4 text-center font-bold text-gray-900">
                           {g.value !== null && g.value !== undefined ? g.value : <span className="text-gray-400">—</span>}
                         </td>

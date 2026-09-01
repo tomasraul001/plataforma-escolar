@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { calculateMediaByAssessments } from "./assessmentWeights.js";
 
 export const createGrade = async (req, res) => {
   const { assessmentId, enrollmentId, value } = req.body;
@@ -185,25 +186,14 @@ export const getGradebook = async (req, res) => {
       return res.status(404).json({ message: "Turma não encontrada" });
     }
 
-    // Calcular médias
+    // Calcular médias (40% testes/trabalho + 60% exame)
     const studentsWithGrades = classData.enrollments.map((enrollment) => {
       const gradesMap = {};
       enrollment.grades.forEach((g) => {
         gradesMap[g.assessmentId] = g.value;
       });
 
-      let totalWeight = 0;
-      let weightedSum = 0;
-
-      classData.assessments.forEach((a) => {
-        const grade = gradesMap[a.id];
-        if (grade !== undefined) {
-          weightedSum += grade * a.weight;
-          totalWeight += a.weight;
-        }
-      });
-
-      const media = totalWeight > 0 ? (weightedSum / totalWeight).toFixed(2) : null;
+      const media = calculateMediaByAssessments(gradesMap, classData.assessments);
 
       return {
         enrollmentId: enrollment.id,
@@ -211,7 +201,6 @@ export const getGradebook = async (req, res) => {
         grades: classData.assessments.map((a) => ({
           assessmentId: a.id,
           assessmentName: a.name,
-          weight: a.weight,
           value: gradesMap[a.id] ?? null,
         })),
         media,
