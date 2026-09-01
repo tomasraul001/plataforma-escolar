@@ -12,6 +12,13 @@ const LOADING_COLORS = {
   purple: "border-purple-600",
 };
 
+const BASE_PATHS = {
+  green: "/formador",
+  blue: "/coordenador",
+  orange: "/secretaria",
+  purple: "/formador",
+};
+
 export default function PautaDeTurma({ color = "green" }) {
   const { classId } = useParams();
   const navigate = useNavigate();
@@ -88,6 +95,12 @@ export default function PautaDeTurma({ color = "green" }) {
         </div>
         <div className="flex gap-2">
           <button
+            onClick={() => navigate(`${BASE_PATHS[color] || "/formador"}/turma/${classId}/alunos`)}
+            className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            👥 Alunos
+          </button>
+          <button
             onClick={handleDownloadPauta}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
@@ -119,7 +132,7 @@ export default function PautaDeTurma({ color = "green" }) {
                 {gradebook.students.map((s) => (
                   <tr key={s.enrollmentId} className="hover:bg-gray-50">
                     <td className="py-3 px-3">
-                      <p className="font-medium text-gray-900">{s.student.name}</p>
+                      <p className="font-medium text-gray-900">{s.student?.name || s.manualName}</p>
                     </td>
                     {gradebook.assessments.map((a) => {
                       const grade = s.grades.find((g) => g.assessmentId === a.id);

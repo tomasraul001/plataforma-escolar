@@ -108,6 +108,43 @@ export const getClassStudents = async (req, res) => {
   }
 };
 
+export const addStudentToClass = async (req, res) => {
+  const { classId } = req.params;
+  const { manualName } = req.body;
+
+  if (!manualName || !manualName.trim()) {
+    return res.status(400).json({ message: "Nome do aluno é obrigatório" });
+  }
+
+  try {
+    const classData = await prisma.class.findUnique({ where: { id: classId } });
+    if (!classData) {
+      return res.status(404).json({ message: "Turma não encontrada" });
+    }
+
+    if (classData.trainerId !== req.user.id && req.user.role !== "coordenador") {
+      return res.status(403).json({ message: "Acesso negado" });
+    }
+
+    if (classData.status === "CLOSED" || classData.status === "ARCHIVED") {
+      return res.status(400).json({ message: "Não é possível adicionar alunos em turmas fechadas/arquivadas" });
+    }
+
+    const enrollment = await prisma.enrollment.create({
+      data: {
+        classId,
+        manualName: manualName.trim(),
+        status: "ACTIVE",
+      },
+    });
+
+    res.status(201).json({ message: "Aluno adicionado com sucesso", enrollment });
+  } catch (error) {
+    console.error("Erro ao adicionar aluno:", error);
+    res.status(500).json({ message: "Erro ao adicionar aluno" });
+  }
+};
+
 export const removeStudent = async (req, res) => {
   const { classId, enrollmentId } = req.params;
 

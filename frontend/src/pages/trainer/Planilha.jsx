@@ -319,7 +319,7 @@ export default function Planilha() {
                     {rowIndex + 1}
                   </td>
                   <td className="py-3 px-4 min-w-50">
-                    <p className="font-medium text-gray-900">{student.student?.name}</p>
+                    <p className="font-medium text-gray-900">{student.student?.name || student.manualName || "—"}</p>
                   </td>
                   {FIXED_COLUMNS.map(col => (
                     <td key={col.id} className="py-2 px-2 w-28 text-center">

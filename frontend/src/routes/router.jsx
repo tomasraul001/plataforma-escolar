@@ -26,6 +26,7 @@ import TrainerTurmas from "../pages/trainer/Turmas";
 import TrainerPautas from "../pages/trainer/Pautas";
 import Planilha from "../pages/trainer/Planilha";
 import PautaDeTurma from "../pages/trainer/PautaDeTurma";
+import AlunosDaTurma from "../pages/trainer/AlunosDaTurma";
 
 // Student Pages
 import StudentDashboard from "../pages/student/Dashboard";
@@ -93,6 +94,7 @@ export default function AppRouter() {
           <Route path="/coordenador/formadores" element={<CoordinatorFormadores />} />
           <Route path="/coordenador/formandos" element={<CoordinatorFormandos />} />
           <Route path="/coordenador/relatorios" element={<CoordinatorRelatorios />} />
+          <Route path="/coordenador/turma/:classId/alunos" element={<AlunosDaTurma color="blue" />} />
           <Route path="/coordenador/pautas/:classId" element={<PautaDeTurma color="blue" />} />
         </Route>
 
@@ -109,6 +111,7 @@ export default function AppRouter() {
           <Route path="/formador/turmas" element={<TrainerTurmas />} />
           <Route path="/formador/pautas" element={<TrainerPautas />} />
           <Route path="/formador/planilha/:classId" element={<Planilha />} />
+          <Route path="/formador/turma/:classId/alunos" element={<AlunosDaTurma />} />
           <Route path="/formador/pautas/:classId" element={<PautaDeTurma />} />
         </Route>
 
@@ -142,6 +145,7 @@ export default function AppRouter() {
           <Route path="/secretaria/formandos" element={<SecretaryFormandos />} />
           <Route path="/secretaria/pautas" element={<SecretaryPautas />} />
           <Route path="/secretaria/relatorios" element={<SecretaryRelatorios />} />
+          <Route path="/secretaria/turma/:classId/alunos" element={<AlunosDaTurma color="orange" />} />
           <Route path="/secretaria/pautas/:classId" element={<PautaDeTurma color="orange" />} />
         </Route>
 

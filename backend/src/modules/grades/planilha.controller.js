@@ -128,9 +128,17 @@ export const getPlanilha = async (req, res) => {
         enrollmentId: enrollment.id,
         rowNumber: index + 1,
         student: enrollment.student,
+        manualName: enrollment.manualName,
         grades: studentGrades,
         media: media,
       };
+    });
+
+    // Ordenar por nome (conta ou manual) para manter listas estáveis
+    students.sort((a, b) => {
+      const nameA = (a.student?.name || a.manualName || "").toLowerCase();
+      const nameB = (b.student?.name || b.manualName || "").toLowerCase();
+      return nameA.localeCompare(nameB);
     });
 
     // Buscar template salvo ou retornar padrão

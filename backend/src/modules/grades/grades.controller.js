@@ -199,6 +199,7 @@ export const getGradebook = async (req, res) => {
       return {
         enrollmentId: enrollment.id,
         student: enrollment.student,
+        manualName: enrollment.manualName,
         grades: classData.assessments.map((a) => ({
           assessmentId: a.id,
           assessmentName: a.name,

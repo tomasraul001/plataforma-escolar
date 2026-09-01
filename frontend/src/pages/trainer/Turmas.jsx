@@ -115,14 +115,36 @@ export default function MinhasTurmas() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {cls.status === "CLOSED" || cls.status === "ARCHIVED" ? (
-                  <button
-                    onClick={() => navigate(`/formador/pautas/${cls.id}`)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
-                  >
-                    📋 Pauta
-                  </button>
+                  <>
+                    <button
+                      onClick={() => navigate(`/formador/pautas/${cls.id}`)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                    >
+                      📋 Pauta
+                    </button>
+                    <button
+                      onClick={() => navigate(`/formador/turma/${cls.id}/alunos`)}
+                      className="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                    >
+                      👥 Alunos
+                    </button>
+                  </>
                 ) : (
                   <>
+                    <button
+                      onClick={() => navigate(`/formador/planilha/${cls.id}`)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
+                      title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para acessar a planilha" : ""}
+                    >
+                      📊 Planilha
+                    </button>
+                    <button
+                      onClick={() => navigate(`/formador/turma/${cls.id}/alunos`)}
+                      className="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                    >
+                      👥 Alunos
+                    </button>
                     <button
                       onClick={() => navigate(`/formador/pautas/${cls.id}`)}
                       className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
@@ -136,14 +158,6 @@ export default function MinhasTurmas() {
                       title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para gerar PDF" : ""}
                     >
                       📄 PDF
-                    </button>
-                    <button
-                      onClick={() => navigate(`/formador/planilha/${cls.id}`)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-sm flex-1"
-                      disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
-                      title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para acessar a planilha" : ""}
-                    >
-                      📊 Planilha
                     </button>
                     {cls.status === "DRAFT" && (
                       <button

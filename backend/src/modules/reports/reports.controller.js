@@ -138,7 +138,7 @@ export const generatePautaPDF = async (req, res) => {
 
       // Nome do aluno
       doc.rect(40, doc.y, colStudent, 18).stroke();
-      doc.text(enrollment.student.name, 42, doc.y + 4, { width: colStudent - 4, align: "left" });
+      doc.text(enrollment.student?.name || enrollment.manualName || "—", 42, doc.y + 4, { width: colStudent - 4, align: "left" });
 
       x = 40 + colStudent;
       

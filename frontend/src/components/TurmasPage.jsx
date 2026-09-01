@@ -48,6 +48,12 @@ export default function TurmasPage({ status, title, subtitle, color = "blue", ba
   const renderActions = (cls) => (
     <>
       <button
+        onClick={() => navigate(`${basePath}/turma/${cls.id}/alunos`)}
+        className="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded text-sm"
+      >
+        Alunos
+      </button>
+      <button
         onClick={() => navigate(`${basePath}/pautas/${cls.id}`)}
         className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm"
       >
