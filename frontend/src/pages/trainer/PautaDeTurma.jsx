@@ -74,7 +74,22 @@ export default function PautaDeTurma({ color = "green" }) {
 
   return (
     <div className="space-y-6">
-      
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Pauta - {gradebook.class.name}</h2>
+          <p className="text-gray-600 mt-1">
+            Código: {gradebook.class.code} | Status: {gradebook.class.status}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleDownloadPauta}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            📄 Baixar PDF
+          </button>
+        </div>
+      </div>
 
       {gradebook.students.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
