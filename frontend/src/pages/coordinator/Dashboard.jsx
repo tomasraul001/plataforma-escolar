@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
-import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 
 export default function CoordinatorDashboard() {
-  const { user } = useAuth();
   const toast = useToast().toast;
   const [stats, setStats] = useState({ openClasses: 0, closedClasses: 0, trainers: 0, students: 0 });
   const [activeClasses, setActiveClasses] = useState([]);
@@ -16,25 +14,27 @@ export default function CoordinatorDashboard() {
 
   useEffect(() => {
     fetchStats();
-    fetchActiveClasses();
     fetchAreas();
   }, []);
 
   const fetchStats = async () => {
     try {
-      // Simulated stats - in real app, fetch from API
-      setStats({ openClasses: 12, closedClasses: 37, trainers: 24, students: 486 });
+      const [classesRes, usersRes] = await Promise.all([
+        api.get("/classes/todas"),
+        api.get("/users/lista"),
+      ]);
+      const allClasses = classesRes.data;
+      const users = usersRes.data;
+
+      setActiveClasses(allClasses);
+      setStats({
+        openClasses: allClasses.filter((c) => c.status === "OPEN").length,
+        closedClasses: allClasses.filter((c) => c.status === "CLOSED").length,
+        trainers: users.filter((u) => u.role === "formador").length,
+        students: users.filter((u) => u.role === "formando").length,
+      });
     } catch (error) {
       console.error("Erro ao buscar estatísticas:", error);
-    }
-  };
-
-  const fetchActiveClasses = async () => {
-    try {
-      const res = await api.get("/classes/todas");
-      setActiveClasses(res.data);
-    } catch (error) {
-      console.error("Erro ao buscar turmas:", error);
     }
   };
 

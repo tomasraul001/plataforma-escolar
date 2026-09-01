@@ -6,6 +6,7 @@ import { LoadingCard } from "../../components/badges";
 export default function Relatorios() {
   const toast = useToast().toast;
   const [classes, setClasses] = useState([]);
+  const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,8 +15,12 @@ export default function Relatorios() {
 
   const fetchClasses = async () => {
     try {
-      const res = await api.get("/classes/todas");
-      setClasses(res.data);
+      const [classesRes, usersRes] = await Promise.all([
+        api.get("/classes/todas"),
+        api.get("/users/lista"),
+      ]);
+      setClasses(classesRes.data);
+      setTotalStudents(usersRes.data.filter((u) => u.role === "formando").length);
     } catch (error) {
       console.error("Erro ao buscar turmas:", error);
       toast.error("Erro ao buscar turmas");
@@ -63,9 +68,7 @@ export default function Relatorios() {
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <p className="text-sm font-medium text-gray-500">Formandos</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {classes.reduce((acc, c) => acc + (c._count?.enrollments || 0), 0)}
-          </p>
+          <p className="text-2xl font-bold text-gray-900">{totalStudents}</p>
         </div>
       </div>
 
