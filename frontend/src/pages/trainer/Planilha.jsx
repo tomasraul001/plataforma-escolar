@@ -61,6 +61,26 @@ export default function Planilha() {
     }
   };
 
+  const handleDownloadPauta = async () => {
+    try {
+      const res = await api.get(`/reports/pauta/${classId}/pdf`, {
+        responseType: "blob",
+      });
+      const blob = new Blob([res.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `pauta-${classId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar PDF:", error);
+      toast.error("Erro ao baixar PDF: " + (error.response?.data?.message || "Erro desconhecido"));
+    }
+  };
+
   const handleGradeChange = (enrollmentId, columnId, value) => {
     // Validar: apenas números, 0-20, 2 casas decimais
     if (value === "") {
@@ -250,13 +270,13 @@ export default function Planilha() {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => navigate(`/formador/turmas/${classId}/pautas`)}
+            onClick={() => navigate(`/formador/pautas/${classId}`)}
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
             📋 Ver Pauta
           </button>
           <button
-            onClick={() => navigate(`/formador/turmas/${classId}/pautas`)}
+            onClick={() => handleDownloadPauta()}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
             📄 Baixar PDF

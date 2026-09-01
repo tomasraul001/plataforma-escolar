@@ -25,6 +25,7 @@ import TrainerNovaTurma from "../pages/trainer/NovaTurma";
 import TrainerTurmas from "../pages/trainer/Turmas";
 import TrainerPautas from "../pages/trainer/Pautas";
 import Planilha from "../pages/trainer/Planilha";
+import PautaDeTurma from "../pages/trainer/PautaDeTurma";
 
 // Student Pages
 import StudentDashboard from "../pages/student/Dashboard";
@@ -107,6 +108,7 @@ export default function AppRouter() {
           <Route path="/formador/turmas" element={<TrainerTurmas />} />
           <Route path="/formador/pautas" element={<TrainerPautas />} />
           <Route path="/formador/planilha/:classId" element={<Planilha />} />
+          <Route path="/formador/pautas/:classId" element={<PautaDeTurma />} />
         </Route>
 
         {/* Student Routes */}
