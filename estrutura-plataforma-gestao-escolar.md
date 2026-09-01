@@ -35,7 +35,7 @@ Sistema de gestão escolar provincial para reduzir o trabalho manual da secretar
 
 ### Banco de dados
 
-- MongoDB
+- PostgreSQL
 - Prisma como ORM
 
 ---
