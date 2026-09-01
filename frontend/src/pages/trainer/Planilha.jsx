@@ -319,10 +319,9 @@ export default function Planilha() {
                         onBlur={(e) => handleGradeChange(student.enrollmentId, col.id, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(e, student.enrollmentId, col.id)}
                         data-colid={col.id}
-                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white hover:bg-gray-50"
+                        className="w-full px-2 py-1.5  rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white hover:bg-gray-50"
                         placeholder="—"
                         inputMode="decimal"
-                        placeholder="—"
                       />
                     </td>
                   ))}
