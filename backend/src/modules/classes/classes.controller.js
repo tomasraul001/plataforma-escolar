@@ -19,13 +19,18 @@ function generateClassCode(areaName) {
 }
 
 export const createClass = async (req, res) => {
-  const { name, trainingAreaId, startDate, endDate } = req.body;
+  const { name, trainingAreaId, regionId, startDate, endDate } = req.body;
   const trainerId = req.user.id;
 
   try {
     const area = await prisma.trainingArea.findUnique({ where: { id: trainingAreaId } });
     if (!area) {
       return res.status(404).json({ message: "Área de formação não encontrada" });
+    }
+
+    const region = await prisma.region.findUnique({ where: { id: regionId } });
+    if (!region) {
+      return res.status(404).json({ message: "Local/Região não encontrada" });
     }
 
     const secretKey = generateSecretKey();
@@ -39,11 +44,13 @@ export const createClass = async (req, res) => {
         status: "DRAFT",
         trainerId,
         trainingAreaId,
+        regionId,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
       },
       include: {
         trainingArea: true,
+        location: true,
       },
     });
 
@@ -68,6 +75,7 @@ export const listMyClasses = async (req, res) => {
       where: { trainerId },
       include: {
         trainingArea: true,
+        location: true,
         _count: { select: { enrollments: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -88,6 +96,7 @@ export const getClassById = async (req, res) => {
       where: { id },
       include: {
         trainingArea: true,
+        location: true,
         trainer: { select: { id: true, name: true, email: true } },
         enrollments: {
           include: {
@@ -181,6 +190,7 @@ export const listAllClasses = async (req, res) => {
     const classes = await prisma.class.findMany({
       include: {
         trainingArea: true,
+        location: true,
         trainer: { select: { id: true, name: true, email: true } },
         _count: { select: { enrollments: true } },
       },
@@ -291,5 +301,106 @@ export const deleteTrainingArea = async (req, res) => {
   } catch (error) {
     console.error("Erro ao excluir área:", error);
     res.status(500).json({ message: "Erro ao excluir área de formação" });
+  }
+};
+
+// ======= LOCAIS / REGIÕES =======
+
+export const createRegion = async (req, res) => {
+  const { name, code, description } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ message: "Nome é obrigatório" });
+  }
+
+  const generatedCode = code || name.substring(0, 3).toUpperCase();
+
+  try {
+    const region = await prisma.region.create({
+      data: { name, code: generatedCode.toUpperCase(), description },
+    });
+
+    res.status(201).json({ message: "Local/Região criado", region });
+  } catch (error) {
+    console.error("Erro ao criar local/região:", error);
+    if (error.code === "P2002") {
+      return res.status(400).json({ message: "Nome ou código já existe" });
+    }
+    res.status(500).json({ message: "Erro ao criar local/região" });
+  }
+};
+
+export const listRegions = async (req, res) => {
+  try {
+    const regions = await prisma.region.findMany({
+      orderBy: { name: "asc" },
+    });
+
+    const regionsWithDefaults = regions.map(region => ({
+      ...region,
+      code: region.code || region.name.substring(0, 3).toUpperCase(),
+      description: region.description || "",
+      active: region.active ?? true,
+      createdAt: region.createdAt || new Date(),
+      updatedAt: region.updatedAt || new Date(),
+    }));
+
+    res.status(200).json(regionsWithDefaults);
+  } catch (error) {
+    console.error("Erro ao listar locais/regiões:", error);
+    res.status(500).json({ message: "Erro ao listar locais/regiões" });
+  }
+};
+
+export const updateRegion = async (req, res) => {
+  const { id } = req.params;
+  const { name, code, description, active } = req.body;
+
+  try {
+    const region = await prisma.region.findUnique({ where: { id } });
+    if (!region) {
+      return res.status(404).json({ message: "Local/Região não encontrado" });
+    }
+
+    const updated = await prisma.region.update({
+      where: { id },
+      data: { name, code, description, active },
+    });
+
+    res.status(200).json({ message: "Local/Região atualizado", region: updated });
+  } catch (error) {
+    console.error("Erro ao atualizar local/região:", error);
+    if (error.code === "P2002") {
+      return res.status(400).json({ message: "Nome ou código já existe" });
+    }
+    res.status(500).json({ message: "Erro ao atualizar local/região" });
+  }
+};
+
+export const deleteRegion = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const region = await prisma.region.findUnique({
+      where: { id },
+      include: { _count: { select: { classes: true } } },
+    });
+
+    if (!region) {
+      return res.status(404).json({ message: "Local/Região não encontrado" });
+    }
+
+    if (region._count.classes > 0) {
+      return res.status(400).json({ 
+        message: `Não é possível excluir. Local possui ${region._count.classes} turma(s) vinculada(s).` 
+      });
+    }
+
+    await prisma.region.delete({ where: { id } });
+
+    res.status(200).json({ message: "Local/Região excluído com sucesso" });
+  } catch (error) {
+    console.error("Erro ao excluir local/região:", error);
+    res.status(500).json({ message: "Erro ao excluir local/região" });
   }
 };

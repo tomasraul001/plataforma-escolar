@@ -7,14 +7,19 @@ export default function CoordinatorDashboard() {
   const [stats, setStats] = useState({ openClasses: 0, closedClasses: 0, trainers: 0, students: 0 });
   const [activeClasses, setActiveClasses] = useState([]);
   const [areas, setAreas] = useState([]);
+  const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAreaModal, setShowAreaModal] = useState(false);
   const [editingArea, setEditingArea] = useState(null);
   const [areaForm, setAreaForm] = useState({ name: "", code: "", description: "", active: true });
+  const [showRegionModal, setShowRegionModal] = useState(false);
+  const [editingRegion, setEditingRegion] = useState(null);
+  const [regionForm, setRegionForm] = useState({ name: "", code: "", description: "", active: true });
 
   useEffect(() => {
     fetchStats();
     fetchAreas();
+    fetchRegions();
   }, []);
 
   const fetchStats = async () => {
@@ -46,6 +51,15 @@ export default function CoordinatorDashboard() {
       console.error("Erro ao buscar áreas:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRegions = async () => {
+    try {
+      const res = await api.get("/classes/regions");
+      setRegions(res.data);
+    } catch (error) {
+      console.error("Erro ao buscar locais/regiões:", error);
     }
   };
 
@@ -121,6 +135,60 @@ export default function CoordinatorDashboard() {
   const resetForm = () => {
     setEditingArea(null);
     setAreaForm({ name: "", code: "", description: "", active: true });
+  };
+
+  const handleCreateRegion = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/classes/regions", regionForm);
+      setShowRegionModal(false);
+      setRegionForm({ name: "", code: "", description: "", active: true });
+      fetchRegions();
+      toast.success("Local/Região criado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao criar local/região: " + (error.response?.data?.message || "Erro desconhecido"));
+    }
+  };
+
+  const handleEditRegion = (region) => {
+    setEditingRegion(region);
+    setRegionForm({
+      name: region.name,
+      code: region.code || "",
+      description: region.description || "",
+      active: region.active
+    });
+    setShowRegionModal(true);
+  };
+
+  const handleUpdateRegion = async (e) => {
+    e.preventDefault();
+    try {
+      await api.patch(`/classes/regions/${editingRegion.id}`, regionForm);
+      setShowRegionModal(false);
+      setEditingRegion(null);
+      setRegionForm({ name: "", code: "", description: "", active: true });
+      fetchRegions();
+      toast.success("Local/Região atualizado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao atualizar local/região: " + (error.response?.data?.message || "Erro desconhecido"));
+    }
+  };
+
+  const handleDeleteRegion = async (id) => {
+    if (!confirm("Tem certeza que deseja excluir este local/região? Apenas locais sem turmas podem ser excluídos.")) return;
+    try {
+      await api.delete(`/classes/regions/${id}`);
+      fetchRegions();
+      toast.success("Local/Região excluído com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao excluir: " + (error.response?.data?.message || "Erro desconhecido"));
+    }
+  };
+
+  const resetRegionForm = () => {
+    setEditingRegion(null);
+    setRegionForm({ name: "", code: "", description: "", active: true });
   };
 
   if (loading) {
@@ -359,6 +427,159 @@ export default function CoordinatorDashboard() {
         )}
       </div>
 
+      {/* Locais/Regiões */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">Locais / Regiões</h3>
+          <button
+            onClick={() => { resetRegionForm(); setShowRegionModal(true); }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            + Novo Local
+          </button>
+        </div>
+
+        {regions.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📍</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum local cadastrado</h3>
+            <p className="text-gray-600 mb-6">Cadastre os locais/regiões (ex: Luanda, Benguela) para que os formadores selecionem ao criar turmas.</p>
+            <button
+              onClick={() => { resetRegionForm(); setShowRegionModal(true); }}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+            >
+              + Cadastrar Primeiro Local
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px]">
+              <thead>
+                <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
+                  <th className="pb-3 px-4">Nome</th>
+                  <th className="pb-3 px-4">Código</th>
+                  <th className="pb-3 px-4">Descrição</th>
+                  <th className="pb-3 px-4">Status</th>
+                  <th className="pb-3 px-4">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {regions.map((region) => (
+                  <tr key={region.id} className="hover:bg-gray-50">
+                    <td className="py-4 px-4">
+                      <p className="font-medium text-gray-900">{region.name}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="font-mono text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                        {region.code || region.name.substring(0, 3).toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-sm text-gray-600 max-w-xs truncate">
+                      {region.description || "—"}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${region.active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
+                        {region.active ? "Ativo" : "Inativo"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditRegion(region)}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRegion(region.id)}
+                          className="text-red-600 hover:text-red-800 text-sm font-medium"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Modal Nova/Editar Local */}
+        {showRegionModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                {editingRegion ? "Editar Local" : "Novo Local/Região"}
+              </h3>
+              <form onSubmit={editingRegion ? handleUpdateRegion : handleCreateRegion} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
+                  <input
+                    type="text"
+                    value={regionForm.name}
+                    onChange={(e) => setRegionForm({ ...regionForm, name: e.target.value })}
+                    placeholder="Ex: Luanda, Benguela, Huambo"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                    disabled={editingRegion}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Código (Sigla)</label>
+                  <input
+                    type="text"
+                    value={regionForm.code}
+                    onChange={(e) => setRegionForm({ ...regionForm, code: e.target.value.toUpperCase() })}
+                    placeholder="Ex: LUA, BG (auto se vazio)"
+                    maxLength={10}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Se vazio, será gerado automaticamente do nome</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                  <textarea
+                    value={regionForm.description}
+                    onChange={(e) => setRegionForm({ ...regionForm, description: e.target.value })}
+                    rows={3}
+                    placeholder="Descrição do local/região"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="regionActive"
+                    checked={regionForm.active}
+                    onChange={(e) => setRegionForm({ ...regionForm, active: e.target.checked })}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="regionActive" className="ml-2 text-sm text-gray-700">
+                    Local ativo (visível para formadores criarem turmas)
+                  </label>
+                </div>
+                <div className="flex gap-3 justify-end pt-4">
+                  <button
+                    type="button"
+                    onClick={() => { setShowRegionModal(false); resetRegionForm(); }}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium"
+                  >
+                    {editingRegion ? "Atualizar" : "Criar"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Turmas Ativas */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Turmas Ativas</h3>
@@ -367,6 +588,7 @@ export default function CoordinatorDashboard() {
             <thead>
               <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
                 <th className="pb-3 px-4">Área</th>
+                <th className="pb-3 px-4">Local</th>
                 <th className="pb-3 px-4">Turma</th>
                 <th className="pb-3 px-4">Formador</th>
                 <th className="pb-3 px-4">Alunos</th>
@@ -378,6 +600,7 @@ export default function CoordinatorDashboard() {
               {activeClasses.map((cls) => (
                 <tr key={cls.id} className="hover:bg-gray-50">
                   <td className="py-4 px-4 text-sm text-gray-900">{cls.trainingArea?.name || "—"}</td>
+                  <td className="py-4 px-4 text-sm text-gray-900">{cls.location?.name || "—"}</td>
                   <td className="py-4 px-4 text-sm text-gray-900">{cls.name}</td>
                   <td className="py-4 px-4 text-sm text-gray-500">{cls.trainer?.name || "—"}</td>
                   <td className="py-4 px-4 text-sm text-gray-500">{cls._count?.enrollments || 0}</td>

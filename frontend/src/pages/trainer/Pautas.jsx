@@ -93,6 +93,7 @@ export default function Pautas() {
                       <p className="text-xs text-gray-500 font-mono">{cls.code}</p>
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-600">{cls.trainingArea?.name || "—"}</td>
+                    <td className="py-4 px-4 text-sm text-gray-600">{cls.location?.name || "—"}</td>
                     <td className="py-4 px-4 text-sm text-gray-600">{cls._count?.enrollments || 0}</td>
                     <td className="py-4 px-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[cls.status] || "bg-gray-100 text-gray-800"}`}>

@@ -170,6 +170,7 @@ export const getGradebook = async (req, res) => {
       where: { id: classId },
       include: {
         assessments: { orderBy: { createdAt: "asc" } },
+        location: true,
         enrollments: {
           where: { status: "ACTIVE" },
           include: {
@@ -213,6 +214,7 @@ export const getGradebook = async (req, res) => {
         name: classData.name,
         code: classData.code,
         status: classData.status,
+        location: classData.location,
       },
       assessments: classData.assessments,
       students: studentsWithGrades,

@@ -80,6 +80,7 @@ export default function MinhasTurmas() {
               <div className="space-y-2 text-sm text-gray-600 mb-4">
                 <p>Formador: <span className="font-medium text-gray-900">{cls.trainer?.name || "—"}</span></p>
                 <p>Área: <span className="font-medium text-gray-900">{cls.trainingArea?.name || "—"}</span></p>
+                <p>Local: <span className="font-medium text-gray-900">{cls.location?.name || "—"}</span></p>
                 <p>Alunos: <span className="font-medium text-gray-900">{cls._count?.enrollments || 0}</span></p>
               </div>
               <div className="flex gap-2">

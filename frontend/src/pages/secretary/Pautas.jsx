@@ -80,6 +80,7 @@ export default function Pautas() {
                       <p className="text-xs text-gray-500 font-mono">{cls.code}</p>
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-600">{cls.trainingArea?.name || "—"}</td>
+                    <td className="py-4 px-4 text-sm text-gray-600">{cls.location?.name || "—"}</td>
                     <td className="py-4 px-4 text-sm text-gray-600">{cls.trainer?.name || "—"}</td>
                     <td className="py-4 px-4 text-sm text-gray-600">{cls._count?.enrollments || 0}</td>
                     <td className="py-4 px-4"><StatusBadge status={cls.status} /></td>

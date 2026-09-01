@@ -156,6 +156,7 @@ export default function SecretaryDashboard() {
                   <th className="pb-3 px-4">Turma</th>
                   <th className="pb-3 px-4">Formador</th>
                   <th className="pb-3 px-4">Área</th>
+                  <th className="pb-3 px-4">Local</th>
                   <th className="pb-3 px-4">Alunos</th>
                   <th className="pb-3 px-4">Fechada em</th>
                   <th className="pb-3 px-4">Ações</th>
@@ -167,6 +168,7 @@ export default function SecretaryDashboard() {
                     <td className="py-4 px-4 text-sm text-gray-900">{cls.name}</td>
                     <td className="py-4 px-4 text-sm text-gray-500">{cls.trainer?.name || "—"}</td>
                     <td className="py-4 px-4 text-sm text-gray-500">{cls.trainingArea?.name || "—"}</td>
+                    <td className="py-4 px-4 text-sm text-gray-500">{cls.location?.name || "—"}</td>
                     <td className="py-4 px-4 text-sm text-gray-500">{cls._count?.enrollments || 0}</td>
                     <td className="py-4 px-4 text-sm text-gray-500">
                       {cls.closedAt ? new Date(cls.closedAt).toLocaleDateString("pt-BR") : "—"}

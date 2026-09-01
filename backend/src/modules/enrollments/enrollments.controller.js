@@ -57,6 +57,7 @@ export const listMyClasses = async (req, res) => {
         class: {
           include: {
             trainingArea: true,
+            location: true,
             trainer: { select: { id: true, name: true, email: true } },
             assessments: true,
             _count: { select: { enrollments: true } },

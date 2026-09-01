@@ -12,11 +12,13 @@ export default function TrainerDashboard() {
   const [loading, setLoading] = useState(true);
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [areas, setAreas] = useState([]);
-  const [newClassForm, setNewClassForm] = useState({ name: "", trainingAreaId: "", startDate: "", endDate: "" });
+  const [regions, setRegions] = useState([]);
+  const [newClassForm, setNewClassForm] = useState({ name: "", trainingAreaId: "", regionId: "", startDate: "", endDate: "" });
 
   useEffect(() => {
     fetchMyClasses();
     fetchAreas();
+    fetchRegions();
   }, []);
 
   const fetchMyClasses = async () => {
@@ -36,6 +38,15 @@ export default function TrainerDashboard() {
       setAreas(res.data);
     } catch (error) {
       console.error("Erro ao buscar áreas:", error);
+    }
+  };
+
+  const fetchRegions = async () => {
+    try {
+      const res = await api.get("/classes/regions");
+      setRegions(res.data.filter((r) => r.active));
+    } catch (error) {
+      console.error("Erro ao buscar locais/regiões:", error);
     }
   };
 
@@ -64,7 +75,7 @@ export default function TrainerDashboard() {
     try {
       await api.post("/classes", newClassForm);
       setShowCreateClass(false);
-      setNewClassForm({ name: "", trainingAreaId: "", startDate: "", endDate: "" });
+      setNewClassForm({ name: "", trainingAreaId: "", regionId: "", startDate: "", endDate: "" });
       fetchMyClasses();
       toast.success("Turma criada com sucesso!");
     } catch (error) {
@@ -133,6 +144,7 @@ export default function TrainerDashboard() {
               <div className="space-y-2 text-sm text-gray-600 mb-4">
                 <p>Código: <span className="font-mono text-gray-900">{cls.code}</span></p>
                 <p>Área: <span className="font-medium text-gray-900">{cls.trainingArea?.name || "—"}</span></p>
+                <p>Local: <span className="font-medium text-gray-900">{cls.location?.name || "—"}</span></p>
                 <p>Alunos: <span className="font-medium text-gray-900">{cls._count?.enrollments || 0}</span></p>
                 {cls.secretKey && <p>Chave: <span className="font-mono text-gray-900">{cls.secretKey}</span></p>}
               </div>
@@ -220,6 +232,20 @@ export default function TrainerDashboard() {
                   <option value="">Selecione a área</option>
                   {areas.map((area) => (
                     <option key={area.id} value={area.id}>{area.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Local</label>
+                <select
+                  value={newClassForm.regionId}
+                  onChange={(e) => setNewClassForm({ ...newClassForm, regionId: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                >
+                  <option value="">Selecione o local</option>
+                  {regions.map((region) => (
+                    <option key={region.id} value={region.id}>{region.name}</option>
                   ))}
                 </select>
               </div>

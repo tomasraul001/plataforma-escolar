@@ -80,6 +80,11 @@ export default function PautaDeTurma({ color = "green" }) {
           <p className="text-gray-600 mt-1">
             Código: {gradebook.class.code} | Status: {gradebook.class.status}
           </p>
+          {gradebook.class.location?.name && (
+            <p className="text-gray-600 mt-1">
+              Local: {gradebook.class.location.name}
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           <button

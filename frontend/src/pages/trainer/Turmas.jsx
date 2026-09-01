@@ -108,6 +108,7 @@ export default function MinhasTurmas() {
               </div>
               <div className="space-y-2 text-sm text-gray-600 mb-4">
                 <p>Área: <span className="font-medium text-gray-900">{cls.trainingArea?.name || "—"}</span></p>
+                <p>Local: <span className="font-medium text-gray-900">{cls.location?.name || "—"}</span></p>
                 <p>Código: <span className="font-mono text-gray-900">{cls.code}</span></p>
                 <p>Alunos: <span className="font-medium text-gray-900">{cls._count?.enrollments || 0}</span></p>
                 {cls.secretKey && <p>Chave: <span className="font-mono text-gray-900">{cls.secretKey}</span></p>}

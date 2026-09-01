@@ -13,6 +13,12 @@ router.get("/areas", authorize("coordenador", "secretaria", "formador"), classes
 router.patch("/areas/:id", authorize("coordenador"), classesController.updateTrainingArea);
 router.delete("/areas/:id", authorize("coordenador"), classesController.deleteTrainingArea);
 
+// Locais/Regiões - DEVEM VIR ANTES DE /:id
+router.post("/regions", authorize("coordenador"), classesController.createRegion);
+router.get("/regions", authorize("coordenador", "secretaria", "formador"), classesController.listRegions);
+router.patch("/regions/:id", authorize("coordenador"), classesController.updateRegion);
+router.delete("/regions/:id", authorize("coordenador"), classesController.deleteRegion);
+
 // Formador cria turma
 router.post("/", authorize("formador", "coordenador"), classesController.createClass);
 

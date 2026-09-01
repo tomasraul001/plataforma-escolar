@@ -7,12 +7,14 @@ export default function NovaTurma() {
   const navigate = useNavigate();
   const toast = useToast().toast;
   const [areas, setAreas] = useState([]);
+  const [regions, setRegions] = useState([]);
   const [loadingAreas, setLoadingAreas] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ name: "", trainingAreaId: "", startDate: "", endDate: "" });
+  const [form, setForm] = useState({ name: "", trainingAreaId: "", regionId: "", startDate: "", endDate: "" });
 
   useEffect(() => {
     fetchAreas();
+    fetchRegions();
   }, []);
 
   const fetchAreas = async () => {
@@ -27,10 +29,20 @@ export default function NovaTurma() {
     }
   };
 
+  const fetchRegions = async () => {
+    try {
+      const res = await api.get("/classes/regions");
+      setRegions(res.data.filter((r) => r.active));
+    } catch (error) {
+      console.error("Erro ao buscar locais/regiões:", error);
+      toast.error("Erro ao carregar locais/regiões");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.trainingAreaId) {
-      toast.error("Preencha o nome e selecione uma área de formação");
+    if (!form.name.trim() || !form.trainingAreaId || !form.regionId) {
+      toast.error("Preencha o nome, a área de formação e o local");
       return;
     }
     setSubmitting(true);
@@ -88,6 +100,23 @@ export default function NovaTurma() {
             </select>
             {areas.length === 0 && (
               <p className="text-xs text-amber-600 mt-1">Nenhuma área ativa disponível. Peça ao coordenador para cadastrar áreas.</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Local *</label>
+            <select
+              value={form.regionId}
+              onChange={(e) => setForm({ ...form, regionId: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+              required
+            >
+              <option value="">Selecione o local</option>
+              {regions.map((r) => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </select>
+            {regions.length === 0 && (
+              <p className="text-xs text-amber-600 mt-1">Nenhum local ativo disponível. Peça ao coordenador para cadastrar locais/regiões.</p>
             )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

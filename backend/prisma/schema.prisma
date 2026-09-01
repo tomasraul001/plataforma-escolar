@@ -43,6 +43,18 @@ model TrainingArea {
   classes     Class[]
 }
 
+// 2.1. LOCAL / REGIÃO (Luanda, Benguela, etc)
+model Region {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  code        String?
+  description String?
+  active      Boolean   @default(true)
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime?
+  classes     Class[]
+}
+
 // 3. TURMA
 model Class {
   id             String      @id @default(uuid())
@@ -61,6 +73,8 @@ model Class {
   trainer          User                @relation("TrainerClasses", fields: [trainerId], references: [id])
   trainingAreaId   String?
   trainingArea     TrainingArea?       @relation(fields: [trainingAreaId], references: [id])
+  locationId       String?
+  location         Region?             @relation(fields: [locationId], references: [id])
   enrollments      Enrollment[]
   assessments      Assessment[]
   auditLogs        AuditLog[]

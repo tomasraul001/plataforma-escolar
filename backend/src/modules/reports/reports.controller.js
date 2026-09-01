@@ -10,6 +10,7 @@ export const generatePautaPDF = async (req, res) => {
       where: { id: classId },
       include: {
         trainingArea: true,
+        location: true,
         trainer: { select: { id: true, name: true, email: true } },
         assessments: { orderBy: { createdAt: "asc" } },
         enrollments: {
@@ -65,7 +66,7 @@ export const generatePautaPDF = async (req, res) => {
     doc.fontSize(20).font("Helvetica-Bold").text("PAUTA DE NOTAS", { align: "center" });
     doc.moveDown(0.5);
     doc.fontSize(12).font("Helvetica").text(`Turma: ${classData.name}`, { align: "center" });
-    doc.text(`Código: ${classData.code} | Área: ${classData.trainingArea?.name || "—"}`, { align: "center" });
+    doc.text(`Código: ${classData.code} | Área: ${classData.trainingArea?.name || "—"} | Local: ${classData.location?.name || "—"}`, { align: "center" });
     doc.text(`Formador: ${classData.trainer?.name || "—"}`, { align: "center" });
     doc.text(`Status: ${classData.status}`, { align: "center" });
     doc.moveDown(1);

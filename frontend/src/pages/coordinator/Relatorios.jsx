@@ -82,7 +82,7 @@ export default function Relatorios() {
               <div key={cls.id} className="py-3 flex items-center justify-between gap-3">
                 <div>
                   <p className="font-medium text-gray-900">{cls.name}</p>
-                  <p className="text-xs text-gray-500 font-mono">{cls.code} · {cls.trainingArea?.name || "—"}</p>
+                  <p className="text-xs text-gray-500 font-mono">{cls.code} · {cls.trainingArea?.name || "—"} · {cls.location?.name || "—"}</p>
                 </div>
                 <button
                   onClick={() => handleDownloadPauta(cls.id)}

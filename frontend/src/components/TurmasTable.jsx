@@ -19,6 +19,7 @@ export default function TurmasTable({ classes, renderActions }) {
             <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
               <th className="pb-3 px-4">Turma</th>
               <th className="pb-3 px-4">Área</th>
+              <th className="pb-3 px-4">Local</th>
               <th className="pb-3 px-4">Formador</th>
               <th className="pb-3 px-4">Alunos</th>
               <th className="pb-3 px-4">Status</th>
@@ -33,6 +34,7 @@ export default function TurmasTable({ classes, renderActions }) {
                   <p className="text-xs text-gray-500 font-mono">{cls.code}</p>
                 </td>
                 <td className="py-4 px-4 text-sm text-gray-600">{cls.trainingArea?.name || "—"}</td>
+                <td className="py-4 px-4 text-sm text-gray-600">{cls.location?.name || "—"}</td>
                 <td className="py-4 px-4 text-sm text-gray-600">{cls.trainer?.name || "—"}</td>
                 <td className="py-4 px-4 text-sm text-gray-600">{cls._count?.enrollments || 0}</td>
                 <td className="py-4 px-4"><StatusBadge status={cls.status} /></td>
