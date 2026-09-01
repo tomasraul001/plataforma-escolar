@@ -7,9 +7,11 @@ const router = express.Router();
 // Todas as rotas exigem autenticação
 router.use(auth);
 
-// Áreas de formação (Coordenador/Admin) - DEVEM VIR ANTES DE /:id
+// Áreas de formação - DEVEM VIR ANTES DE /:id
 router.post("/areas", authorize("coordenador"), classesController.createTrainingArea);
 router.get("/areas", authorize("coordenador", "secretaria", "formador"), classesController.listTrainingAreas);
+router.patch("/areas/:id", authorize("coordenador"), classesController.updateTrainingArea);
+router.delete("/areas/:id", authorize("coordenador"), classesController.deleteTrainingArea);
 
 // Formador cria turma
 router.post("/", authorize("formador", "coordenador"), classesController.createClass);
@@ -28,11 +30,5 @@ router.patch("/:id", authorize("formador", "coordenador"), classesController.upd
 
 // Fechar turma
 router.post("/:id/close", authorize("formador", "coordenador"), classesController.closeClass);
-
-// Áreas de formação (Coordenador/Admin) - DEVEM VIR ANTES DE /:id
-router.post("/areas", authorize("coordenador"), classesController.createTrainingArea);
-router.get("/areas", authorize("coordenador", "secretaria", "formador"), classesController.listTrainingAreas);
-router.patch("/areas/:id", authorize("coordenador"), classesController.updateTrainingArea);
-router.delete("/areas/:id", authorize("coordenador"), classesController.deleteTrainingArea);
 
 export default router;
