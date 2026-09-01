@@ -5,10 +5,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 
 const FIXED_COLUMNS = [
-  { id: "teste1", name: "Teste 1", weight: 1, order: 1 },
-  { id: "teste2", name: "Teste 2", weight: 1, order: 2 },
-  { id: "trabalho", name: "Trabalho Prático", weight: 1, order: 3 },
-  { id: "exame", name: "Exame", weight: 3, order: 4 },
+  { id: "teste1", name: "Teste 1",  order: 1 },
+  { id: "teste2", name: "Teste 2",  order: 2 },
+  { id: "trabalho", name: "Trabalho Prático",  order: 3 },
+  { id: "exame", name: "Exame",  order: 4 },
 ];
 
 export default function Planilha() {
@@ -23,10 +23,10 @@ export default function Planilha() {
   const [gradeInputs, setGradeInputs] = useState({});
   const [students, setStudents] = useState([]);
   const [columns] = useState([
-    { id: "teste1", name: "Teste 1", weight: 1 },
-    { id: "teste2", name: "Teste 2", weight: 1 },
-    { id: "trabalho", name: "Trabalho Prático", weight: 1 },
-    { id: "exame", name: "Exame", weight: 3 },
+    { id: "teste1", name: "Teste 1",  },
+    { id: "teste2", name: "Teste 2",  },
+    { id: "trabalho", name: "Trabalho Prático",  },
+    { id: "exame", name: "Exame",  },
   ]);
   const saveTimeoutRef = useRef(null);
   const inputRefs = useRef({});
@@ -289,7 +289,6 @@ export default function Planilha() {
                   <th key={col.id} className="pb-3 px-3 w-28 text-center font-semibold">
                     <div className="flex flex-col items-center gap-1">
                       <span className="font-semibold">{col.name}</span>
-                      <span className="text-xs text-gray-400">Peso: {col.weight === 3 ? "60%" : "13.33%"}</span>
                     </div>
                   </th>
                 ))}
@@ -306,7 +305,6 @@ export default function Planilha() {
                   </td>
                   <td className="py-3 px-4 min-w-[200px]">
                     <p className="font-medium text-gray-900">{student.student?.name}</p>
-                    <p className="text-xs text-gray-500">{student.student?.email}</p>
                   </td>
                   {FIXED_COLUMNS.map(col => (
                     <td key={col.id} className="py-2 px-2 w-28 text-center">
