@@ -153,12 +153,12 @@ export default function CoordinatorDashboard() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-100">
-                <span className="text-2xl">🏫</span>
+                <span className="text-xl md:text-2xl">🏫</span>
               </div>
             </div>
-            <div className="ml-4">
+            <div className="ml-2 md:ml-4">
               <p className="text-sm font-medium text-gray-500">Turmas Abertas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.openClasses}</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.openClasses}</p>
             </div>
           </div>
         </div>
@@ -167,12 +167,12 @@ export default function CoordinatorDashboard() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-red-100">
-                <span className="text-2xl">🔴</span>
+                <span className="text-xl md:text-2xl">🔴</span>
               </div>
             </div>
-            <div className="ml-4">
+            <div className="ml-2 md:ml-4">
               <p className="text-sm font-medium text-gray-500">Turmas Fechadas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.closedClasses}</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.closedClasses}</p>
             </div>
           </div>
         </div>
@@ -181,12 +181,12 @@ export default function CoordinatorDashboard() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-green-100">
-                <span className="text-2xl">👨‍🏫</span>
+                <span className="text-xl md:text-2xl">👨‍🏫</span>
               </div>
             </div>
-            <div className="ml-4">
+            <div className="ml-2 md:ml-4">
               <p className="text-sm font-medium text-gray-500">Formadores</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.trainers}</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.trainers}</p>
             </div>
           </div>
         </div>
@@ -195,12 +195,12 @@ export default function CoordinatorDashboard() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-purple-100">
-                <span className="text-2xl">🎓</span>
+                <span className="text-xl md:text-2xl">🎓</span>
               </div>
             </div>
-            <div className="ml-4">
+            <div className="ml-2 md:ml-4">
               <p className="text-sm font-medium text-gray-500">Formandos</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.students}</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.students}</p>
             </div>
           </div>
         </div>
