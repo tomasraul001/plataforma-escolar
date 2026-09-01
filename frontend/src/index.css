@@ -15,6 +15,12 @@
   animation: toast-in 0.3s ease-out both;
 }
 
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background-image: url("./assets/logo.png");
   background-size: cover;

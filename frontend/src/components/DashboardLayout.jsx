@@ -35,7 +35,7 @@ export default function DashboardLayout({ color, navItems, title, roleLabel }) {
   const colors = colorConfig[color];
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex min-h-screen overflow-x-hidden bg-gray-100/50">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
@@ -85,10 +85,10 @@ export default function DashboardLayout({ color, navItems, title, roleLabel }) {
         </div>
       </aside>
 
-      <main className="lg:ml-64 flex-1 min-h-screen">
+      <main className="flex-1 min-w-0 overflow-x-hidden lg:ml-64">
         <header className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200">
-          <div className="flex h-16 items-center justify-between px-6">
-            <div className="flex items-center gap-3">
+          <div className="flex h-16 items-center justify-between px-4 lg:px-6">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => setSidebarOpen(true)}
                 className="lg:hidden p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg"
@@ -97,14 +97,14 @@ export default function DashboardLayout({ color, navItems, title, roleLabel }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h1 className="text-xl font-semibold text-gray-800">Painel do {roleLabel}</h1>
+              <h1 className="text-base lg:text-xl font-semibold text-gray-800 truncate">Painel do {roleLabel}</h1>
             </div>
             <div className="flex items-center gap-4 text-sm text-gray-500">
-              <span>👤 {roleLabel}</span>
+              <span className="hidden sm:inline">👤 {roleLabel}</span>
             </div>
           </div>
         </header>
-        <div className="p-6 lg:p-8">
+        <div className="p-3 lg:p-8">
           <Outlet />
         </div>
       </main>

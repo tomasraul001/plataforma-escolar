@@ -140,7 +140,7 @@ export default function SecretaryDashboard() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Turmas Fechadas Aguardando Conferência</h3>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[680px]">
             <thead>
               <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
                 <th className="pb-3 px-4">Turma</th>

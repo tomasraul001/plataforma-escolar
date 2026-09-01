@@ -62,14 +62,14 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Minhas Turmas</h2>
           <p className="text-gray-600 mt-1">Acompanhe suas turmas e notas</p>
         </div>
         <button
           onClick={() => setShowJoinModal(true)}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors self-start sm:self-auto"
         >
           + Entrar na Turma
         </button>
@@ -191,7 +191,7 @@ export default function StudentDashboard() {
                       )}
                     </div>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
+                      <table className="w-full min-w-[440px] text-sm">
                         <thead>
                           <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
                             <th className="pb-2 px-3">Avaliação</th>

@@ -179,14 +179,14 @@ export default function TrainerDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Minhas Turmas</h2>
           <p className="text-gray-600 mt-1">Gerencie suas turmas, avaliações e notas</p>
         </div>
         <button
           onClick={() => setShowCreateClass(true)}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors self-start sm:self-auto"
         >
           + Nova Turma
         </button>
@@ -447,7 +447,7 @@ export default function TrainerDashboard() {
               </div>
             ) : (
               <><div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full min-w-[720px] text-sm">
                     <thead>
                       <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
                         <th className="pb-2 px-3">Aluno</th>

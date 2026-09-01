@@ -54,7 +54,7 @@ export default function CoordinatorUsers() {
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[560px]">
             <thead className="bg-gray-50">
               <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
                 <th className="pb-3 px-6">Nome</th>

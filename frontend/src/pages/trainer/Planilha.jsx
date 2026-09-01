@@ -280,7 +280,7 @@ export default function Planilha() {
       {/* Planilha */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
                 <th className="pb-3 px-3 w-12 text-center font-semibold">Nº</th>
