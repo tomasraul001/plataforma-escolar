@@ -93,6 +93,7 @@ export default function AppRouter() {
           <Route path="/coordenador/formadores" element={<CoordinatorFormadores />} />
           <Route path="/coordenador/formandos" element={<CoordinatorFormandos />} />
           <Route path="/coordenador/relatorios" element={<CoordinatorRelatorios />} />
+          <Route path="/coordenador/pautas/:classId" element={<PautaDeTurma color="blue" />} />
         </Route>
 
         {/* Trainer Routes */}
@@ -141,6 +142,7 @@ export default function AppRouter() {
           <Route path="/secretaria/formandos" element={<SecretaryFormandos />} />
           <Route path="/secretaria/pautas" element={<SecretaryPautas />} />
           <Route path="/secretaria/relatorios" element={<SecretaryRelatorios />} />
+          <Route path="/secretaria/pautas/:classId" element={<PautaDeTurma color="orange" />} />
         </Route>
 
         {/* Catch all */}

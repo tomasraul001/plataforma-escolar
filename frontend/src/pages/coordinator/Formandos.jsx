@@ -1,11 +1,36 @@
+import { useState, useEffect } from "react";
+import api from "../../services/api";
+import UsersTable from "../../components/UsersTable";
+import { LoadingCard } from "../../components/badges";
+
 export default function Formandos() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get("/users/lista");
+      setUsers(res.data.filter((u) => u.role === "formando"));
+    } catch (error) {
+      console.error("Erro ao buscar formandos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <LoadingCard color="blue" />;
+
   return (
-    <div className="flex items-center justify-center h-full">
-      <div className="text-center text-gray-500">
-        <div className="text-6xl mb-4">🎓</div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Formandos</h2>
-        <p className="text-gray-500">Sem dados</p>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Formandos</h2>
+        <p className="text-gray-600 mt-1">Lista de formandos da plataforma</p>
       </div>
+      <UsersTable users={users} />
     </div>
   );
 }

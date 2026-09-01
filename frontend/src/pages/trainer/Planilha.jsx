@@ -148,7 +148,6 @@ export default function Planilha() {
     const colIds = ["teste1", "teste2", "trabalho", "exame"];
     const studentsList = planilhaData?.students || [];
     const currentColIndex = colIds.indexOf(e.currentTarget.dataset.colid);
-    const currentStudentIndex = studentsList.findIndex(s => s.enrollmentId === enrollmentId);
 
     switch (e.key) {
       case "Tab":
@@ -258,7 +257,6 @@ export default function Planilha() {
     );
   }
 
-  const classInfo = planilhaData.class;
 
   return (
     <div className="space-y-6">
@@ -300,11 +298,11 @@ export default function Planilha() {
       {/* Planilha */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-190 text-sm">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
                 <th className="pb-3 px-3 w-12 text-center font-semibold">Nº</th>
-                <th className="pb-3 px-4 min-w-[200px] font-semibold">Aluno</th>
+                <th className="pb-3 px-4 min-w-50 font-semibold">Aluno</th>
                 {FIXED_COLUMNS.map(col => (
                   <th key={col.id} className="pb-3 px-3 w-28 text-center font-semibold">
                     <div className="flex flex-col items-center gap-1">
@@ -323,7 +321,7 @@ export default function Planilha() {
                   <td className="py-3 px-3 w-12 text-center text-gray-500 font-mono">
                     {rowIndex + 1}
                   </td>
-                  <td className="py-3 px-4 min-w-[200px]">
+                  <td className="py-3 px-4 min-w-50">
                     <p className="font-medium text-gray-900">{student.student?.name}</p>
                   </td>
                   {FIXED_COLUMNS.map(col => (

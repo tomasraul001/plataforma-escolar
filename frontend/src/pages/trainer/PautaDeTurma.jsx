@@ -2,11 +2,21 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { LoadingCard } from "../../components/badges";
 
-export default function PautaDeTurma() {
+const LOADING_COLORS = {
+  green: "border-green-600",
+  blue: "border-blue-600",
+  orange: "border-orange-600",
+  purple: "border-purple-600",
+};
+
+export default function PautaDeTurma({ color = "green" }) {
   const { classId } = useParams();
   const navigate = useNavigate();
   const toast = useToast().toast;
+  const { user } = useAuth();
   const [gradebook, setGradebook] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +59,7 @@ export default function PautaDeTurma() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent"></div>
+        <div className={`animate-spin rounded-full h-12 w-12 border-4 ${LOADING_COLORS[color] || LOADING_COLORS.green} border-t-transparent`}></div>
       </div>
     );
   }
@@ -72,12 +82,14 @@ export default function PautaDeTurma() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={() => navigate(`/formador/planilha/${classId}`)}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            📊 Planilha
-          </button>
+          {["formador", "coordenador"].includes(user?.role) && (
+            <button
+              onClick={() => navigate(`/formador/planilha/${classId}`)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              📊 Planilha
+            </button>
+          )}
           <button
             onClick={handleDownloadPauta}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
