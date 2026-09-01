@@ -156,8 +156,8 @@ export const autoSaveGrade = async (req, res) => {
       return res.status(400).json({ message: "Nota deve ser entre 0 e 20" });
     }
 
-    // Arredondar para 2 casas decimais
-    const roundedValue = Math.round(numValue * 100) / 100;
+    // Arredondar aritmeticamente para inteiro (0.5 vai para cima)
+    const roundedValue = Math.round(numValue);
 
     // Verificar se a turma existe e permissão
     const classData = await prisma.class.findUnique({ where: { id: classId } });

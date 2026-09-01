@@ -113,11 +113,7 @@ export default function PautaDeTurma({ color = "green" }) {
                 <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
                   <th className="pb-2 px-3">Aluno</th>
                   {gradebook.assessments.map((a) => (
-                    <th key={a.id} className="pb-2 px-3 text-center">
-                      {a.name}
-                      <br />
-                      <span className="text-xs font-normal text-gray-400">(Peso {a.weight})</span>
-                    </th>
+                    <th key={a.id} className="pb-2 px-3 text-center">{a.name}</th>
                   ))}
                   <th className="pb-2 px-3 text-center font-semibold">Média</th>
                 </tr>
@@ -127,18 +123,17 @@ export default function PautaDeTurma({ color = "green" }) {
                   <tr key={s.enrollmentId} className="hover:bg-gray-50">
                     <td className="py-3 px-3">
                       <p className="font-medium text-gray-900">{s.student.name}</p>
-                      <p className="text-xs text-gray-500">{s.student.email}</p>
                     </td>
                     {gradebook.assessments.map((a) => {
                       const grade = s.grades.find((g) => g.assessmentId === a.id);
                       return (
                         <td key={a.id} className="py-3 px-3 text-center font-medium text-gray-900">
-                          {grade?.value ?? <span className="text-gray-400">—</span>}
+                          {grade?.value !== null && grade?.value !== undefined ? Math.round(grade.value) : <span className="text-gray-400">—</span>}
                         </td>
                       );
                     })}
                     <td className="py-3 px-3 text-center font-bold text-gray-900">
-                      {s.media ?? "—"}
+                      {s.media !== null && s.media !== undefined ? Math.round(s.media) : "—"}
                     </td>
                   </tr>
                 ))}

@@ -34,19 +34,22 @@ export const createGrade = async (req, res) => {
       where: { assessmentId, enrollmentId },
     });
 
+    // Arredondamento aritmético (0.5 vai para cima)
+    const roundedValue = Math.round(Number(value));
+
     let grade;
     if (existingGrade) {
       grade = await prisma.grade.update({
         where: { id: existingGrade.id },
         data: {
-          value,
+          value: roundedValue,
           updatedById: req.user.id,
         },
       });
     } else {
       grade = await prisma.grade.create({
         data: {
-          value,
+          value: roundedValue,
           assessmentId,
           enrollmentId,
           updatedById: req.user.id,
@@ -84,6 +87,9 @@ export const bulkCreateGrades = async (req, res) => {
 
     const results = await Promise.all(
       grades.map(async ({ enrollmentId, value }) => {
+        // Arredondamento aritmético (0.5 vai para cima)
+        const roundedValue = Math.round(Number(value));
+
         const existingGrade = await prisma.grade.findFirst({
           where: { assessmentId, enrollmentId },
         });
@@ -91,11 +97,11 @@ export const bulkCreateGrades = async (req, res) => {
         if (existingGrade) {
           return prisma.grade.update({
             where: { id: existingGrade.id },
-            data: { value, updatedById: req.user.id },
+            data: { value: roundedValue, updatedById: req.user.id },
           });
         } else {
           return prisma.grade.create({
-            data: { value, assessmentId, enrollmentId, updatedById: req.user.id },
+            data: { value: roundedValue, assessmentId, enrollmentId, updatedById: req.user.id },
           });
         }
       })
@@ -252,7 +258,7 @@ export const updateGrade = async (req, res) => {
 
     const updated = await prisma.grade.update({
       where: { id },
-      data: { value, updatedById: req.user.id },
+      data: { value: Math.round(Number(value)), updatedById: req.user.id },
     });
 
     res.status(200).json({ message: "Nota atualizada", grade: updated });

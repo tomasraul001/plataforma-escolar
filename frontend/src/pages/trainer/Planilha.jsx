@@ -82,7 +82,7 @@ export default function Planilha() {
   };
 
   const handleGradeChange = (enrollmentId, columnId, value) => {
-    // Validar: apenas números, 0-20, 2 casas decimais
+    // Validar: apenas números, 0-20
     if (value === "") {
       setGradeInputs(prev => {
         const next = { ...prev };
@@ -97,11 +97,8 @@ export default function Planilha() {
       return; // Não atualiza se inválido
     }
 
-    // Limitar a 2 casas decimais
-    const roundedValue = Math.round(value * 100) / 100;
-    if (roundedValue.toString().length > value.toString().length) {
-      return; // Não permitir mais de 2 casas decimais
-    }
+    // Arredondamento aritmético (0.5 vai para cima)
+    const roundedValue = Math.round(numValue);
 
     setGradeInputs(prev => ({
       ...prev,
@@ -238,7 +235,7 @@ export default function Planilha() {
     }
 
     if (totalWeight === 0) return "—";
-    return (totalWeightedSum / totalWeight).toFixed(2);
+    return Math.round(totalWeightedSum / totalWeight);
   };
 
   if (loading) {

@@ -49,7 +49,7 @@ export const generatePautaPDF = async (req, res) => {
         }
       });
 
-      const media = totalWeight > 0 ? (weightedSum / totalWeight).toFixed(2) : "—";
+      const media = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : "—";
 
       return {
         enrollmentId: enrollment.id,
@@ -106,7 +106,7 @@ export const generatePautaPDF = async (req, res) => {
     // Colunas Avaliações
     classData.assessments.forEach((a) => {
       doc.rect(x, headerY, colAssessment, 20).stroke();
-      doc.text(`${a.name}\n(Peso ${a.weight})`, x + 2, headerY + 2, { 
+      doc.text(`${a.name}`, x + 2, headerY + 6, { 
         width: colAssessment - 4, 
         align: "center",
         lineBreak: false
@@ -137,7 +137,7 @@ export const generatePautaPDF = async (req, res) => {
           totalWeight += a.weight;
         }
       });
-      const media = totalWeight > 0 ? (weightedSum / totalWeight).toFixed(2) : "—";
+      const media = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : "—";
 
       // Verificar se precisa de nova página
       if (doc.y > 500) {
@@ -164,7 +164,7 @@ export const generatePautaPDF = async (req, res) => {
       classData.assessments.forEach((a) => {
         const grade = gradesMap[a.id];
         doc.rect(x, doc.y, colAssessment, 18).stroke();
-        const val = gradesMap[a.id] !== undefined ? gradesMap[a.id] : "—";
+        const val = gradesMap[a.id] !== undefined ? Math.round(gradesMap[a.id]) : "—";
         doc.text(String(val), x + 2, doc.y + 4, { width: colAssessment - 4, align: "center" });
         x += colAssessment;
       });
