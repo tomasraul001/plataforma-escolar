@@ -26,7 +26,7 @@ export const register = async (req, res) => {
     // Validar acesso
     let validKey = accessKeysMap[accessKey]
     if(!validKey){
-        return res.status(401).json({ message: `Invalid access key ${validKey}`})
+        return res.status(401).json({ message: 'Chave de acesso inválida!' })
     }
 
     // Encriptar senha
@@ -97,7 +97,7 @@ export const login = async (req, res) => {
         
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: 'Erro ao fazer login!', error })
+        res.status(500).json({ message: 'Erro ao fazer login!' })
     }
 
     

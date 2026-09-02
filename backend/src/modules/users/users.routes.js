@@ -1,11 +1,12 @@
 import express from "express";
 import * as usersController from "./users.controller.js";
-import { auth } from "../../middleware/auth.middleware.js";
+import { auth, authorize } from "../../middleware/auth.middleware.js";
 
 const userRouter = express.Router();
 
 // A rota '/lista' exige que o usuário esteja autenticado
 userRouter.get("/lista", auth, usersController.getAllUsers);
-userRouter.delete("/delete/:id", auth, usersController.deleteUser);
+// Exclusão de usuários é exclusiva do coordenador
+userRouter.delete("/delete/:id", auth, authorize("coordenador"), usersController.deleteUser);
 
 export default userRouter;

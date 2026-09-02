@@ -5,14 +5,14 @@ Two independent npm packages (no root workspace, no shared scripts):
 - `frontend/` — React 19 + Vite + Tailwind 4, port 5173
 
 ## Commands
-- Backend: `npm start` (`node --watch src/app.js`) in `backend/`
+- Backend: `npm run dev` (`node --watch src/app.js`, hot reload) or `npm start` (`node src/app.js`, sem watch) in `backend/`
 - Frontend: `npm run dev` (Vite), `npm run lint` (ESLint), `npm run build`
-- No tests exist anywhere (backend `npm test` is a stub)
+- Backend tests: `npm test` (Node built-in `node:test`, zero deps — roda `test/assessmentWeights.test.js`). `node --test` no `test/` também pega `auth.middleware.test.js`, que precisa de `jsonwebtoken` instalado.
 
 ## Prisma / PostgreSQL (backend)
 - Schema: `backend/prisma/schema.prisma` (provider `postgresql`); config in `backend/prisma.config.ts` (Prisma 6 style, `engine: "classic"`, loads env via `dotenv/config`)
 - Generated client lives in `backend/generated/prisma/` and is **gitignored** — run `npx prisma generate` after cloning or schema edits; apply migrations with `npx prisma migrate deploy`
-- Generated client is imported **with the `.ts` extension**: `import { PrismaClient } from "../generated/prisma/client.ts"` (see `routes/public.js`). This requires Node >= 23.6 (TS type stripping) — no ts-node or build step.
+- Generated client is imported **with the `.ts` extension**: `import { PrismaClient } from "../../generated/prisma/client.ts"` (see `src/config/prisma.js`). This requires Node >= 23.6 (TS type stripping) — no ts-node or build step.
 
 ## Env
 - `backend/.env` (gitignored, not in repo) must define `DATABASE_URL` (PostgreSQL) and `SECRET_KEY` (JWT signing). Backend will not run without it.

@@ -40,17 +40,21 @@ export const getAllUsers = async (req, res) => {
 
 }
 
-// Deletar usuario
+// Deletar usuario (exclusivo do coordenador)
 export const deleteUser = async (req, res) => {
     try {
-        let user = await prisma.user.findUnique({
-        where: {
-            id: req.params.id
+        if (req.params.id === req.user.id) {
+            return res.status(400).json({ message: "Não é possível excluir a própria conta" })
         }
+
+        let user = await prisma.user.findUnique({
+            where: {
+                id: req.params.id
+            }
         })
 
         if(!user){
-            return res.status(404).json({message: 'User not found'})
+            return res.status(404).json({message: 'Usuário não encontrado'})
         }
 
         await prisma.user.delete({
@@ -59,9 +63,9 @@ export const deleteUser = async (req, res) => {
             }
         })
 
-        res.status(200).json({message: 'User deleted successfully'})
+        res.status(200).json({message: 'Usuário excluído com sucesso'})
     } catch (error) {
         console.log(error)
-        res.status(400).json({ message: "Erro ao deletar user"})
+        res.status(400).json({ message: "Erro ao excluir usuário"})
     }
 }
