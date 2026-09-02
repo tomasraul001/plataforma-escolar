@@ -13,7 +13,7 @@ export default function TrainerDashboard() {
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [areas, setAreas] = useState([]);
   const [regions, setRegions] = useState([]);
-  const [newClassForm, setNewClassForm] = useState({ name: "", trainingAreaId: "", regionId: "", startDate: "", endDate: "" });
+  const [newClassForm, setNewClassForm] = useState({ name: "", trainingAreaId: "", regionId: "", startDate: "" });
 
   useEffect(() => {
     fetchMyClasses();
@@ -75,7 +75,7 @@ export default function TrainerDashboard() {
     try {
       await api.post("/classes", newClassForm);
       setShowCreateClass(false);
-      setNewClassForm({ name: "", trainingAreaId: "", regionId: "", startDate: "", endDate: "" });
+      setNewClassForm({ name: "", trainingAreaId: "", regionId: "", startDate: "" });
       fetchMyClasses();
       toast.success("Turma criada com sucesso!");
     } catch (error) {
@@ -263,25 +263,14 @@ export default function TrainerDashboard() {
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Data Início</label>
-                  <input
-                    type="date"
-                    value={newClassForm.startDate}
-                    onChange={(e) => setNewClassForm({ ...newClassForm, startDate: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Data Fim</label>
-                  <input
-                    type="date"
-                    value={newClassForm.endDate}
-                    onChange={(e) => setNewClassForm({ ...newClassForm, endDate: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Data Início</label>
+                <input
+                  type="date"
+                  value={newClassForm.startDate}
+                  onChange={(e) => setNewClassForm({ ...newClassForm, startDate: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
               </div>
               <div className="flex gap-3 justify-end">
                 <button

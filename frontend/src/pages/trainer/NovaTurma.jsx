@@ -10,7 +10,7 @@ export default function NovaTurma() {
   const [regions, setRegions] = useState([]);
   const [loadingAreas, setLoadingAreas] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ name: "", trainingAreaId: "", regionId: "", startDate: "", endDate: "" });
+  const [form, setForm] = useState({ name: "", trainingAreaId: "", regionId: "", startDate: "" });
 
   useEffect(() => {
     fetchAreas();
@@ -126,15 +126,6 @@ export default function NovaTurma() {
                 type="date"
                 value={form.startDate}
                 onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data de Término</label>
-              <input
-                type="date"
-                value={form.endDate}
-                onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>

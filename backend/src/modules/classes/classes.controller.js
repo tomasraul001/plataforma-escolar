@@ -19,7 +19,7 @@ function generateClassCode(areaName) {
 }
 
 export const createClass = async (req, res) => {
-  const { name, trainingAreaId, regionId, startDate, endDate } = req.body;
+  const { name, trainingAreaId, regionId, startDate } = req.body;
   const trainerId = req.user.id;
 
   try {
@@ -46,7 +46,6 @@ export const createClass = async (req, res) => {
         trainingAreaId,
         regionId,
         startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
       },
       include: {
         trainingArea: true,
@@ -124,7 +123,7 @@ export const getClassById = async (req, res) => {
 
 export const updateClass = async (req, res) => {
   const { id } = req.params;
-  const { name, startDate, endDate, status } = req.body;
+  const { name, startDate, status } = req.body;
 
   try {
     const classData = await prisma.class.findUnique({ where: { id } });
@@ -136,13 +135,17 @@ export const updateClass = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
+    // Ao fechar a turma, a data de término é a data/hora do fechamento
+    const now = new Date();
+    const isClosing = status === "CLOSED";
+
     const updated = await prisma.class.update({
       where: { id },
       data: {
         name,
         startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
         status,
+        ...(isClosing ? { closedAt: now, endDate: now } : {}),
       },
     });
 
@@ -175,6 +178,7 @@ export const closeClass = async (req, res) => {
       data: {
         status: "CLOSED",
         closedAt: new Date(),
+        endDate: new Date(),
       },
     });
 
