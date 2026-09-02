@@ -7,7 +7,8 @@ Two independent npm packages (no root workspace, no shared scripts):
 ## Commands
 - Backend: `npm run dev` (`node --watch src/app.js`, hot reload) or `npm start` (`node src/app.js`, sem watch) in `backend/`
 - Frontend: `npm run dev` (Vite), `npm run lint` (ESLint), `npm run build`
-- Backend tests: `npm test` (Node built-in `node:test`, zero deps — roda `test/assessmentWeights.test.js`). `node --test` no `test/` também pega `auth.middleware.test.js`, que precisa de `jsonwebtoken` instalado.
+- Backend tests: `npm test` (Node built-in `node:test`, zero deps — roda `test/assessmentWeights.test.js` e `test/createClass.test.js`). `node --test` (sem args) também pega `auth.middleware.test.js`, que precisa de `jsonwebtoken` instalado.
+- `test/createClass.test.js` stuba o singleton `prisma` via monkey-patch (sem banco); cria `prisma.region` e as delagações necessárias se o cliente gerado local estiver desatualizado. O controller de turma usa `locationId` (referência a Region), preenchido pelo `regionId` vindo do body da requisição.
 
 ## Prisma / PostgreSQL (backend)
 - Schema: `backend/prisma/schema.prisma` (provider `postgresql`); config in `backend/prisma.config.ts` (Prisma 6 style, `engine: "classic"`, loads env via `dotenv/config`)

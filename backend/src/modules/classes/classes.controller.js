@@ -44,7 +44,7 @@ export const createClass = async (req, res) => {
         status: "DRAFT",
         trainerId,
         trainingAreaId,
-        regionId,
+        locationId: regionId,
         startDate: startDate ? new Date(startDate) : null,
       },
       include: {
