@@ -28,6 +28,7 @@ import TrainerPautas from "../pages/trainer/Pautas";
 import Planilha from "../pages/trainer/Planilha";
 import PautaDeTurma from "../pages/trainer/PautaDeTurma";
 import AlunosDaTurma from "../pages/trainer/AlunosDaTurma";
+import PresencasDaTurma from "../pages/trainer/PresencasDaTurma";
 
 // Student Pages
 import StudentDashboard from "../pages/student/Dashboard";
@@ -96,6 +97,7 @@ export default function AppRouter() {
           <Route path="/coordenador/formandos" element={<CoordinatorFormandos />} />
           <Route path="/coordenador/relatorios" element={<CoordinatorRelatorios />} />
           <Route path="/coordenador/turma/:classId/alunos" element={<AlunosDaTurma color="blue" />} />
+          <Route path="/coordenador/turma/:classId/presencas" element={<PresencasDaTurma color="blue" />} />
           <Route path="/coordenador/pautas/:classId" element={<PautaDeTurma color="blue" />} />
           <Route path="/coordenador/perfil" element={<Perfil />} />
         </Route>
@@ -114,6 +116,7 @@ export default function AppRouter() {
           <Route path="/formador/pautas" element={<TrainerPautas />} />
           <Route path="/formador/planilha/:classId" element={<Planilha />} />
           <Route path="/formador/turma/:classId/alunos" element={<AlunosDaTurma />} />
+          <Route path="/formador/turma/:classId/presencas" element={<PresencasDaTurma />} />
           <Route path="/formador/pautas/:classId" element={<PautaDeTurma />} />
           <Route path="/formador/perfil" element={<Perfil />} />
         </Route>
@@ -150,6 +153,7 @@ export default function AppRouter() {
           <Route path="/secretaria/pautas" element={<SecretaryPautas />} />
           <Route path="/secretaria/relatorios" element={<SecretaryRelatorios />} />
           <Route path="/secretaria/turma/:classId/alunos" element={<AlunosDaTurma color="orange" />} />
+          <Route path="/secretaria/turma/:classId/presencas" element={<PresencasDaTurma color="orange" />} />
           <Route path="/secretaria/pautas/:classId" element={<PautaDeTurma color="orange" />} />
           <Route path="/secretaria/perfil" element={<Perfil />} />
         </Route>

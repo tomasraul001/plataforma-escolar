@@ -79,6 +79,7 @@ model Class {
   assessments      Assessment[]
   auditLogs        AuditLog[]
   gradebookTemplate GradebookTemplate?
+  attendanceSessions AttendanceSession[]
 }
 
 // 4. INSCRIÇÃO (A ligação entre Aluno e Turma)
@@ -98,6 +99,7 @@ model Enrollment {
   manualName String? 
   
   grades    Grade[]
+  attendanceRecords AttendanceRecord[]
 
   // Garante que um aluno com conta não entre duas vezes na mesma turma
   @@unique([classId, studentId]) 
@@ -152,6 +154,34 @@ model AuditLog {
   user      User?    @relation(fields: [userId], references: [id])
   classId   String?
   class     Class?   @relation(fields: [classId], references: [id])
+}
+
+// 8. SESSÃO DE PRESENÇA (uma aula/data)
+model AttendanceSession {
+  id        String   @id @default(uuid())
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  classId   String
+  class     Class                @relation(fields: [classId], references: [id], onDelete: Cascade)
+  records   AttendanceRecord[]
+
+  @@unique([classId, date])
+}
+
+// 8.1. REGISTRO DE PRESENÇA de um aluno numa sessão
+model AttendanceRecord {
+  id        String   @id @default(uuid())
+  present   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessionId    String
+  session      AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  enrollmentId String
+  enrollment   Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, enrollmentId])
 }
 
 

@@ -9,6 +9,7 @@ import enrollmentsRouter from './modules/enrollments/enrollments.routes.js';
 import assessmentsRouter from './modules/assessments/assessments.routes.js';
 import gradesRouter from './modules/grades/grades.routes.js';
 import reportsRouter from './modules/reports/reports.routes.js';
+import attendanceRouter from './modules/attendance/attendance.routes.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/enrollments', enrollmentsRouter);
 app.use('/assessments', assessmentsRouter);
 app.use('/grades', gradesRouter);
 app.use('/reports', reportsRouter);
+app.use('/attendance', attendanceRouter);
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);

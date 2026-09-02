@@ -117,6 +117,12 @@ export default function MinhasTurmas() {
                 {cls.status === "CLOSED" || cls.status === "ARCHIVED" ? (
                   <>
                     <button
+                      onClick={() => navigate(`/formador/turma/${cls.id}/presencas`)}
+                      className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                    >
+                      ✅ Presenças
+                    </button>
+                    <button
                       onClick={() => navigate(`/formador/pautas/${cls.id}`)}
                       className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
                     >
@@ -131,6 +137,12 @@ export default function MinhasTurmas() {
                   </>
                 ) : (
                   <>
+                    <button
+                      onClick={() => navigate(`/formador/turma/${cls.id}/presencas`)}
+                      className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                    >
+                      ✅ Presenças
+                    </button>
                     <button
                       onClick={() => navigate(`/formador/planilha/${cls.id}`)}
                       className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-sm flex-1"

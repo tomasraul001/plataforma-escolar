@@ -10,8 +10,10 @@ export default function Notas() {
   const [myClasses, setMyClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [grades, setGrades] = useState([]);
+  const [attendance, setAttendance] = useState(null);
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [loadingGrades, setLoadingGrades] = useState(false);
+  const [loadingAttendance, setLoadingAttendance] = useState(false);
 
   useEffect(() => {
     fetchMyClasses();
@@ -38,8 +40,10 @@ export default function Notas() {
   useEffect(() => {
     if (selectedClass) {
       fetchGrades(selectedClass);
+      fetchAttendance(selectedClass);
     } else {
       setGrades([]);
+      setAttendance(null);
     }
   }, [selectedClass]);
 
@@ -53,6 +57,19 @@ export default function Notas() {
       toast.error("Erro ao carregar notas");
     } finally {
       setLoadingGrades(false);
+    }
+  };
+
+  const fetchAttendance = async (classId) => {
+    setLoadingAttendance(true);
+    try {
+      const res = await api.get(`/attendance/minha?classId=${classId}`);
+      setAttendance(res.data[0] || null);
+    } catch (error) {
+      console.error("Erro ao buscar presença:", error);
+      setAttendance(null);
+    } finally {
+      setLoadingAttendance(false);
     }
   };
 
@@ -109,6 +126,30 @@ export default function Notas() {
             <div className="text-sm text-gray-600 mb-2">
               Turma: <span className="font-semibold text-gray-900">{selected.name}</span>
               {" · "}Formador: <span className="font-semibold text-gray-900">{selected.trainer?.name || "—"}</span>
+            </div>
+          )}
+
+          {selected && !loadingAttendance && attendance && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4 flex items-center gap-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-700">Participação</p>
+                <p className="text-xs text-gray-500">
+                  {attendance.present} de {attendance.totalSessions} sessões
+                </p>
+              </div>
+              <div className="text-right">
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
+                    attendance.percentage >= 75
+                      ? "bg-green-100 text-green-800"
+                      : attendance.percentage >= 50
+                      ? "bg-amber-100 text-amber-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {attendance.percentage}%
+                </span>
+              </div>
             </div>
           )}
 
