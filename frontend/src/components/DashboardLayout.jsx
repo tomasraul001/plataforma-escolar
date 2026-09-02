@@ -30,7 +30,7 @@ const colorConfig = {
 };
 
 export default function DashboardLayout({ color, navItems, title, roleLabel }) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const colors = colorConfig[color];
 
@@ -100,7 +100,8 @@ export default function DashboardLayout({ color, navItems, title, roleLabel }) {
               <h1 className="text-base lg:text-xl font-semibold text-gray-800 truncate">Painel do {roleLabel}</h1>
             </div>
             <div className="flex items-center gap-4 text-sm text-gray-500">
-              <span className="hidden sm:inline">👤 {roleLabel}</span>
+              <span className="hidden sm:inline">{user?.name || roleLabel}</span>
+              <span className="hidden sm:inline text-xs bg-gray-100 px-2 py-0.5 rounded-full">{roleLabel}</span>
             </div>
           </div>
         </header>

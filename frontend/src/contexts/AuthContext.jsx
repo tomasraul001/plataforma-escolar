@@ -10,8 +10,10 @@ export function AuthProvider({ children }) {
   const loadUser = useCallback(async () => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
+    const name = localStorage.getItem("userName");
+    const id = localStorage.getItem("userId");
     if (token && role) {
-      setUser({ role });
+      setUser({ role, name: name || "", id: id || "" });
     }
     setLoading(false);
   }, []);
@@ -24,7 +26,9 @@ export function AuthProvider({ children }) {
     const { data } = await api.post("/auth/login", { email, password });
     localStorage.setItem("token", data.token);
     localStorage.setItem("role", data.role);
-    setUser({ role: data.role });
+    localStorage.setItem("userName", data.name || "");
+    localStorage.setItem("userId", data.id || "");
+    setUser({ role: data.role, name: data.name || "", id: data.id || "" });
     return data.role;
   };
 
@@ -35,11 +39,13 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userId");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, setUser }}>
       {children}
     </AuthContext.Provider>
   );

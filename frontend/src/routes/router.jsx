@@ -10,6 +10,7 @@ import SecretaryLayout from "../layouts/SecretaryLayout";
 // Auth Pages
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Sigin";
+import Perfil from "../pages/auth/Perfil";
 
 // Coordinator Pages
 import CoordinatorDashboard from "../pages/coordinator/Dashboard";
@@ -96,6 +97,7 @@ export default function AppRouter() {
           <Route path="/coordenador/relatorios" element={<CoordinatorRelatorios />} />
           <Route path="/coordenador/turma/:classId/alunos" element={<AlunosDaTurma color="blue" />} />
           <Route path="/coordenador/pautas/:classId" element={<PautaDeTurma color="blue" />} />
+          <Route path="/coordenador/perfil" element={<Perfil />} />
         </Route>
 
         {/* Trainer Routes */}
@@ -113,6 +115,7 @@ export default function AppRouter() {
           <Route path="/formador/planilha/:classId" element={<Planilha />} />
           <Route path="/formador/turma/:classId/alunos" element={<AlunosDaTurma />} />
           <Route path="/formador/pautas/:classId" element={<PautaDeTurma />} />
+          <Route path="/formador/perfil" element={<Perfil />} />
         </Route>
 
         {/* Student Routes */}
@@ -127,6 +130,7 @@ export default function AppRouter() {
           <Route path="/formando/turmas" element={<StudentMinhasTurmas />} />
           <Route path="/formando/entrar-turma" element={<StudentEntrarNaTurma />} />
           <Route path="/formando/notas" element={<StudentNotas />} />
+          <Route path="/formando/perfil" element={<Perfil />} />
         </Route>
 
         {/* Secretary Routes */}
@@ -147,6 +151,7 @@ export default function AppRouter() {
           <Route path="/secretaria/relatorios" element={<SecretaryRelatorios />} />
           <Route path="/secretaria/turma/:classId/alunos" element={<AlunosDaTurma color="orange" />} />
           <Route path="/secretaria/pautas/:classId" element={<PautaDeTurma color="orange" />} />
+          <Route path="/secretaria/perfil" element={<Perfil />} />
         </Route>
 
         {/* Catch all */}

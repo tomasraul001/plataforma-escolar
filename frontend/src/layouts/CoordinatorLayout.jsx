@@ -6,6 +6,7 @@ const navItems = [
   { to: "/coordenador/formadores", label: "Formadores", icon: "👨‍🏫" },
   { to: "/coordenador/formandos", label: "Formandos", icon: "🎓" },
   { to: "/coordenador/relatorios", label: "Relatórios", icon: "📈" },
+  { to: "/coordenador/perfil", label: "Meu Perfil", icon: "👤" },
 ];
 
 export default function CoordinatorLayout() {

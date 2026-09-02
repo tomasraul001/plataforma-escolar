@@ -8,5 +8,8 @@ const userRouter = express.Router();
 userRouter.get("/lista", auth, usersController.getAllUsers);
 // Exclusão de usuários é exclusiva do coordenador
 userRouter.delete("/delete/:id", auth, authorize("coordenador"), usersController.deleteUser);
+// Perfil proprio
+userRouter.patch("/perfil", auth, usersController.updateProfile);
+userRouter.post("/trocar-senha", auth, usersController.changePassword);
 
 export default userRouter;

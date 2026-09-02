@@ -5,6 +5,7 @@ const navItems = [
   { to: "/formando/turmas", label: "Minhas Turmas", icon: "🏫" },
   { to: "/formando/entrar-turma", label: "Entrar na Turma", icon: "🔑" },
   { to: "/formando/notas", label: "Minhas Notas", icon: "📝" },
+  { to: "/formando/perfil", label: "Meu Perfil", icon: "👤" },
 ];
 
 export default function StudentLayout() {

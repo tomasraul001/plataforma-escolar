@@ -9,6 +9,7 @@ const navItems = [
   { to: "/secretaria/formandos", label: "Formandos", icon: "🎓" },
   { to: "/secretaria/pautas", label: "Pautas & PDFs", icon: "📄" },
   { to: "/secretaria/relatorios", label: "Relatórios", icon: "📈" },
+  { to: "/secretaria/perfil", label: "Meu Perfil", icon: "👤" },
 ];
 
 export default function SecretaryLayout() {
