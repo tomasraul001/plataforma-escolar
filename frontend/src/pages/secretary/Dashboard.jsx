@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
+import LocationFilter from "../../components/LocationFilter";
 
 export default function SecretaryDashboard() {
   const navigate = useNavigate();
   const toast = useToast().toast;
   const [stats, setStats] = useState({ openClasses: 0, closedClasses: 0, archivedClasses: 0, trainers: 0 });
-  const [closedClasses, setClosedClasses] = useState([]);
+  const [allClasses, setAllClasses] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchStats = async () => {
@@ -19,7 +22,7 @@ export default function SecretaryDashboard() {
       const allClasses = classesRes.data;
       const users = usersRes.data;
 
-      setClosedClasses(allClasses.filter((c) => c.status === "CLOSED"));
+      setAllClasses(allClasses);
       setStats({
         openClasses: allClasses.filter((c) => c.status === "OPEN").length,
         closedClasses: allClasses.filter((c) => c.status === "CLOSED").length,
@@ -34,8 +37,18 @@ export default function SecretaryDashboard() {
     }
   };
 
+  const fetchRegions = async () => {
+    try {
+      const res = await api.get("/classes/regions");
+      setRegions(res.data);
+    } catch (error) {
+      console.error("Erro ao buscar locais/regiões:", error);
+    }
+  };
+
   useEffect(() => {
     fetchStats();
+    fetchRegions();
   }, []);
 
   const handleDownloadPauta = async (classId) => {
@@ -69,6 +82,19 @@ export default function SecretaryDashboard() {
     }
   };
 
+  const filteredClasses = selectedLocation
+    ? allClasses.filter((c) => c.location?.id === selectedLocation)
+    : allClasses;
+
+  const filteredClosed = filteredClasses.filter((c) => c.status === "CLOSED");
+
+  const filteredStats = {
+    openClasses: filteredClasses.filter((c) => c.status === "OPEN").length,
+    closedClasses: filteredClasses.filter((c) => c.status === "CLOSED").length,
+    archivedClasses: filteredClasses.filter((c) => c.status === "ARCHIVED").length,
+    trainers: stats.trainers,
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -86,6 +112,13 @@ export default function SecretaryDashboard() {
         </div>
       </div>
 
+      {/* Filtro por local */}
+      <LocationFilter
+        regions={regions}
+        selected={selectedLocation}
+        onChange={setSelectedLocation}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
@@ -96,7 +129,7 @@ export default function SecretaryDashboard() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Turmas Abertas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.openClasses}</p>
+              <p className="text-2xl font-bold text-gray-900">{filteredStats.openClasses}</p>
             </div>
           </div>
         </div>
@@ -110,7 +143,7 @@ export default function SecretaryDashboard() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Turmas Fechadas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.closedClasses}</p>
+              <p className="text-2xl font-bold text-gray-900">{filteredStats.closedClasses}</p>
             </div>
           </div>
         </div>
@@ -124,7 +157,7 @@ export default function SecretaryDashboard() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Arquivadas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.archivedClasses}</p>
+              <p className="text-2xl font-bold text-gray-900">{filteredStats.archivedClasses}</p>
             </div>
           </div>
         </div>
@@ -146,8 +179,8 @@ export default function SecretaryDashboard() {
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Turmas Fechadas Aguardando Conferência</h3>
-        {closedClasses.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">Nenhuma turma fechada aguardando conferência.</p>
+        {filteredClosed.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">Nenhuma turma fechada aguardando conferência{selectedLocation ? " para o local selecionado" : ""}.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px]">
@@ -163,7 +196,7 @@ export default function SecretaryDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {closedClasses.map((cls) => (
+                {filteredClosed.map((cls) => (
                   <tr key={cls.id} className="hover:bg-gray-50">
                     <td className="py-4 px-4 text-sm text-gray-900">{cls.name}</td>
                     <td className="py-4 px-4 text-sm text-gray-500">{cls.trainer?.name || "—"}</td>

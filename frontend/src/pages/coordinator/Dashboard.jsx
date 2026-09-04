@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
+import LocationFilter from "../../components/LocationFilter";
 
 export default function CoordinatorDashboard() {
   const toast = useToast().toast;
@@ -15,6 +16,7 @@ export default function CoordinatorDashboard() {
   const [showRegionModal, setShowRegionModal] = useState(false);
   const [editingRegion, setEditingRegion] = useState(null);
   const [regionForm, setRegionForm] = useState({ name: "", code: "", description: "", active: true });
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
     fetchStats();
@@ -206,6 +208,17 @@ export default function CoordinatorDashboard() {
     ARCHIVED: "bg-gray-100 text-gray-800",
   };
 
+  const filteredClasses = selectedLocation
+    ? activeClasses.filter((c) => c.location?.id === selectedLocation)
+    : activeClasses;
+
+  const filteredStats = {
+    openClasses: filteredClasses.filter((c) => c.status === "OPEN").length,
+    closedClasses: filteredClasses.filter((c) => c.status === "CLOSED").length,
+    trainers: stats.trainers,
+    students: stats.students,
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -214,6 +227,13 @@ export default function CoordinatorDashboard() {
           <p className="text-gray-600 mt-1">Visão geral da plataforma</p>
         </div>
       </div>
+
+      {/* Filtro por local */}
+      <LocationFilter
+        regions={regions}
+        selected={selectedLocation}
+        onChange={setSelectedLocation}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -226,7 +246,7 @@ export default function CoordinatorDashboard() {
             </div>
             <div className="ml-2 md:ml-4">
               <p className="text-sm font-medium text-gray-500">Turmas Abertas</p>
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.openClasses}</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">{filteredStats.openClasses}</p>
             </div>
           </div>
         </div>
@@ -240,7 +260,7 @@ export default function CoordinatorDashboard() {
             </div>
             <div className="ml-2 md:ml-4">
               <p className="text-sm font-medium text-gray-500">Turmas Fechadas</p>
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.closedClasses}</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">{filteredStats.closedClasses}</p>
             </div>
           </div>
         </div>
@@ -254,7 +274,7 @@ export default function CoordinatorDashboard() {
             </div>
             <div className="ml-2 md:ml-4">
               <p className="text-sm font-medium text-gray-500">Formadores</p>
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.trainers}</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">{filteredStats.trainers}</p>
             </div>
           </div>
         </div>
@@ -268,7 +288,7 @@ export default function CoordinatorDashboard() {
             </div>
             <div className="ml-2 md:ml-4">
               <p className="text-sm font-medium text-gray-500">Formandos</p>
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.students}</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">{filteredStats.students}</p>
             </div>
           </div>
         </div>
@@ -597,7 +617,14 @@ export default function CoordinatorDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {activeClasses.map((cls) => (
+              {filteredClasses.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-sm text-gray-500">
+                    Nenhuma turma encontrada para o local selecionado.
+                  </td>
+                </tr>
+              ) : (
+                filteredClasses.map((cls) => (
                 <tr key={cls.id} className="hover:bg-gray-50">
                   <td className="py-4 px-4 text-sm text-gray-900">{cls.trainingArea?.name || "—"}</td>
                   <td className="py-4 px-4 text-sm text-gray-900">{cls.location?.name || "—"}</td>
@@ -616,11 +643,12 @@ export default function CoordinatorDashboard() {
                       disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
                       title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para gerar PDF" : "Baixar Pauta em PDF"}
                     >
-                      📄 PDF
+                        📄 PDF
                     </button>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
