@@ -236,7 +236,7 @@ export default function CoordinatorDashboard() {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -253,7 +253,7 @@ export default function CoordinatorDashboard() {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-red-100">
                 <span className="text-xl md:text-2xl">🔴</span>
               </div>
