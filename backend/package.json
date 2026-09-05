@@ -7,7 +7,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "node --test test/assessmentWeights.test.js test/createClass.test.js",
+    "test": "node --test",
     "start": "node src/app.js",
     "dev": "node --watch src/app.js"
   },

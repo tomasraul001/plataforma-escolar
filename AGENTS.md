@@ -7,8 +7,12 @@ Two independent npm packages (no root workspace, no shared scripts):
 ## Commands
 - Backend: `npm run dev` (`node --watch src/app.js`, hot reload) or `npm start` (`node src/app.js`, sem watch) in `backend/`
 - Frontend: `npm run dev` (Vite), `npm run lint` (ESLint), `npm run build`
-- Backend tests: `npm test` (Node built-in `node:test`, zero deps — roda `test/assessmentWeights.test.js` e `test/createClass.test.js`). `node --test` (sem args) também pega `auth.middleware.test.js`, que precisa de `jsonwebtoken` instalado.
-- `test/createClass.test.js` stuba o singleton `prisma` via monkey-patch (sem banco); cria `prisma.region` e as delagações necessárias se o cliente gerado local estiver desatualizado. O controller de turma usa `locationId` (referência a Region), preenchido pelo `regionId` vindo do body da requisição.
+- Backend tests: `npm test` (Node built-in `node:test`, roda todos os `test/*.test.js`, cada um num processo separado — via auto-discovery). Suíte:
+  - `assessmentWeights.test.js` — zero deps; roda em qualquer env.
+  - `createClass.test.js`, `classes.controller.test.js`, `users.controller.test.js`, `auth.controller.test.js` — importam controllers/singleton `prisma`: exigem `npm install` (express, bcrypt, jsonwebtoken) + `npx prisma generate`. Não tocam em banco (monkey-patch no singleton `prisma` via stubs) nem em rede.
+  - `auth.middleware.test.js` — requer `jsonwebtoken` instalado.
+- Padrão de stubbing: `test/*.test.js` (exceto `assessmentWeights.test.js`) importa o mesmo singleton `prisma` que o controller, reatribui os delegates (`findUnique`, `findMany`, `create`, etc.), usa `mockRes()` e restaura via `after()`. Cada arquivo roda em processo próprio, então não há interferência entre eles. Se o delegate não existir no cliente gerado local (gitignored/desatualizado), recrie-o dentro do stub (ver `createClass.test.js` — cria `prisma.region`).
+- O controller de turma usa `locationId` (referência a Region), preenchido pelo `regionId` vindo do body da requisição (ver `createClass.test.js`).
 
 ## Prisma / PostgreSQL (backend)
 - Schema: `backend/prisma/schema.prisma` (provider `postgresql`); config in `backend/prisma.config.ts` (Prisma 6 style, `engine: "classic"`, loads env via `dotenv/config`)
