@@ -1,65 +1,12 @@
 # Fase 5 — Ficha do Formando
 
-## Pré-requisitos (Passo 0)
+## Pré-requisitos (Passo 0) — JÁ CONFIGURADO NO PC
 
-O Prisma CLI e `@prisma/client` precisam ser instalados (`npm install`). O engine do Prisma usa glibc — **não roda no Termux nativo (bionic)**.
+> ✅ Prisma, `.env`, PostgreSQL e `npm` já estão prontos no PC. Pular para **B1**.
 
-### Opção A — PostgreSQL nativo do Termux
+No PC, o único comando antes das edições é:
 ```bash
-cd backend && npm install
-
-# Iniciar PostgreSQL
-initdb $PREFIX/var/lib/postgresql
-pg_ctl -D $PREFIX/var/lib/postgresql start
-
-# Criar banco
-createdb plataforma_escolar
-
-# Criar .env
-cat > backend/.env << 'EOF'
-DATABASE_URL="postgresql://localhost:5432/plataforma_escolar"
-SECRET_KEY="trocar-por-chave-segura"
-COORDENADOR_KEY="chave-coordenador"
-FORMADOR_KEY="chave-formador"
-FORMANDO_KEY="chave-formando"
-SECRETARIA_KEY="chave-secretaria"
-EOF
-
-# Rodar migrations + generate
-cd backend
-npx prisma migrate deploy
-npx prisma generate
-```
-
-### Opção B — Ubuntu via proot (RECOMENDADO)
-```bash
-# Entrar no Ubuntu
-proot-distro login ubuntu
-
-# Instalar dependências
-apt update && apt install -y postgresql nodejs npm
-
-# Dentro do Ubuntu:
-cd /data/data/com.termux/files/home/plataforma/plataforma-escolar/backend
-npm install
-
-# Iniciar PostgreSQL
-service postgresql start
-su - postgres -c "createdb plataforma_escolar"
-
-# Criar .env
-cat > .env << 'EOF'
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/plataforma_escolar"
-SECRET_KEY="trocar-por-chave-segura"
-COORDENADOR_KEY="chave-coordenador"
-FORMADOR_KEY="chave-formador"
-FORMANDO_KEY="chave-formando"
-SECRETARIA_KEY="chave-secretaria"
-EOF
-
-# Rodar migrations + generate
-npx prisma migrate deploy
-npx prisma generate
+cd backend && npx prisma migrate dev --name fase5_ficha && npx prisma generate
 ```
 
 ---
