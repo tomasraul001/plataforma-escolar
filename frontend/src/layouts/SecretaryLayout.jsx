@@ -7,6 +7,7 @@ const navItems = [
   { to: "/secretaria/turmas/arquivadas", label: "Turmas Arquivadas", icon: "📦" },
   { to: "/secretaria/formadores", label: "Formadores", icon: "👨‍🏫" },
   { to: "/secretaria/formandos", label: "Formandos", icon: "🎓" },
+  { to: "/secretaria/fichas", label: "Fichas", icon: "📋" },
   { to: "/secretaria/pautas", label: "Pautas & PDFs", icon: "📄" },
   { to: "/secretaria/relatorios", label: "Relatórios", icon: "📈" },
   { to: "/secretaria/perfil", label: "Meu Perfil", icon: "👤" },

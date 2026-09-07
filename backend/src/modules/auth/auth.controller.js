@@ -13,7 +13,7 @@ const route = express.Router()
 // Registro de usuario
 export const register = async (req, res) => {
 
-    let {name, email, password, accessKey} = req.body
+    let {name, email, password, accessKey, phone} = req.body
     
     // Chaves de accesso
     const accessKeysMap = {
@@ -48,10 +48,12 @@ export const register = async (req, res) => {
                 name,
                 email: email.toLowerCase(),
                 password: await bcrypt.hash(password, salt),
-                role: validKey
+                role: validKey,
+                phone: phone || null
             }  
         })
-        res.status(201).json({ message: 'Registado com sucesso!', userRegist })
+        const { password: _, ...userSafe } = userRegist;
+        res.status(201).json({ message: 'Registado com sucesso!', user: userSafe })
         
     } catch (error) {
         res.status(500).json({message: 'Erro ao registrar usuário!'})

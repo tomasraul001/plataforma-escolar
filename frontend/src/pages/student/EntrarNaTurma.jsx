@@ -7,6 +7,7 @@ export default function EntrarNaTurma() {
   const navigate = useNavigate();
   const toast = useToast().toast;
   const [secretKey, setSecretKey] = useState("");
+  const [sexo, setSexo] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -17,7 +18,7 @@ export default function EntrarNaTurma() {
     }
     setSubmitting(true);
     try {
-      await api.post("/enrollments/join", { secretKey: secretKey.trim() });
+      await api.post("/enrollments/join", { secretKey: secretKey.trim(), sexo: sexo || undefined });
       toast.success("Inscrito na turma com sucesso!");
       navigate("/formando/turmas");
     } catch (error) {
@@ -46,6 +47,14 @@ export default function EntrarNaTurma() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono uppercase"
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+            <select value={sexo} onChange={(e) => setSexo(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <option value="">Não informado</option>
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
+            </select>
           </div>
           <div className="flex gap-3 justify-end">
             <button

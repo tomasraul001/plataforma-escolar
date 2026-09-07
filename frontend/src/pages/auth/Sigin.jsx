@@ -8,6 +8,7 @@ export default function Sigin(){
     let inputEmail = useRef()
     let inputPassword = useRef()
     let inputKey = useRef()
+    let inputPhone = useRef()
 
     let [loading, setLoading] = useState(false)
     const { register } = useAuth()
@@ -27,7 +28,8 @@ export default function Sigin(){
                 name: inputName.current.value,
                 email: inputEmail.current.value,
                 password: inputPassword.current.value,
-                accessKey: accessKey
+                accessKey: accessKey,
+                phone: inputPhone.current.value || undefined
             })
 
             toast.success("Usuario criado com sucesso")
@@ -55,6 +57,10 @@ export default function Sigin(){
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium text-blue-100" htmlFor="email">Email</label>
                         <input id="email" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="email" placeholder="exemplo@email.com" ref={inputEmail} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-blue-100" htmlFor="phone">Número de Celular (opcional)</label>
+                        <input id="phone" type="tel" placeholder="+244 9XX XXX XXX" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" ref={inputPhone} />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium text-blue-100" htmlFor="password">Senha</label>

@@ -20,6 +20,8 @@ model User {
   name      String
   password  String
   role      String
+  phone     String?
+  sexo      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -65,6 +67,7 @@ model Class {
   startDate      DateTime?
   endDate        DateTime?
   closedAt       DateTime?
+  archivedAt     DateTime?
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
@@ -87,6 +90,7 @@ model Enrollment {
   id        String   @id @default(uuid())
   joinedAt  DateTime @default(now())
   status    String   @default("ACTIVE") // ACTIVE, DROPPED, COMPLETED
+  sexo      String?
 
   classId   String
   class     Class    @relation(fields: [classId], references: [id])

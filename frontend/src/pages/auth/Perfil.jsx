@@ -13,6 +13,8 @@ export default function Perfil() {
     name: user?.name || "",
     email: "",
     currentPassword: "",
+    phone: user?.phone || "",
+    sexo: user?.sexo || "",
   });
   const [perfilSubmitting, setPerfilSubmitting] = useState(false);
 
@@ -37,8 +39,10 @@ export default function Perfil() {
         payload.email = perfilForm.email;
         payload.currentPassword = perfilForm.currentPassword;
       }
+      payload.phone = perfilForm.phone || null;
+      payload.sexo = perfilForm.sexo || null;
       const res = await api.patch("/users/perfil", payload);
-      setUser((prev) => ({ ...prev, name: res.data.user.name }));
+      setUser((prev) => ({ ...prev, name: res.data.user.name, phone: res.data.user.phone, sexo: res.data.user.sexo }));
       localStorage.setItem("userName", res.data.user.name);
       setPerfilForm({ ...perfilForm, email: "", currentPassword: "" });
       toast.success(res.data.message);
@@ -133,6 +137,28 @@ export default function Perfil() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Celular</label>
+              <input
+                type="tel"
+                value={perfilForm.phone}
+                onChange={(e) => setPerfilForm({ ...perfilForm, phone: e.target.value })}
+                placeholder="+244 9XX XXX XXX"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+              <select
+                value={perfilForm.sexo}
+                onChange={(e) => setPerfilForm({ ...perfilForm, sexo: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Não informado</option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Novo Email (opcional)</label>

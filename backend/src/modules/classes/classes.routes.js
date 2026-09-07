@@ -31,6 +31,9 @@ router.get("/todas", authorize("coordenador", "secretaria"), classesController.l
 // Buscar turma por ID
 router.get("/:id", authorize("formador", "coordenador", "secretaria"), classesController.getClassById);
 
+// Arquivar turma (secretaria/coordenador) - ANTES de /:id patch
+router.post("/:id/archive", authorize("secretaria", "coordenador"), classesController.archiveClass);
+
 // Atualizar turma (rascunho -> aberta, etc)
 router.patch("/:id", authorize("formador", "coordenador"), classesController.updateClass);
 

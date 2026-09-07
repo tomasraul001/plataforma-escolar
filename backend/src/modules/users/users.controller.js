@@ -73,7 +73,7 @@ export const deleteUser = async (req, res) => {
 
 // Atualizar perfil proprio
 export const updateProfile = async (req, res) => {
-    const { name, email, currentPassword } = req.body;
+    const { name, email, currentPassword, phone, sexo } = req.body;
     const userId = req.user.id;
 
     try {
@@ -106,8 +106,10 @@ export const updateProfile = async (req, res) => {
             data: {
                 name: name || user.name,
                 email: email ? email.toLowerCase() : user.email,
+                phone: phone !== undefined ? phone : user.phone,
+                sexo: sexo !== undefined ? sexo : user.sexo,
             },
-            select: { id: true, name: true, email: true, role: true }
+            select: { id: true, name: true, email: true, role: true, phone: true, sexo: true }
         });
 
         res.status(200).json({ message: "Perfil atualizado com sucesso", user: updated });

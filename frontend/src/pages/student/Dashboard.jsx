@@ -10,6 +10,7 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [secretKey, setSecretKey] = useState("");
+  const [sexo, setSexo] = useState("");
   const [showGradesModal, setShowGradesModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [gradesData, setGradesData] = useState(null);
@@ -32,9 +33,10 @@ export default function StudentDashboard() {
   const handleJoinClass = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/enrollments/join", { secretKey });
+      await api.post("/enrollments/join", { secretKey, sexo: sexo || undefined });
       setShowJoinModal(false);
       setSecretKey("");
+      setSexo("");
       fetchMyClasses();
     } catch (error) {
       toast.error("Erro ao entrar na turma: " + (error.response?.data?.message || "Chave inválida"));
@@ -141,6 +143,14 @@ export default function StudentDashboard() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                <select value={sexo} onChange={(e) => setSexo(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  <option value="">Não informado</option>
+                  <option value="M">Masculino</option>
+                  <option value="F">Feminino</option>
+                </select>
               </div>
               <div className="flex gap-3 justify-end">
                 <button

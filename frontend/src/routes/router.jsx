@@ -19,12 +19,14 @@ import CoordinatorTurmas from "../pages/coordinator/Turmas";
 import CoordinatorFormadores from "../pages/coordinator/Formadores";
 import CoordinatorFormandos from "../pages/coordinator/Formandos";
 import CoordinatorRelatorios from "../pages/coordinator/Relatorios";
+import CoordinatorFichaFormando from "../pages/coordinator/FichaFormando";
 
 // Trainer Pages
 import TrainerDashboard from "../pages/trainer/Dashboard";
 import TrainerNovaTurma from "../pages/trainer/NovaTurma";
 import TrainerTurmas from "../pages/trainer/Turmas";
 import TrainerPautas from "../pages/trainer/Pautas";
+import TrainerFichaFormando from "../pages/trainer/FichaFormando";
 import Planilha from "../pages/trainer/Planilha";
 import PautaDeTurma from "../pages/trainer/PautaDeTurma";
 import AlunosDaTurma from "../pages/trainer/AlunosDaTurma";
@@ -45,6 +47,7 @@ import SecretaryFormadores from "../pages/secretary/Formadores";
 import SecretaryFormandos from "../pages/secretary/Formandos";
 import SecretaryPautas from "../pages/secretary/Pautas";
 import SecretaryRelatorios from "../pages/secretary/Relatorios";
+import SecretaryFichaFormando from "../pages/secretary/FichaFormando";
 
 // Public Pages
 import LandingPage from "../pages/public/Landing";
@@ -100,6 +103,7 @@ export default function AppRouter() {
           <Route path="/coordenador/turma/:classId/presencas" element={<PresencasDaTurma color="blue" />} />
           <Route path="/coordenador/pautas/:classId" element={<PautaDeTurma color="blue" />} />
           <Route path="/coordenador/perfil" element={<Perfil />} />
+          <Route path="/coordenador/fichas" element={<CoordinatorFichaFormando />} />
         </Route>
 
         {/* Trainer Routes */}
@@ -119,6 +123,7 @@ export default function AppRouter() {
           <Route path="/formador/turma/:classId/presencas" element={<PresencasDaTurma />} />
           <Route path="/formador/pautas/:classId" element={<PautaDeTurma />} />
           <Route path="/formador/perfil" element={<Perfil />} />
+          <Route path="/formador/fichas" element={<TrainerFichaFormando />} />
         </Route>
 
         {/* Student Routes */}
@@ -156,6 +161,7 @@ export default function AppRouter() {
           <Route path="/secretaria/turma/:classId/presencas" element={<PresencasDaTurma color="orange" />} />
           <Route path="/secretaria/pautas/:classId" element={<PautaDeTurma color="orange" />} />
           <Route path="/secretaria/perfil" element={<Perfil />} />
+          <Route path="/secretaria/fichas" element={<SecretaryFichaFormando />} />
         </Route>
 
         {/* Catch all */}

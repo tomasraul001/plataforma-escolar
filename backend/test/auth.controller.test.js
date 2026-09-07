@@ -149,7 +149,7 @@ test("login: retorna 401 quando a senha esta incorreta", async () => {
   assert.equal(res.body.message, "Senha incorreta!");
 });
 
-test("login: sucesso retorna token com id/role/email e dados do usuario", async () => {
+test("register: sucesso retorna token com id/role/email e dados do usuario", async () => {
   installStubs();
   resetState();
   returnUser = {
@@ -174,4 +174,37 @@ test("login: sucesso retorna token com id/role/email e dados do usuario", async 
   const decoded = jwt.verify(res.body.token, process.env.SECRET_KEY);
   assert.equal(decoded.id, "user-123");
   assert.equal(decoded.role, "coordenador");
+});
+
+test("register: aceita phone opcional e grava no banco", async () => {
+  installStubs();
+  resetState();
+
+  const req = {
+    body: { name: "Maria", email: "maria@email.com", password: "123456", accessKey: "chave-formando", phone: "+244 912345678" },
+  };
+  const res = mockRes();
+
+  await register(req, res);
+
+  assert.equal(res.statusCode, 201);
+  assert.equal(createCalls.length, 1);
+  assert.equal(createCalls[0].phone, "+244 912345678");
+  assert.ok(res.body.user);
+  assert.equal(res.body.user.password, undefined);
+});
+
+test("register: phone undefined grava null", async () => {
+  installStubs();
+  resetState();
+
+  const req = {
+    body: { name: "Ana", email: "ana@email.com", password: "123456", accessKey: "chave-formando" },
+  };
+  const res = mockRes();
+
+  await register(req, res);
+
+  assert.equal(res.statusCode, 201);
+  assert.equal(createCalls[0].phone, null);
 });

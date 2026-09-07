@@ -5,6 +5,7 @@ const navItems = [
   { to: "/coordenador/turmas", label: "Turmas", icon: "🏫" },
   { to: "/coordenador/formadores", label: "Formadores", icon: "👨‍🏫" },
   { to: "/coordenador/formandos", label: "Formandos", icon: "🎓" },
+  { to: "/coordenador/fichas", label: "Fichas", icon: "📋" },
   { to: "/coordenador/relatorios", label: "Relatórios", icon: "📈" },
   { to: "/coordenador/perfil", label: "Meu Perfil", icon: "👤" },
 ];

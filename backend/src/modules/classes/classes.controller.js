@@ -135,6 +135,10 @@ export const updateClass = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
+    if (status === "ARCHIVED") {
+      return res.status(400).json({ message: "Use a rota /archive para arquivar" });
+    }
+
     // Ao fechar a turma, a data de término é a data/hora do fechamento
     const now = new Date();
     const isClosing = status === "CLOSED";
@@ -406,5 +410,30 @@ export const deleteRegion = async (req, res) => {
   } catch (error) {
     console.error("Erro ao excluir local/região:", error);
     res.status(500).json({ message: "Erro ao excluir local/região" });
+  }
+};
+
+export const archiveClass = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const classData = await prisma.class.findUnique({ where: { id } });
+    if (!classData) {
+      return res.status(404).json({ message: "Turma não encontrada" });
+    }
+
+    if (classData.status !== "CLOSED") {
+      return res.status(400).json({ message: "Só é possível arquivar turmas fechadas" });
+    }
+
+    const updated = await prisma.class.update({
+      where: { id },
+      data: { status: "ARCHIVED", archivedAt: new Date() },
+    });
+
+    res.status(200).json({ message: "Turma arquivada com sucesso", class: updated });
+  } catch (error) {
+    console.error("Erro ao arquivar turma:", error);
+    res.status(500).json({ message: "Erro ao arquivar turma" });
   }
 };

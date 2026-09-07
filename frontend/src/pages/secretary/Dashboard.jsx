@@ -74,7 +74,7 @@ export default function SecretaryDashboard() {
   const handleArchive = async (classId) => {
     if (!confirm("Tem certeza que deseja arquivar esta turma?")) return;
     try {
-      await api.patch(`/classes/${classId}`, { status: "ARCHIVED" });
+      await api.post(`/classes/${classId}/archive`);
       toast.success("Turma arquivada com sucesso!");
       fetchStats();
     } catch (error) {

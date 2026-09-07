@@ -1,7 +1,7 @@
 import prisma from "../../config/prisma.js";
 
 export const joinClass = async (req, res) => {
-  const { secretKey } = req.body;
+  const { secretKey, sexo } = req.body;
   const studentId = req.user.id;
 
   try {
@@ -31,11 +31,20 @@ export const joinClass = async (req, res) => {
         classId: classData.id,
         studentId,
         status: "ACTIVE",
+        sexo: sexo || null,
       },
       include: {
         class: { include: { trainingArea: true, trainer: { select: { name: true } } } },
       },
     });
+
+    // Atualizar sexo no User se estiver vazio
+    if (sexo) {
+      const studentUser = await prisma.user.findUnique({ where: { id: studentId }, select: { sexo: true } });
+      if (studentUser && !studentUser.sexo) {
+        await prisma.user.update({ where: { id: studentId }, data: { sexo } });
+      }
+    }
 
     res.status(201).json({
       message: "Inscrito na turma com sucesso!",
