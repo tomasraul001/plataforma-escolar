@@ -43,7 +43,7 @@ export default function Sigin(){
 
     return (
         <section className="flex min-h-screen justify-center items-center px-4 py-10">
-            <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-8 md:p-10">
+            <div className="w-full max-w-md bg-gray/30 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-8 md:p-10">
                 <div className="flex flex-col items-center mb-8">
                     <h3 className="font-bold text-3xl text-white mb-1">Criar Conta</h3>
                     <p className="text-blue-400 text-sm">Regista-te para aceder à plataforma</p>
@@ -52,23 +52,23 @@ export default function Sigin(){
                 <form className="flex flex-col gap-5" onSubmit={handleSigin}>
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium text-blue-100" htmlFor="name">Nome</label>
-                        <input id="name" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="text" placeholder="O teu nome" ref={inputName} />
+                        <input id="name" className="w-full bg-white/10 text-white placeholder:text-gray/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="text" placeholder="O teu nome" ref={inputName} />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-blue-100" htmlFor="email">Email</label>
-                        <input id="email" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="email" placeholder="exemplo@email.com" ref={inputEmail} />
+                        <label className="text-sm font-medium text-blue-300" htmlFor="email">Email</label>
+                        <input id="email" className="w-full bg-white/10 text-white placeholder:text-gray/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="email" placeholder="exemplo@email.com" ref={inputEmail} />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-blue-100" htmlFor="phone">Número de Celular (opcional)</label>
-                        <input id="phone" type="tel" placeholder="+244 9XX XXX XXX" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" ref={inputPhone} />
+                        <label className="text-sm font-medium text-blue-300" htmlFor="phone">Número de Celular (opcional)</label>
+                        <input id="phone" type="tel" placeholder="+258 8XX XXX XXX" className="w-full bg-white/10 text-white placeholder:text-gray/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" ref={inputPhone} />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-blue-100" htmlFor="password">Senha</label>
-                        <input id="password" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="password" placeholder="••••••••" ref={inputPassword} />
+                        <label className="text-sm font-medium text-blue-300" htmlFor="password">Senha</label>
+                        <input id="password" className="w-full bg-white/10 text-white placeholder:text-gray/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" type="password" placeholder="••••••••" ref={inputPassword} />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-blue-100" htmlFor="accessKey">Chave de Acesso</label>
-                        <input id="accessKey" type="text" placeholder="Insere a chave fornecida" className="w-full bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" ref={inputKey} />
+                        <label className="text-sm font-medium text-blue-300" htmlFor="accessKey">Chave de Acesso</label>
+                        <input id="accessKey" type="text" placeholder="Insere a chave fornecida" className="w-full bg-white/10 text-white placeholder:text-gray/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" ref={inputKey} />
                     </div>
                     <button disabled={loading}
                         className={`w-full mt-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white py-3.5 font-bold rounded-lg hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-900/40 transition-all cursor-pointer active:scale-[0.98] ${loading ? 'opacity-60 cursor-wait' : ''}`} type="submit">
