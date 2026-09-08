@@ -42,8 +42,13 @@ export default function Sigin(){
     }
 
     return (
+<<<<<<< HEAD
         <section className="flex min-h-screen justify-center items-center px-4 py-10">
             <div className="w-full max-w-md bg-gray/30 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-8 md:p-10">
+=======
+        <section className="flex min-h-screen justify-center items-center px-4 py-10 bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900">
+            <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-8 md:p-10">
+>>>>>>> c60433b0032778f4454be9d8763fb678de99ad56
                 <div className="flex flex-col items-center mb-8">
                     <h3 className="font-bold text-3xl text-white mb-1">Criar Conta</h3>
                     <p className="text-blue-400 text-sm">Regista-te para aceder à plataforma</p>
