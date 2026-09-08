@@ -45,7 +45,7 @@ export default function Login(){
     }
 
     return (
-        <section className="flex min-h-screen justify-center items-center px-4 py-10">
+        <section className="flex min-h-screen justify-center items-center px-4 py-10 bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900">
             <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-8 md:p-10">
                 <div className="flex flex-col items-center mb-8">
                     <h3 className="font-bold text-3xl text-white mb-1">Bem-vindo de volta</h3>
