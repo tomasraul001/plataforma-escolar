@@ -29,10 +29,10 @@ export default function CoordinatorUsers() {
   };
 
   const roleColors = {
-    coordenador: "bg-blue-100 text-blue-800",
-    formador: "bg-green-100 text-green-800",
-    formando: "bg-purple-100 text-purple-800",
-    secretaria: "bg-orange-100 text-orange-800",
+    coordenador: "bg-blue-100/80 text-blue-800",
+    formador: "bg-green-100/80 text-green-800",
+    formando: "bg-purple-100/80 text-purple-800",
+    secretaria: "bg-orange-100/80 text-orange-800",
   };
 
   if (loading) {
@@ -52,24 +52,24 @@ export default function CoordinatorUsers() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px]">
-            <thead className="bg-gray-50">
-              <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
+            <thead className="bg-white/40">
+              <tr className="text-left text-sm text-gray-500 border-b border-gray-200/50">
                 <th className="pb-3 px-6">Nome</th>
                 <th className="pb-3 px-6">Email</th>
                 <th className="pb-3 px-6">Cargo</th>
                 <th className="pb-3 px-6">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200/50">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50">
+                <tr key={u.id} className="hover:bg-white/40 transition-colors">
                   <td className="py-4 px-6 text-sm text-gray-900">{u.name}</td>
                   <td className="py-4 px-6 text-sm text-gray-500">{u.email}</td>
                   <td className="py-4 px-6">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleColors[u.role] || "bg-gray-100 text-gray-800"}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleColors[u.role] || "bg-gray-100/80 text-gray-800"}`}>
                       {roleLabels[u.role] || u.role}
                     </span>
                   </td>

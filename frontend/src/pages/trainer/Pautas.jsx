@@ -4,10 +4,10 @@ import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
 
 const STATUS_COLORS = {
-  OPEN: "bg-green-100 text-green-800",
-  CLOSED: "bg-red-100 text-red-800",
-  DRAFT: "bg-yellow-100 text-yellow-800",
-  ARCHIVED: "bg-gray-100 text-gray-800",
+  OPEN: "bg-green-100/80 text-green-800",
+  CLOSED: "bg-red-100/80 text-red-800",
+  DRAFT: "bg-yellow-100/80 text-yellow-800",
+  ARCHIVED: "bg-gray-100/80 text-gray-800",
 };
 
 export default function Pautas() {
@@ -67,17 +67,17 @@ export default function Pautas() {
       </div>
 
       {myClasses.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <div className="text-6xl mb-4">📋</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhuma turma criada</h3>
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
+          <div className="text-5xl mb-4">📋</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma turma criada</h3>
           <p className="text-gray-600">Crie uma turma para gerar pautas.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px]">
               <thead>
-                <tr className="bg-gray-50 text-left text-sm text-gray-500 border-b border-gray-200">
+                <tr className="bg-white/40 text-left text-sm text-gray-500 border-b border-gray-200/50">
                   <th className="pb-3 px-4">Turma</th>
                   <th className="pb-3 px-4">Área</th>
                   <th className="pb-3 px-4">Alunos</th>
@@ -85,9 +85,9 @@ export default function Pautas() {
                   <th className="pb-3 px-4">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {myClasses.map((cls) => (
-                  <tr key={cls.id} className="hover:bg-gray-50">
+                  <tr key={cls.id} className="hover:bg-white/40 transition-colors">
                     <td className="py-4 px-4">
                       <p className="font-medium text-gray-900">{cls.name}</p>
                       <p className="text-xs text-gray-500 font-mono">{cls.code}</p>
@@ -96,7 +96,7 @@ export default function Pautas() {
                     <td className="py-4 px-4 text-sm text-gray-600">{cls.location?.name || "—"}</td>
                     <td className="py-4 px-4 text-sm text-gray-600">{cls._count?.enrollments || 0}</td>
                     <td className="py-4 px-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[cls.status] || "bg-gray-100 text-gray-800"}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[cls.status] || "bg-gray-100/80 text-gray-800"}`}>
                         {cls.status}
                       </span>
                     </td>

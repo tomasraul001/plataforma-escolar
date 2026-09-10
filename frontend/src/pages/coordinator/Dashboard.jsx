@@ -202,10 +202,10 @@ export default function CoordinatorDashboard() {
   }
 
   const statusColors = {
-    OPEN: "bg-green-100 text-green-800",
-    CLOSED: "bg-red-100 text-red-800",
-    DRAFT: "bg-yellow-100 text-yellow-800",
-    ARCHIVED: "bg-gray-100 text-gray-800",
+    OPEN: "bg-green-100/80 text-green-800",
+    CLOSED: "bg-red-100/80 text-red-800",
+    DRAFT: "bg-yellow-100/80 text-yellow-800",
+    ARCHIVED: "bg-gray-100/80 text-gray-800",
   };
 
   const filteredClasses = selectedLocation
@@ -236,71 +236,71 @@ export default function CoordinatorDashboard() {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-100">
-                <span className="text-xl md:text-2xl">🏫</span>
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-blue-100/80">
+                <span className="text-xl">🏫</span>
               </div>
             </div>
-            <div className="ml-2 md:ml-4">
-              <p className="text-sm font-medium text-gray-500">Turmas Abertas</p>
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{filteredStats.openClasses}</p>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Turmas Abertas</p>
+              <p className="text-xl font-bold text-gray-900">{filteredStats.openClasses}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-red-100">
-                <span className="text-xl md:text-2xl">🔴</span>
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-red-100/80">
+                <span className="text-xl">🔴</span>
               </div>
             </div>
-            <div className="ml-2 md:ml-4">
-              <p className="text-sm font-medium text-gray-500">Turmas Fechadas</p>
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{filteredStats.closedClasses}</p>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Turmas Fechadas</p>
+              <p className="text-xl font-bold text-gray-900">{filteredStats.closedClasses}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-green-100">
-                <span className="text-xl md:text-2xl">👨‍🏫</span>
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-green-100/80">
+                <span className="text-xl">👨‍🏫</span>
               </div>
             </div>
-            <div className="ml-2 md:ml-4">
-              <p className="text-sm font-medium text-gray-500">Formadores</p>
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{filteredStats.trainers}</p>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Formadores</p>
+              <p className="text-xl font-bold text-gray-900">{filteredStats.trainers}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-purple-100">
-                <span className="text-xl md:text-2xl">🎓</span>
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-purple-100/80">
+                <span className="text-xl">🎓</span>
               </div>
             </div>
-            <div className="ml-2 md:ml-4">
-              <p className="text-sm font-medium text-gray-500">Formandos</p>
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{filteredStats.students}</p>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Formandos</p>
+              <p className="text-xl font-bold text-gray-900">{filteredStats.students}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Áreas de Formação */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-900">Áreas de Formação</h3>
           <button
             onClick={() => { resetForm(); setShowAreaModal(true); }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
           >
             + Nova Área
           </button>
@@ -308,12 +308,12 @@ export default function CoordinatorDashboard() {
 
         {areas.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">📚</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhuma área cadastrada</h3>
-            <p className="text-gray-600 mb-6">Cadastre as áreas de formação para que os formadores possam criar turmas.</p>
+            <div className="text-5xl mb-4">📚</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma área cadastrada</h3>
+            <p className="text-gray-600 mb-6 text-sm">Cadastre as áreas de formação para que os formadores possam criar turmas.</p>
             <button
               onClick={() => { resetForm(); setShowAreaModal(true); }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
             >
               + Cadastrar Primeira Área
             </button>
@@ -322,22 +322,22 @@ export default function CoordinatorDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px]">
               <thead>
-                <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
-                  <th className="pb-3 px-4">Nome</th>
-                  <th className="pb-3 px-4">Código</th>
-                  <th className="pb-3 px-4">Descrição</th>
-                  <th className="pb-3 px-4">Status</th>
-                  <th className="pb-3 px-4">Ações</th>
+                <tr className="text-left text-sm text-gray-500 border-b border-gray-200/50">
+                  <th className="pb-3 px-4 font-medium">Nome</th>
+                  <th className="pb-3 px-4 font-medium">Código</th>
+                  <th className="pb-3 px-4 font-medium">Descrição</th>
+                  <th className="pb-3 px-4 font-medium">Status</th>
+                  <th className="pb-3 px-4 font-medium">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {areas.map((area) => (
-                  <tr key={area.id} className="hover:bg-gray-50">
+                  <tr key={area.id} className="hover:bg-white/40 transition-colors">
                     <td className="py-4 px-4">
                       <p className="font-medium text-gray-900">{area.name}</p>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="font-mono text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                      <span className="font-mono text-sm bg-blue-50/80 text-blue-700 px-2 py-1 rounded">
                         {area.code || area.name.substring(0, 3).toUpperCase()}
                       </span>
                     </td>
@@ -345,7 +345,7 @@ export default function CoordinatorDashboard() {
                       {area.description || "—"}
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${area.active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${area.active ? "bg-green-100/80 text-green-800" : "bg-gray-100/80 text-gray-600"}`}>
                         {area.active ? "Ativa" : "Inativa"}
                       </span>
                     </td>
@@ -374,8 +374,8 @@ export default function CoordinatorDashboard() {
 
         {/* Modal Nova/Editar Área */}
         {showAreaModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 {editingArea ? "Editar Área" : "Nova Área de Formação"}
               </h3>
@@ -387,7 +387,7 @@ export default function CoordinatorDashboard() {
                     value={areaForm.name}
                     onChange={(e) => setAreaForm({ ...areaForm, name: e.target.value })}
                     placeholder="Ex: Informática, Eletricidade, Mecânica"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                     required
                     disabled={editingArea}
                   />
@@ -400,7 +400,7 @@ export default function CoordinatorDashboard() {
                     onChange={(e) => setAreaForm({ ...areaForm, code: e.target.value.toUpperCase() })}
                     placeholder="Ex: INF, ELE, MEC (auto se vazio)"
                     maxLength={10}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                   />
                   <p className="text-xs text-gray-500 mt-1">Se vazio, será gerado automaticamente do nome</p>
                 </div>
@@ -411,7 +411,7 @@ export default function CoordinatorDashboard() {
                     onChange={(e) => setAreaForm({ ...areaForm, description: e.target.value })}
                     rows={3}
                     placeholder="Descrição da área de formação"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                   />
                 </div>
                 <div className="flex items-center">
@@ -430,13 +430,13 @@ export default function CoordinatorDashboard() {
                   <button
                     type="button"
                     onClick={() => { setShowAreaModal(false); resetForm(); }}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+                    className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium text-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm"
                   >
                     {editingArea ? "Atualizar" : "Criar"}
                   </button>
@@ -448,12 +448,12 @@ export default function CoordinatorDashboard() {
       </div>
 
       {/* Locais/Regiões */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-900">Locais / Regiões</h3>
           <button
             onClick={() => { resetRegionForm(); setShowRegionModal(true); }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
           >
             + Novo Local
           </button>
@@ -461,12 +461,12 @@ export default function CoordinatorDashboard() {
 
         {regions.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">📍</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum local cadastrado</h3>
-            <p className="text-gray-600 mb-6">Cadastre os locais/regiões (ex: Luanda, Benguela) para que os formadores selecionem ao criar turmas.</p>
+            <div className="text-5xl mb-4">📍</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhum local cadastrado</h3>
+            <p className="text-gray-600 mb-6 text-sm">Cadastre os locais/regiões (ex: Luanda, Benguela) para que os formadores selecionem ao criar turmas.</p>
             <button
               onClick={() => { resetRegionForm(); setShowRegionModal(true); }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
             >
               + Cadastrar Primeiro Local
             </button>
@@ -475,22 +475,22 @@ export default function CoordinatorDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px]">
               <thead>
-                <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
-                  <th className="pb-3 px-4">Nome</th>
-                  <th className="pb-3 px-4">Código</th>
-                  <th className="pb-3 px-4">Descrição</th>
-                  <th className="pb-3 px-4">Status</th>
-                  <th className="pb-3 px-4">Ações</th>
+                <tr className="text-left text-sm text-gray-500 border-b border-gray-200/50">
+                  <th className="pb-3 px-4 font-medium">Nome</th>
+                  <th className="pb-3 px-4 font-medium">Código</th>
+                  <th className="pb-3 px-4 font-medium">Descrição</th>
+                  <th className="pb-3 px-4 font-medium">Status</th>
+                  <th className="pb-3 px-4 font-medium">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {regions.map((region) => (
-                  <tr key={region.id} className="hover:bg-gray-50">
+                  <tr key={region.id} className="hover:bg-white/40 transition-colors">
                     <td className="py-4 px-4">
                       <p className="font-medium text-gray-900">{region.name}</p>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="font-mono text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                      <span className="font-mono text-sm bg-blue-50/80 text-blue-700 px-2 py-1 rounded">
                         {region.code || region.name.substring(0, 3).toUpperCase()}
                       </span>
                     </td>
@@ -498,7 +498,7 @@ export default function CoordinatorDashboard() {
                       {region.description || "—"}
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${region.active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${region.active ? "bg-green-100/80 text-green-800" : "bg-gray-100/80 text-gray-600"}`}>
                         {region.active ? "Ativo" : "Inativo"}
                       </span>
                     </td>
@@ -527,8 +527,8 @@ export default function CoordinatorDashboard() {
 
         {/* Modal Nova/Editar Local */}
         {showRegionModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 {editingRegion ? "Editar Local" : "Novo Local/Região"}
               </h3>
@@ -540,7 +540,7 @@ export default function CoordinatorDashboard() {
                     value={regionForm.name}
                     onChange={(e) => setRegionForm({ ...regionForm, name: e.target.value })}
                     placeholder="Ex: Luanda, Benguela, Huambo"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                     required
                     disabled={editingRegion}
                   />
@@ -553,7 +553,7 @@ export default function CoordinatorDashboard() {
                     onChange={(e) => setRegionForm({ ...regionForm, code: e.target.value.toUpperCase() })}
                     placeholder="Ex: LUA, BG (auto se vazio)"
                     maxLength={10}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                   />
                   <p className="text-xs text-gray-500 mt-1">Se vazio, será gerado automaticamente do nome</p>
                 </div>
@@ -564,7 +564,7 @@ export default function CoordinatorDashboard() {
                     onChange={(e) => setRegionForm({ ...regionForm, description: e.target.value })}
                     rows={3}
                     placeholder="Descrição do local/região"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                   />
                 </div>
                 <div className="flex items-center">
@@ -583,13 +583,13 @@ export default function CoordinatorDashboard() {
                   <button
                     type="button"
                     onClick={() => { setShowRegionModal(false); resetRegionForm(); }}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+                    className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium text-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm"
                   >
                     {editingRegion ? "Atualizar" : "Criar"}
                   </button>
@@ -601,22 +601,22 @@ export default function CoordinatorDashboard() {
       </div>
 
       {/* Turmas Ativas */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Turmas Ativas</h3>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px]">
             <thead>
-              <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
-                <th className="pb-3 px-4">Área</th>
-                <th className="pb-3 px-4">Local</th>
-                <th className="pb-3 px-4">Turma</th>
-                <th className="pb-3 px-4">Formador</th>
-                <th className="pb-3 px-4">Alunos</th>
-                <th className="pb-3 px-4">Status</th>
-                <th className="pb-3 px-4">Ações</th>
+              <tr className="text-left text-sm text-gray-500 border-b border-gray-200/50">
+                <th className="pb-3 px-4 font-medium">Área</th>
+                <th className="pb-3 px-4 font-medium">Local</th>
+                <th className="pb-3 px-4 font-medium">Turma</th>
+                <th className="pb-3 px-4 font-medium">Formador</th>
+                <th className="pb-3 px-4 font-medium">Alunos</th>
+                <th className="pb-3 px-4 font-medium">Status</th>
+                <th className="pb-3 px-4 font-medium">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200/50">
               {filteredClasses.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-8 text-center text-sm text-gray-500">
@@ -625,14 +625,14 @@ export default function CoordinatorDashboard() {
                 </tr>
               ) : (
                 filteredClasses.map((cls) => (
-                <tr key={cls.id} className="hover:bg-gray-50">
+                <tr key={cls.id} className="hover:bg-white/40 transition-colors">
                   <td className="py-4 px-4 text-sm text-gray-900">{cls.trainingArea?.name || "—"}</td>
                   <td className="py-4 px-4 text-sm text-gray-900">{cls.location?.name || "—"}</td>
                   <td className="py-4 px-4 text-sm text-gray-900">{cls.name}</td>
                   <td className="py-4 px-4 text-sm text-gray-500">{cls.trainer?.name || "—"}</td>
                   <td className="py-4 px-4 text-sm text-gray-500">{cls._count?.enrollments || 0}</td>
                   <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[cls.status] || "bg-gray-100 text-gray-800"}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[cls.status] || "bg-gray-100/80 text-gray-800"}`}>
                       {cls.status}
                     </span>
                   </td>
@@ -643,7 +643,7 @@ export default function CoordinatorDashboard() {
                       disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
                       title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para gerar PDF" : "Baixar Pauta em PDF"}
                     >
-                        📄 PDF
+                      📄 PDF
                     </button>
                   </td>
                 </tr>

@@ -4,10 +4,10 @@ import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
 
 const STATUS_COLORS = {
-  OPEN: "bg-green-100 text-green-800",
-  CLOSED: "bg-red-100 text-red-800",
-  DRAFT: "bg-yellow-100 text-yellow-800",
-  ARCHIVED: "bg-gray-100 text-gray-800",
+  OPEN: "bg-green-100/80 text-green-800",
+  CLOSED: "bg-red-100/80 text-red-800",
+  DRAFT: "bg-yellow-100/80 text-yellow-800",
+  ARCHIVED: "bg-gray-100/80 text-gray-800",
 };
 
 export default function MinhasTurmas() {
@@ -78,20 +78,20 @@ export default function MinhasTurmas() {
         </div>
         <button
           onClick={() => navigate("/formador/turmas/nova")}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors self-start sm:self-auto"
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors self-start sm:self-auto"
         >
           + Nova Turma
         </button>
       </div>
 
       {myClasses.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <div className="text-6xl mb-4">🏫</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhuma turma criada</h3>
-          <p className="text-gray-600 mb-6">Crie sua primeira turma para começar a acompanhar os formandos.</p>
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
+          <div className="text-5xl mb-4">🏫</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma turma criada</h3>
+          <p className="text-gray-600 mb-6 text-sm">Crie sua primeira turma para começar a acompanhar os formandos.</p>
           <button
             onClick={() => navigate("/formador/turmas/nova")}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium"
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
           >
             + Criar Turma
           </button>
@@ -99,10 +99,10 @@ export default function MinhasTurmas() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {myClasses.map((cls) => (
-            <div key={cls.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div key={cls.id} className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">{cls.name}</h3>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[cls.status] || "bg-gray-100 text-gray-800"}`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[cls.status] || "bg-gray-100/80 text-gray-800"}`}>
                   {cls.status}
                 </span>
               </div>

@@ -122,7 +122,7 @@ export default function Perfil() {
 
       {/* Tab Perfil */}
       {activeTab === "perfil" && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
           <div className="mb-6 space-y-2 text-sm text-gray-600">
             <p>Nome: <span className="font-medium text-gray-900">{user?.name || "—"}</span></p>
             <p>Cargo: <span className="font-medium text-gray-900">{roleLabels[user?.role] || user?.role}</span></p>
@@ -134,7 +134,7 @@ export default function Perfil() {
                 type="text"
                 value={perfilForm.name}
                 onChange={(e) => setPerfilForm({ ...perfilForm, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                 required
               />
             </div>
@@ -167,7 +167,7 @@ export default function Perfil() {
                 value={perfilForm.email}
                 onChange={(e) => setPerfilForm({ ...perfilForm, email: e.target.value })}
                 placeholder="Deixe vazio para manter o email atual"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
               />
             </div>
             {perfilForm.email && (
@@ -177,7 +177,7 @@ export default function Perfil() {
                   type="password"
                   value={perfilForm.currentPassword}
                   onChange={(e) => setPerfilForm({ ...perfilForm, currentPassword: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                   required
                 />
               </div>
@@ -186,7 +186,7 @@ export default function Perfil() {
               <button
                 type="submit"
                 disabled={perfilSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium disabled:opacity-50 text-sm"
               >
                 {perfilSubmitting ? "Salvando..." : "Salvar Alterações"}
               </button>
@@ -197,7 +197,7 @@ export default function Perfil() {
 
       {/* Tab Senha */}
       {activeTab === "senha" && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
           <form onSubmit={handleTrocarSenha} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Senha Atual *</label>
@@ -205,7 +205,7 @@ export default function Perfil() {
                 type="password"
                 value={senhaForm.currentPassword}
                 onChange={(e) => setSenhaForm({ ...senhaForm, currentPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                 required
               />
             </div>
@@ -216,7 +216,7 @@ export default function Perfil() {
                 value={senhaForm.newPassword}
                 onChange={(e) => setSenhaForm({ ...senhaForm, newPassword: e.target.value })}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                 required
               />
             </div>
@@ -226,7 +226,7 @@ export default function Perfil() {
                 type="password"
                 value={senhaForm.confirmPassword}
                 onChange={(e) => setSenhaForm({ ...senhaForm, confirmPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                 required
               />
             </div>
@@ -234,7 +234,7 @@ export default function Perfil() {
               <button
                 type="submit"
                 disabled={senhaSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium disabled:opacity-50 text-sm"
               >
                 {senhaSubmitting ? "Alterando..." : "Trocar Senha"}
               </button>

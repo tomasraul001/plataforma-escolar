@@ -266,13 +266,13 @@ export default function Planilha() {
         <div className="flex gap-3">
           <button
             onClick={() => navigate(`/formador/pautas/${classId}`)}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
           >
             📋 Ver Pauta
           </button>
           <button
             onClick={() => handleDownloadPauta()}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
           >
             📄 Baixar PDF
           </button>
@@ -282,9 +282,9 @@ export default function Planilha() {
       {/* Status de salvamento */}
       {saveStatus && (
         <div className={`fixed bottom-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition-all ${
-          saveStatus === "saving" ? "bg-yellow-100 text-yellow-800" :
-          saveStatus === "saved" ? "bg-green-100 text-green-800" :
-          "bg-red-100 text-red-800"
+          saveStatus === "saving" ? "bg-yellow-100/80 text-yellow-800" :
+          saveStatus === "saved" ? "bg-green-100/80 text-green-800" :
+          "bg-red-100/80 text-red-800"
         }`}>
           {saveStatus === "saving" && <span className="flex items-center gap-2"><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Salvando...</span>}
           {saveStatus === "saved" && "✓ Salvo com sucesso"}
@@ -293,11 +293,11 @@ export default function Planilha() {
       )}
 
       {/* Planilha */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-190 text-sm">
-            <thead className="bg-gray-50 sticky top-0 z-10">
-              <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
+            <thead className="bg-white/40 sticky top-0 z-10">
+              <tr className="text-left text-sm text-gray-500 border-b border-gray-200/50">
                 <th className="pb-3 px-3 w-12 text-center font-semibold">Nº</th>
                 <th className="pb-3 px-4 min-w-50 font-semibold">Aluno</th>
                 {FIXED_COLUMNS.map(col => (
@@ -314,7 +314,7 @@ export default function Planilha() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {students.map((student, rowIndex) => (
-                <tr key={student.enrollmentId} className="hover:bg-gray-50">
+                <tr key={student.enrollmentId} className="hover:bg-white/40 transition-colors">
                   <td className="py-3 px-3 w-12 text-center text-gray-500 font-mono">
                     {rowIndex + 1}
                   </td>
@@ -334,7 +334,7 @@ export default function Planilha() {
                         onBlur={(e) => handleGradeChange(student.enrollmentId, col.id, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(e, student.enrollmentId, col.id)}
                         data-colid={col.id}
-                        className="w-full px-2 py-1.5  rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white hover:bg-gray-50"
+                        className="w-full px-2 py-1.5  rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white hover:bg-white/40 transition-colors"
                         placeholder="—"
                         inputMode="decimal"
                       />
@@ -351,7 +351,7 @@ export default function Planilha() {
       </div>
 
       {/* Legenda */}
-      <div className="flex items-center gap-6 text-sm text-gray-600 mt-4 p-4 bg-gray-50 rounded-lg">
+      <div className="flex items-center gap-6 text-sm text-gray-600 mt-4 p-4 bg-white/40 rounded-lg">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-yellow-100 rounded"></div>
           <span>Salvando...</span>

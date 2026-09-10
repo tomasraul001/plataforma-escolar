@@ -72,7 +72,7 @@ export default function NovaTurma() {
         <p className="text-gray-600 mt-1">Preencha os dados para criar uma turma</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Nome da Turma *</label>
@@ -81,7 +81,7 @@ export default function NovaTurma() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Ex: Informática Básica - Turma 02"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3 py-2 border border-gray-300/60 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
           </div>
@@ -90,7 +90,7 @@ export default function NovaTurma() {
             <select
               value={form.trainingAreaId}
               onChange={(e) => setForm({ ...form, trainingAreaId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300/60 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
               required
             >
               <option value="">Selecione uma área</option>
@@ -107,7 +107,7 @@ export default function NovaTurma() {
             <select
               value={form.regionId}
               onChange={(e) => setForm({ ...form, regionId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300/60 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
               required
             >
               <option value="">Selecione o local</option>
@@ -126,7 +126,7 @@ export default function NovaTurma() {
                 type="date"
                 value={form.startDate}
                 onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-gray-300/60 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export default function NovaTurma() {
             <button
               type="button"
               onClick={() => navigate("/formador/turmas")}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+              className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium"
             >
               Cancelar
             </button>

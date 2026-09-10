@@ -116,56 +116,56 @@ export default function TrainerDashboard() {
       </div>
 
       {myClasses.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <div className="text-6xl mb-4">🏫</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhuma turma criada</h3>
-          <p className="text-gray-600 mb-6">Clique em "Nova Turma" para começar.</p>
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
+          <div className="text-5xl mb-4">🏫</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma turma criada</h3>
+          <p className="text-gray-600 mb-6 text-sm">Clique em "Nova Turma" para começar.</p>
           <button
             onClick={() => setShowCreateClass(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium"
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
           >
             + Nova Turma
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {myClasses.map((cls) => (
-            <div key={cls.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{cls.name}</h3>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  cls.status === "OPEN" ? "bg-green-100 text-green-800" :
-                  cls.status === "CLOSED" ? "bg-red-100 text-red-800" :
-                  "bg-yellow-100 text-yellow-800"
+            <div key={cls.id} className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5 hover:shadow-md transition-all">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base font-semibold text-gray-900">{cls.name}</h3>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                  cls.status === "OPEN" ? "bg-green-100/80 text-green-800" :
+                  cls.status === "CLOSED" ? "bg-red-100/80 text-red-800" :
+                  "bg-yellow-100/80 text-yellow-800"
                 }`}>
                   {cls.status}
                 </span>
               </div>
-              <div className="space-y-2 text-sm text-gray-600 mb-4">
+              <div className="space-y-1.5 text-sm text-gray-600 mb-4">
                 <p>Código: <span className="font-mono text-gray-900">{cls.code}</span></p>
                 <p>Área: <span className="font-medium text-gray-900">{cls.trainingArea?.name || "—"}</span></p>
                 <p>Local: <span className="font-medium text-gray-900">{cls.location?.name || "—"}</span></p>
                 <p>Alunos: <span className="font-medium text-gray-900">{cls._count?.enrollments || 0}</span></p>
                 {cls.secretKey && <p>Chave: <span className="font-mono text-gray-900">{cls.secretKey}</span></p>}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {cls.status === "CLOSED" || cls.status === "ARCHIVED" ? (
                   <>
                     <button
                       onClick={() => navigate(`/formador/turma/${cls.id}/presencas`)}
-                      className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      className="bg-teal-600 hover:bg-teal-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                     >
                       ✅ Presenças
                     </button>
                     <button
                       onClick={() => navigate(`/formador/pautas/${cls.id}`)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                     >
                       📋 Pauta
                     </button>
                     <button
                       onClick={() => navigate(`/formador/turma/${cls.id}/alunos`)}
-                      className="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      className="bg-sky-600 hover:bg-sky-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                     >
                       👥 Alunos
                     </button>
@@ -174,13 +174,13 @@ export default function TrainerDashboard() {
                   <>
                     <button
                       onClick={() => navigate(`/formador/turma/${cls.id}/presencas`)}
-                      className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      className="bg-teal-600 hover:bg-teal-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                     >
                       ✅ Presenças
                     </button>
                     <button
                       onClick={() => navigate(`/formador/planilha/${cls.id}`)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                       disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
                       title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para acessar a planilha" : ""}
                     >
@@ -188,19 +188,19 @@ export default function TrainerDashboard() {
                     </button>
                     <button
                       onClick={() => navigate(`/formador/turma/${cls.id}/alunos`)}
-                      className="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      className="bg-sky-600 hover:bg-sky-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                     >
                       👥 Alunos
                     </button>
                     <button
                       onClick={() => navigate(`/formador/pautas/${cls.id}`)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                     >
                       📋 Pauta
                     </button>
                     <button
                       onClick={() => handleDownloadPauta(cls.id)}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                       disabled={cls.status !== "OPEN" && cls.status !== "CLOSED"}
                       title={cls.status === "DRAFT" ? "Turma deve estar aberta ou fechada para gerar PDF" : ""}
                     >
@@ -209,7 +209,7 @@ export default function TrainerDashboard() {
                     {cls.status === "DRAFT" && (
                       <button
                         onClick={() => handleUpdateClassStatus(cls.id, "OPEN")}
-                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                        className="bg-green-600 hover:bg-green-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                       >
                         Abrir
                       </button>
@@ -217,7 +217,7 @@ export default function TrainerDashboard() {
                     {cls.status === "OPEN" && (
                       <button
                         onClick={() => handleUpdateClassStatus(cls.id, "CLOSED")}
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm flex-1"
+                        className="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1.5 rounded text-xs flex-1"
                       >
                         Fechar
                       </button>
@@ -232,8 +232,8 @@ export default function TrainerDashboard() {
 
       {/* Modal Nova Turma */}
       {showCreateClass && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto border border-white/50 shadow-xl">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Nova Turma</h3>
             <form onSubmit={handleCreateClass} className="space-y-4">
               <div>
@@ -243,7 +243,7 @@ export default function TrainerDashboard() {
                   value={newClassForm.name}
                   onChange={(e) => setNewClassForm({ ...newClassForm, name: e.target.value })}
                   placeholder="Ex: Informática Básica - Turma 01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white/50"
                   required
                 />
               </div>
@@ -252,7 +252,7 @@ export default function TrainerDashboard() {
                 <select
                   value={newClassForm.trainingAreaId}
                   onChange={(e) => setNewClassForm({ ...newClassForm, trainingAreaId: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white/50"
                   required
                 >
                   <option value="">Selecione a área</option>
@@ -266,7 +266,7 @@ export default function TrainerDashboard() {
                 <select
                   value={newClassForm.regionId}
                   onChange={(e) => setNewClassForm({ ...newClassForm, regionId: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white/50"
                   required
                 >
                   <option value="">Selecione o local</option>
@@ -281,18 +281,18 @@ export default function TrainerDashboard() {
                   type="date"
                   value={newClassForm.startDate}
                   onChange={(e) => setNewClassForm({ ...newClassForm, startDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white/50"
                 />
               </div>
               <div className="flex gap-3 justify-end">
                 <button
                   type="button"
                   onClick={() => setShowCreateClass(false)}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+                  className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium text-sm"
                 >
                   Cancelar
                 </button>
-                <button type="submit" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
+                <button type="submit" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm">
                   Criar Turma
                 </button>
               </div>

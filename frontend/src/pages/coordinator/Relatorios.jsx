@@ -58,26 +58,26 @@ export default function Relatorios() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
           <p className="text-sm font-medium text-gray-500">Total de Turmas</p>
           <p className="text-2xl font-bold text-gray-900">{classes.length}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
           <p className="text-sm font-medium text-gray-500">Turmas com Pauta</p>
           <p className="text-2xl font-bold text-gray-900">{pdfClasses.length}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
           <p className="text-sm font-medium text-gray-500">Formandos</p>
           <p className="text-2xl font-bold text-gray-900">{totalStudents}</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Baixar Pauta por Turma</h3>
         {pdfClasses.length === 0 ? (
           <p className="text-gray-500 text-center py-8">Nenhuma turma disponível para gerar relatório.</p>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-200/50">
             {pdfClasses.map((cls) => (
               <div key={cls.id} className="py-3 flex items-center justify-between gap-3">
                 <div>

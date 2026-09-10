@@ -119,85 +119,85 @@ export default function SecretaryDashboard() {
         onChange={setSelectedLocation}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-green-100">
-                <span className="text-2xl">🟢</span>
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-green-100/80">
+                <span className="text-xl">🟢</span>
               </div>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Turmas Abertas</p>
-              <p className="text-2xl font-bold text-gray-900">{filteredStats.openClasses}</p>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Turmas Abertas</p>
+              <p className="text-xl font-bold text-gray-900">{filteredStats.openClasses}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-red-100">
-                <span className="text-2xl">🔴</span>
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-red-100/80">
+                <span className="text-xl">🔴</span>
               </div>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Turmas Fechadas</p>
-              <p className="text-2xl font-bold text-gray-900">{filteredStats.closedClasses}</p>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Turmas Fechadas</p>
+              <p className="text-xl font-bold text-gray-900">{filteredStats.closedClasses}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-gray-100">
-                <span className="text-2xl">📦</span>
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-gray-100/80">
+                <span className="text-xl">📦</span>
               </div>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Arquivadas</p>
-              <p className="text-2xl font-bold text-gray-900">{filteredStats.archivedClasses}</p>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Arquivadas</p>
+              <p className="text-xl font-bold text-gray-900">{filteredStats.archivedClasses}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-orange-100">
-                <span className="text-2xl">👨‍🏫</span>
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-orange-100/80">
+                <span className="text-xl">👨‍🏫</span>
               </div>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Formadores</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.trainers}</p>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Formadores</p>
+              <p className="text-xl font-bold text-gray-900">{stats.trainers}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Turmas Fechadas Aguardando Conferência</h3>
         {filteredClosed.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">Nenhuma turma fechada aguardando conferência{selectedLocation ? " para o local selecionado" : ""}.</p>
+          <p className="text-gray-500 text-center py-8 text-sm">Nenhuma turma fechada aguardando conferência{selectedLocation ? " para o local selecionado" : ""}.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px]">
               <thead>
-                <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
-                  <th className="pb-3 px-4">Turma</th>
-                  <th className="pb-3 px-4">Formador</th>
-                  <th className="pb-3 px-4">Área</th>
-                  <th className="pb-3 px-4">Local</th>
-                  <th className="pb-3 px-4">Alunos</th>
-                  <th className="pb-3 px-4">Fechada em</th>
-                  <th className="pb-3 px-4">Ações</th>
+                <tr className="text-left text-sm text-gray-500 border-b border-gray-200/50">
+                  <th className="pb-3 px-4 font-medium">Turma</th>
+                  <th className="pb-3 px-4 font-medium">Formador</th>
+                  <th className="pb-3 px-4 font-medium">Área</th>
+                  <th className="pb-3 px-4 font-medium">Local</th>
+                  <th className="pb-3 px-4 font-medium">Alunos</th>
+                  <th className="pb-3 px-4 font-medium">Fechada em</th>
+                  <th className="pb-3 px-4 font-medium">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {filteredClosed.map((cls) => (
-                  <tr key={cls.id} className="hover:bg-gray-50">
+                  <tr key={cls.id} className="hover:bg-white/40 transition-colors">
                     <td className="py-4 px-4 text-sm text-gray-900">{cls.name}</td>
                     <td className="py-4 px-4 text-sm text-gray-500">{cls.trainer?.name || "—"}</td>
                     <td className="py-4 px-4 text-sm text-gray-500">{cls.trainingArea?.name || "—"}</td>
@@ -222,7 +222,7 @@ export default function SecretaryDashboard() {
                         </button>
                         <button
                           onClick={() => handleArchive(cls.id)}
-                          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded text-xs"
+                          className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-3 py-1 rounded text-xs"
                         >
                           Arquivar
                         </button>
@@ -236,24 +236,24 @@ export default function SecretaryDashboard() {
         )}
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Ações Rápidas</h3>
         <div className="flex flex-wrap gap-3">
           <button
             onClick={() => navigate("/secretaria/turmas/abertas")}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium"
+            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium text-sm"
           >
             Ver Todas as Turmas
           </button>
           <button
             onClick={() => navigate("/secretaria/pautas")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm"
           >
             Pautas & PDFs
           </button>
           <button
             onClick={() => navigate("/secretaria/relatorios")}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+            className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium text-sm"
           >
             Gerar Relatórios
           </button>

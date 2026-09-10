@@ -96,13 +96,13 @@ export default function PautaDeTurma({ color = "green" }) {
         <div className="flex gap-2">
           <button
             onClick={() => navigate(`${BASE_PATHS[color] || "/formador"}/turma/${classId}/alunos`)}
-            className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
           >
             👥 Alunos
           </button>
           <button
             onClick={handleDownloadPauta}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
           >
             📄 Baixar PDF
           </button>
@@ -110,17 +110,17 @@ export default function PautaDeTurma({ color = "green" }) {
       </div>
 
       {gradebook.students.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <div className="text-6xl mb-4">📋</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum aluno inscrito</h3>
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
+          <div className="text-5xl mb-4">📋</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhum aluno inscrito</h3>
           <p className="text-gray-600">Esta turma ainda não possui alunos para gerar a pauta.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
+                <tr className="bg-white/40 text-left text-gray-500 border-b border-gray-200/50">
                   <th className="pb-2 px-3">Aluno</th>
                   {gradebook.assessments.map((a) => (
                     <th key={a.id} className="pb-2 px-3 text-center">{a.name}</th>
@@ -128,9 +128,9 @@ export default function PautaDeTurma({ color = "green" }) {
                   <th className="pb-2 px-3 text-center font-semibold">Média</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {gradebook.students.map((s) => (
-                  <tr key={s.enrollmentId} className="hover:bg-gray-50">
+                  <tr key={s.enrollmentId} className="hover:bg-white/40 transition-colors">
                     <td className="py-3 px-3">
                       <p className="font-medium text-gray-900">{s.student?.name || s.manualName}</p>
                     </td>

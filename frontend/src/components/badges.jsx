@@ -1,15 +1,15 @@
 const STATUS_COLORS = {
-  OPEN: "bg-green-100 text-green-800",
-  CLOSED: "bg-red-100 text-red-800",
-  DRAFT: "bg-yellow-100 text-yellow-800",
-  ARCHIVED: "bg-gray-100 text-gray-800",
+  OPEN: "bg-green-100/80 text-green-800 backdrop-blur-sm",
+  CLOSED: "bg-red-100/80 text-red-800 backdrop-blur-sm",
+  DRAFT: "bg-yellow-100/80 text-yellow-800 backdrop-blur-sm",
+  ARCHIVED: "bg-gray-100/80 text-gray-800 backdrop-blur-sm",
 };
 
 const ROLE_COLORS = {
-  coordenador: "bg-blue-100 text-blue-800",
-  formador: "bg-green-100 text-green-800",
-  formando: "bg-purple-100 text-purple-800",
-  secretaria: "bg-orange-100 text-orange-800",
+  coordenador: "bg-blue-100/80 text-blue-800 backdrop-blur-sm",
+  formador: "bg-green-100/80 text-green-800 backdrop-blur-sm",
+  formando: "bg-purple-100/80 text-purple-800 backdrop-blur-sm",
+  secretaria: "bg-orange-100/80 text-orange-800 backdrop-blur-sm",
 };
 
 const ROLE_LABELS = {
@@ -21,7 +21,7 @@ const ROLE_LABELS = {
 
 export function StatusBadge({ status }) {
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[status] || "bg-gray-100 text-gray-800"}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[status] || "bg-gray-100/80 text-gray-800 backdrop-blur-sm"}`}>
       {status}
     </span>
   );
@@ -29,7 +29,7 @@ export function StatusBadge({ status }) {
 
 export function RoleBadge({ role }) {
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[role] || "bg-gray-100 text-gray-800"}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[role] || "bg-gray-100/80 text-gray-800 backdrop-blur-sm"}`}>
       {ROLE_LABELS[role] || role}
     </span>
   );

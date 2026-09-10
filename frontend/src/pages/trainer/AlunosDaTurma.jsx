@@ -106,14 +106,14 @@ export default function AlunosDaTurma({ color = "green" }) {
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => navigate(`${basePath}/pautas/${classId}`)}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
           >
             📋 Ver Pauta
           </button>
           {canManage && classData.status !== "CLOSED" && classData.status !== "ARCHIVED" && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
             >
               + Adicionar Aluno
             </button>
@@ -122,10 +122,10 @@ export default function AlunosDaTurma({ color = "green" }) {
       </div>
 
       {alunos.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <div className="text-6xl mb-4">👥</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum aluno inscrito</h3>
-          <p className="text-gray-600 mb-6">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
+          <div className="text-5xl mb-4">👥</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhum aluno inscrito</h3>
+          <p className="text-gray-600 mb-6 text-sm">
             {canManage && classData.status !== "CLOSED" && classData.status !== "ARCHIVED"
               ? "Adicione alunos manualmente ou compartilhe a chave da turma."
               : "Esta turma ainda não possui alunos."}
@@ -133,27 +133,27 @@ export default function AlunosDaTurma({ color = "green" }) {
           {canManage && classData.status !== "CLOSED" && classData.status !== "ARCHIVED" && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium"
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
             >
               + Adicionar Primeiro Aluno
             </button>
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px]">
               <thead>
-                <tr className="bg-gray-50 text-left text-sm text-gray-500 border-b border-gray-200">
+                <tr className="bg-white/40 text-left text-sm text-gray-500 border-b border-gray-200/50">
                   <th className="pb-3 px-4 pt-3">Aluno</th>
                   <th className="pb-3 px-4 pt-3">Tipo</th>
                   <th className="pb-3 px-4 pt-3">Entrou em</th>
                   {canManage && <th className="pb-3 px-4 pt-3">Ações</th>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {alunos.map((enrollment) => (
-                  <tr key={enrollment.id} className="hover:bg-gray-50">
+                  <tr key={enrollment.id} className="hover:bg-white/40 transition-colors">
                     <td className="py-4 px-4">
                       <p className="font-medium text-gray-900">{enrollment.student?.name || enrollment.manualName || "—"}</p>
                       {enrollment.student?.email && (
@@ -161,7 +161,7 @@ export default function AlunosDaTurma({ color = "green" }) {
                       )}
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-600">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${enrollment.student ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${enrollment.student ? "bg-green-100/80 text-green-800" : "bg-blue-100/80 text-blue-800"}`}>
                         {enrollment.student ? "Com conta" : "Manual"}
                       </span>
                     </td>
@@ -188,8 +188,8 @@ export default function AlunosDaTurma({ color = "green" }) {
 
       {/* Modal Adicionar Aluno */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 border border-white/50 shadow-xl w-full max-w-md mx-4">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Adicionar Aluno</h3>
             <p className="text-sm text-gray-600 mb-4">
               Para alunos que não têm conta na plataforma, insira o nome manualmente.
@@ -202,7 +202,7 @@ export default function AlunosDaTurma({ color = "green" }) {
                   value={manualName}
                   onChange={(e) => setManualName(e.target.value)}
                   placeholder="Ex: João dos Santos"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                   autoFocus
                 />
@@ -211,14 +211,14 @@ export default function AlunosDaTurma({ color = "green" }) {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+                  className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium disabled:opacity-50"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50"
                 >
                   {submitting ? "Adicionando..." : "Adicionar"}
                 </button>

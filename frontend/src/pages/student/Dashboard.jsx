@@ -78,32 +78,32 @@ export default function StudentDashboard() {
       </div>
 
       {myClasses.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <div className="text-6xl mb-4">📚</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhuma turma ainda</h3>
-          <p className="text-gray-600 mb-6">Clique em "Entrar na Turma" e use a chave que seu formador te deu.</p>
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
+          <div className="text-5xl mb-4">📚</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma turma ainda</h3>
+          <p className="text-gray-600 mb-6 text-sm">Clique em "Entrar na Turma" e use a chave que seu formador te deu.</p>
           <button
             onClick={() => setShowJoinModal(true)}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
           >
             Entrar na Turma
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {myClasses.map((cls) => (
-            <div key={cls.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{cls.name}</h3>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  cls.status === "OPEN" ? "bg-green-100 text-green-800" :
-                  cls.status === "CLOSED" ? "bg-red-100 text-red-800" :
-                  "bg-gray-100 text-gray-800"
+            <div key={cls.id} className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base font-semibold text-gray-900">{cls.name}</h3>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                  cls.status === "OPEN" ? "bg-green-100/80 text-green-800" :
+                  cls.status === "CLOSED" ? "bg-red-100/80 text-red-800" :
+                  "bg-gray-100/80 text-gray-800"
                 }`}>
                   {cls.status}
                 </span>
               </div>
-              <div className="space-y-2 text-sm text-gray-600 mb-4">
+              <div className="space-y-1.5 text-sm text-gray-600 mb-4">
                 <p>Formador: <span className="font-medium text-gray-900">{cls.trainer?.name || "—"}</span></p>
                 <p>Área: <span className="font-medium text-gray-900">{cls.trainingArea?.name || "—"}</span></p>
                 <p>Local: <span className="font-medium text-gray-900">{cls.location?.name || "—"}</span></p>
@@ -118,7 +118,7 @@ export default function StudentDashboard() {
                 >
                   Ver Notas
                 </button>
-                <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 rounded text-sm">
+                <button className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-3 py-1.5 rounded text-sm">
                   Detalhes
                 </button>
               </div>
@@ -129,8 +129,8 @@ export default function StudentDashboard() {
 
       {/* Modal Entrar na Turma */}
       {showJoinModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Entrar na Turma</h3>
             <form onSubmit={handleJoinClass} className="space-y-4">
               <div>
@@ -140,7 +140,7 @@ export default function StudentDashboard() {
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
                   placeholder="Ex: X7K9-P2M4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50"
                   required
                 />
               </div>
@@ -156,11 +156,11 @@ export default function StudentDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowJoinModal(false)}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+                  className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium text-sm"
                 >
                   Cancelar
                 </button>
-                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium">
+                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium text-sm">
                   Entrar
                 </button>
               </div>
@@ -171,12 +171,12 @@ export default function StudentDashboard() {
 
       {/* Modal Ver Notas */}
       {showGradesModal && gradesData && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto border border-white/50 shadow-xl">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Minhas Notas - {gradesData.class.name}</h3>
-                <p className="text-gray-600">Código: {gradesData.class.code}</p>
+                <p className="text-gray-600 text-sm">Código: {gradesData.class.code}</p>
               </div>
               <button
                 onClick={() => { setShowGradesModal(false); setGradesData(null); }}
@@ -196,7 +196,7 @@ export default function StudentDashboard() {
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold text-gray-900">Suas Notas</h4>
                       {s.media !== null && s.media !== undefined && (
-                        <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-bold">
+                        <span className="bg-purple-100/80 text-purple-800 px-3 py-1 rounded-full text-sm font-bold">
                           Média: {s.media}
                         </span>
                       )}
@@ -204,14 +204,14 @@ export default function StudentDashboard() {
                     <div className="overflow-x-auto">
                       <table className="w-full min-w-[440px] text-sm">
                         <thead>
-                          <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
-                            <th className="pb-2 px-3">Avaliação</th>
-                            <th className="pb-2 px-3 text-center">Nota</th>
+                          <tr className="bg-white/40 text-left text-gray-500 border-b border-gray-200/50">
+                            <th className="pb-2 px-3 font-medium">Avaliação</th>
+                            <th className="pb-2 px-3 text-center font-medium">Nota</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-gray-200/50">
                           {s.grades.map((g) => (
-                            <tr key={g.assessmentId} className="hover:bg-gray-50">
+                            <tr key={g.assessmentId} className="hover:bg-white/40 transition-colors">
                               <td className="py-3 px-3">{g.assessmentName}</td>
                               <td className="py-3 px-3 text-center font-bold text-gray-900">
                                 {g.value !== null ? g.value : <span className="text-gray-400">—</span>}
@@ -222,7 +222,7 @@ export default function StudentDashboard() {
                       </table>
                     </div>
                     {s.media !== null && s.media !== undefined && (
-                      <div className="mt-3 pt-3 border-t border-gray-200 flex justify-end">
+                      <div className="mt-3 pt-3 border-t border-gray-200/50 flex justify-end">
                         <span className="text-lg font-bold text-purple-600">Média Final: {s.media}</span>
                       </div>
                     )}
@@ -233,7 +233,7 @@ export default function StudentDashboard() {
             <div className="mt-6 text-center">
               <button
                 onClick={() => { setShowGradesModal(false); setGradesData(null); }}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium"
+                className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm"
               >
                 Fechar
               </button>

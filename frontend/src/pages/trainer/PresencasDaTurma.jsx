@@ -149,14 +149,14 @@ export default function PresencasDaTurma({ color = "green" }) {
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => navigate(`${basePath}/turma/${classId}/alunos`)}
-            className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
           >
             👥 Alunos
           </button>
           {canManage && isOpen && (
             <button
               onClick={() => setShowNewSession(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
             >
               + Nova Sessão
             </button>
@@ -173,19 +173,19 @@ export default function PresencasDaTurma({ color = "green" }) {
       {/* Resumo (secretaria/coordenador) */}
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-4">
             <p className="text-sm text-gray-500">Total de Sessões</p>
             <p className="text-2xl font-bold text-gray-900">{summary.totalSessions}</p>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-4">
             <p className="text-sm text-gray-500">Total de Registros</p>
             <p className="text-2xl font-bold text-gray-900">{summary.totalRecords}</p>
           </div>
-          <div className="bg-green-50 rounded-lg shadow-sm border border-green-200 p-4">
+          <div className="bg-green-50/80 rounded-lg shadow-sm border border-green-200 p-4">
             <p className="text-sm text-green-700">Presentes</p>
             <p className="text-2xl font-bold text-green-800">{summary.present}</p>
           </div>
-          <div className="bg-red-50 rounded-lg shadow-sm border border-red-200 p-4">
+          <div className="bg-red-50/80 rounded-lg shadow-sm border border-red-200 p-4">
             <p className="text-sm text-red-700">Faltosos</p>
             <p className="text-2xl font-bold text-red-800">{summary.absent}</p>
           </div>
@@ -193,9 +193,9 @@ export default function PresencasDaTurma({ color = "green" }) {
       )}
 
       {sessions.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <div className="text-6xl mb-4">✅</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhuma sessão registrada</h3>
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
+          <div className="text-5xl mb-4">✅</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma sessão registrada</h3>
           <p className="text-gray-600">
             {canManage && isOpen
               ? "Crie uma sessão para começar a registrar as presenças."
@@ -203,11 +203,11 @@ export default function PresencasDaTurma({ color = "green" }) {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[620px] text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
+                <tr className="bg-white/40 text-left text-gray-500 border-b border-gray-200/50">
                   <th className="py-3 px-4">Data</th>
                   <th className="py-3 px-4 text-center">Total</th>
                   <th className="py-3 px-4 text-center">Presentes</th>
@@ -215,20 +215,20 @@ export default function PresencasDaTurma({ color = "green" }) {
                   <th className="py-3 px-4"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {sessions.map((s) => (
-                  <tr key={s.id} className="hover:bg-gray-50">
+                  <tr key={s.id} className="hover:bg-white/40 transition-colors">
                     <td className="py-3 px-4 font-medium text-gray-900">
                       {new Date(s.date).toLocaleDateString("pt-BR")}
                     </td>
                     <td className="py-3 px-4 text-center text-gray-700">{s.totalStudents}</td>
                     <td className="py-3 px-4 text-center">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100/80 text-green-800">
                         {s.present}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100/80 text-red-800">
                         {s.absent}
                       </span>
                     </td>
@@ -250,8 +250,8 @@ export default function PresencasDaTurma({ color = "green" }) {
 
       {/* Detalhe da sessão */}
       {sessionDetail && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-4 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
+          <div className="px-4 py-4 border-b border-gray-200/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
                 Sessão de {new Date(sessionDetail.date).toLocaleDateString("pt-BR")}
@@ -278,14 +278,14 @@ export default function PresencasDaTurma({ color = "green" }) {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[480px] text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
+                <tr className="bg-white/40 text-left text-gray-500 border-b border-gray-200/50">
                   <th className="py-3 px-4">Aluno</th>
                   <th className="py-3 px-4 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {sessionDetail.students.map((s) => (
-                  <tr key={s.enrollmentId} className="hover:bg-gray-50">
+                  <tr key={s.enrollmentId} className="hover:bg-white/40 transition-colors">
                     <td className="py-3 px-4">
                       <p className="font-medium text-gray-900">{s.name}</p>
                       {s.email && <p className="text-xs text-gray-500">{s.email}</p>}
@@ -306,7 +306,7 @@ export default function PresencasDaTurma({ color = "green" }) {
                       ) : (
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            s.present ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                            s.present ? "bg-green-100/80 text-green-800" : "bg-red-100/80 text-red-800"
                           }`}
                         >
                           {s.present ? "Presente" : "Faltou"}
@@ -319,7 +319,7 @@ export default function PresencasDaTurma({ color = "green" }) {
             </table>
           </div>
           {canManage && isOpen && (
-            <div className="px-4 py-4 border-t border-gray-200 flex justify-end">
+            <div className="px-4 py-4 border-t border-gray-200/50 flex justify-end">
               <button
                 onClick={handleSaveSession}
                 disabled={saving}
@@ -334,8 +334,8 @@ export default function PresencasDaTurma({ color = "green" }) {
 
       {/* Modal Nova Sessão */}
       {showNewSession && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 border border-white/50 shadow-xl w-full max-w-md mx-4">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Nova Sessão de Presença</h3>
             <form onSubmit={handleCreateSession} className="space-y-4">
               <div>
@@ -344,7 +344,7 @@ export default function PresencasDaTurma({ color = "green" }) {
                   type="date"
                   value={sessionDate}
                   onChange={(e) => setSessionDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                   autoFocus
                 />
@@ -353,14 +353,14 @@ export default function PresencasDaTurma({ color = "green" }) {
                 <button
                   type="button"
                   onClick={() => setShowNewSession(false)}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
+                  className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium disabled:opacity-50"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50"
                 >
                   {submitting ? "Criando..." : "Criar Sessão"}
                 </button>
