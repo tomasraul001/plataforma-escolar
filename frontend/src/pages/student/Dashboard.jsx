@@ -45,6 +45,7 @@ export default function StudentDashboard() {
 
   const handleViewGrades = async (cls) => {
     setSelectedClass(cls);
+    setShowJoinModal(false);
     try {
       const res = await api.get(`/grades/pauta/${cls.id}`);
       setGradesData(res.data);
@@ -83,7 +84,7 @@ export default function StudentDashboard() {
           <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma turma ainda</h3>
           <p className="text-gray-600 mb-6 text-sm">Clique em "Entrar na Turma" e use a chave que seu formador te deu.</p>
           <button
-            onClick={() => setShowJoinModal(true)}
+          onClick={() => { setShowGradesModal(false); setGradesData(null); setShowJoinModal(true); }}
             className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
           >
             Entrar na Turma
@@ -131,7 +132,10 @@ export default function StudentDashboard() {
       {showJoinModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Entrar na Turma</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Entrar na Turma</h3>
+              <button onClick={() => setShowJoinModal(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
             <form onSubmit={handleJoinClass} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Chave da Turma</label>

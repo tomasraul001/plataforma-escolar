@@ -3,7 +3,7 @@ import iconeLogo from "../../assets/logo.png"
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-blue-950/80 via-blue-900/70 to-indigo-900/80 flex flex-col">
       <header className="px-4 pt-4 md:p-6">
         <div className="w-full mx-auto flex justify-between items-center">
           <img className="h-14 md:h-20 w-auto rounded-xl" src={iconeLogo} />

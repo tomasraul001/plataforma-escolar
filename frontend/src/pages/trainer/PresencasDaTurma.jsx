@@ -336,7 +336,10 @@ export default function PresencasDaTurma({ color = "green" }) {
       {showNewSession && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 border border-white/50 shadow-xl w-full max-w-md mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Nova Sessão de Presença</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Nova Sessão de Presença</h3>
+              <button onClick={() => setShowNewSession(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
             <form onSubmit={handleCreateSession} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Data da Sessão *</label>

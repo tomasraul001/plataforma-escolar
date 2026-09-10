@@ -10,10 +10,9 @@ export default function CoordinatorDashboard() {
   const [areas, setAreas] = useState([]);
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showAreaModal, setShowAreaModal] = useState(false);
+  const [activeModal, setActiveModal] = useState(null);
   const [editingArea, setEditingArea] = useState(null);
   const [areaForm, setAreaForm] = useState({ name: "", code: "", description: "", active: true });
-  const [showRegionModal, setShowRegionModal] = useState(false);
   const [editingRegion, setEditingRegion] = useState(null);
   const [regionForm, setRegionForm] = useState({ name: "", code: "", description: "", active: true });
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -89,7 +88,7 @@ export default function CoordinatorDashboard() {
     e.preventDefault();
     try {
       await api.post("/classes/areas", areaForm);
-      setShowAreaModal(false);
+      setActiveModal(null);
       setAreaForm({ name: "", code: "", description: "", active: true });
       fetchAreas();
       toast.success("Área criada com sucesso!");
@@ -106,14 +105,14 @@ export default function CoordinatorDashboard() {
       description: area.description || "",
       active: area.active
     });
-    setShowAreaModal(true);
+    setActiveModal("area");
   };
 
   const handleUpdateArea = async (e) => {
     e.preventDefault();
     try {
       await api.patch(`/classes/areas/${editingArea.id}`, areaForm);
-      setShowAreaModal(false);
+      setActiveModal(null);
       setEditingArea(null);
       setAreaForm({ name: "", code: "", description: "", active: true });
       fetchAreas();
@@ -143,7 +142,7 @@ export default function CoordinatorDashboard() {
     e.preventDefault();
     try {
       await api.post("/classes/regions", regionForm);
-      setShowRegionModal(false);
+      setActiveModal(null);
       setRegionForm({ name: "", code: "", description: "", active: true });
       fetchRegions();
       toast.success("Local/Região criado com sucesso!");
@@ -160,14 +159,14 @@ export default function CoordinatorDashboard() {
       description: region.description || "",
       active: region.active
     });
-    setShowRegionModal(true);
+    setActiveModal("region");
   };
 
   const handleUpdateRegion = async (e) => {
     e.preventDefault();
     try {
       await api.patch(`/classes/regions/${editingRegion.id}`, regionForm);
-      setShowRegionModal(false);
+      setActiveModal(null);
       setEditingRegion(null);
       setRegionForm({ name: "", code: "", description: "", active: true });
       fetchRegions();
@@ -299,7 +298,7 @@ export default function CoordinatorDashboard() {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-900">Áreas de Formação</h3>
           <button
-            onClick={() => { resetForm(); setShowAreaModal(true); }}
+            onClick={() => { resetForm(); setActiveModal("area"); }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
           >
             + Nova Área
@@ -312,7 +311,7 @@ export default function CoordinatorDashboard() {
             <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma área cadastrada</h3>
             <p className="text-gray-600 mb-6 text-sm">Cadastre as áreas de formação para que os formadores possam criar turmas.</p>
             <button
-              onClick={() => { resetForm(); setShowAreaModal(true); }}
+            onClick={() => { resetForm(); setActiveModal("area"); }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
             >
               + Cadastrar Primeira Área
@@ -373,12 +372,15 @@ export default function CoordinatorDashboard() {
         )}
 
         {/* Modal Nova/Editar Área */}
-        {showAreaModal && (
+        {activeModal === "area" && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                {editingArea ? "Editar Área" : "Nova Área de Formação"}
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">
+                  {editingArea ? "Editar Área" : "Nova Área de Formação"}
+                </h3>
+                <button onClick={() => { setActiveModal(null); resetForm(); }} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+              </div>
               <form onSubmit={editingArea ? handleUpdateArea : handleCreateArea} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
@@ -429,7 +431,7 @@ export default function CoordinatorDashboard() {
                 <div className="flex gap-3 justify-end pt-4">
                   <button
                     type="button"
-                    onClick={() => { setShowAreaModal(false); resetForm(); }}
+                    onClick={() => { setActiveModal(null); resetForm(); }}
                     className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium text-sm"
                   >
                     Cancelar
@@ -452,7 +454,7 @@ export default function CoordinatorDashboard() {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-900">Locais / Regiões</h3>
           <button
-            onClick={() => { resetRegionForm(); setShowRegionModal(true); }}
+            onClick={() => { resetRegionForm(); setActiveModal("region"); }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
           >
             + Novo Local
@@ -465,7 +467,7 @@ export default function CoordinatorDashboard() {
             <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhum local cadastrado</h3>
             <p className="text-gray-600 mb-6 text-sm">Cadastre os locais/regiões (ex: Luanda, Benguela) para que os formadores selecionem ao criar turmas.</p>
             <button
-              onClick={() => { resetRegionForm(); setShowRegionModal(true); }}
+              onClick={() => { resetRegionForm(); setActiveModal("region"); }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm"
             >
               + Cadastrar Primeiro Local
@@ -526,12 +528,15 @@ export default function CoordinatorDashboard() {
         )}
 
         {/* Modal Nova/Editar Local */}
-        {showRegionModal && (
+        {activeModal === "region" && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                {editingRegion ? "Editar Local" : "Novo Local/Região"}
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">
+                  {editingRegion ? "Editar Local" : "Novo Local/Região"}
+                </h3>
+                <button onClick={() => { setActiveModal(null); resetRegionForm(); }} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+              </div>
               <form onSubmit={editingRegion ? handleUpdateRegion : handleCreateRegion} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
@@ -582,7 +587,7 @@ export default function CoordinatorDashboard() {
                 <div className="flex gap-3 justify-end pt-4">
                   <button
                     type="button"
-                    onClick={() => { setShowRegionModal(false); resetRegionForm(); }}
+                    onClick={() => { setActiveModal(null); resetRegionForm(); }}
                     className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-4 py-2 rounded-lg font-medium text-sm"
                   >
                     Cancelar

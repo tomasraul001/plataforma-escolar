@@ -190,10 +190,15 @@ export default function AlunosDaTurma({ color = "green" }) {
       {showAddModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 border border-white/50 shadow-xl w-full max-w-md mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Adicionar Aluno</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Para alunos que não têm conta na plataforma, insira o nome manualmente.
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Adicionar Aluno</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Para alunos que não têm conta na plataforma, insira o nome manualmente.
+                </p>
+              </div>
+              <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
             <form onSubmit={handleAddStudent} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Aluno *</label>
