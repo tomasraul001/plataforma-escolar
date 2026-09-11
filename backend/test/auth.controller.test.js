@@ -2,8 +2,9 @@ import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import prisma from "../src/config/prisma.js";
-import { register, login } from "../src/modules/auth/auth.controller.js";
+import { register, login, refresh, logout } from "../src/modules/auth/auth.controller.js";
 
 process.env.COORDENADOR_KEY = "chave-coordenador";
 process.env.FORMADOR_KEY = "chave-formador";
@@ -16,11 +17,22 @@ let findUniqueCalls = [];
 let createCalls = [];
 let returnUser = null;
 
+const storedRefreshTokens = [];
+
 const backup = {};
+
+function hashToken(token) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 function installStubs() {
   backup.userFindUnique = prisma.user?.findUnique;
   backup.userCreate = prisma.user?.create;
+  backup.refreshTokenFindUnique = prisma.refreshToken?.findUnique;
+  backup.refreshTokenCreate = prisma.refreshToken?.create;
+  backup.refreshTokenUpdateMany = prisma.refreshToken?.updateMany;
+  backup.refreshTokenUpdate = prisma.refreshToken?.update;
+  backup.refreshTokenDeleteMany = prisma.refreshToken?.deleteMany;
 
   prisma.user.findUnique = async ({ where }) => {
     findUniqueCalls.push(where);
@@ -33,11 +45,49 @@ function installStubs() {
     storedUsers.push(data);
     return { id: "user-123", ...data };
   };
+
+  prisma.refreshToken.findUnique = async ({ where }) => {
+    return storedRefreshTokens.find((t) => t.tokenHash === where.tokenHash) || null;
+  };
+
+  prisma.refreshToken.create = async ({ data }) => {
+    storedRefreshTokens.push(data);
+    return { id: `rt-${storedRefreshTokens.length}`, ...data };
+  };
+
+  prisma.refreshToken.updateMany = async ({ where, data }) => {
+    let count = 0;
+    for (const t of storedRefreshTokens) {
+      if (where.tokenHash && t.tokenHash === where.tokenHash && !t.revokedAt) {
+        Object.assign(t, data);
+        count++;
+      } else if (where.userId && t.userId === where.userId && !t.revokedAt) {
+        Object.assign(t, data);
+        count++;
+      }
+    }
+    return { count };
+  };
+
+  prisma.refreshToken.update = async ({ where, data }) => {
+    const token = storedRefreshTokens.find((t) => t.id === where.id);
+    if (token) Object.assign(token, data);
+    return token;
+  };
+
+  prisma.refreshToken.deleteMany = async ({ where }) => {
+    return { count: 0 };
+  };
 }
 
 function restoreStubs() {
   if (backup.userFindUnique !== undefined) prisma.user.findUnique = backup.userFindUnique;
   if (backup.userCreate !== undefined) prisma.user.create = backup.userCreate;
+  if (backup.refreshTokenFindUnique !== undefined) prisma.refreshToken.findUnique = backup.refreshTokenFindUnique;
+  if (backup.refreshTokenCreate !== undefined) prisma.refreshToken.create = backup.refreshTokenCreate;
+  if (backup.refreshTokenUpdateMany !== undefined) prisma.refreshToken.updateMany = backup.refreshTokenUpdateMany;
+  if (backup.refreshTokenUpdate !== undefined) prisma.refreshToken.update = backup.refreshTokenUpdate;
+  if (backup.refreshTokenDeleteMany !== undefined) prisma.refreshToken.deleteMany = backup.refreshTokenDeleteMany;
 }
 
 function mockRes() {
@@ -55,6 +105,7 @@ function mockRes() {
 
 function resetState() {
   storedUsers.length = 0;
+  storedRefreshTokens.length = 0;
   findUniqueCalls = [];
   createCalls = [];
   returnUser = null;
@@ -149,7 +200,7 @@ test("login: retorna 401 quando a senha esta incorreta", async () => {
   assert.equal(res.body.message, "Senha incorreta!");
 });
 
-test("register: sucesso retorna token com id/role/email e dados do usuario", async () => {
+test("login: retorna token, refreshToken e dados do usuario", async () => {
   installStubs();
   resetState();
   returnUser = {
@@ -170,6 +221,8 @@ test("register: sucesso retorna token com id/role/email e dados do usuario", asy
   assert.equal(res.body.role, "coordenador");
   assert.equal(res.body.name, "João");
   assert.equal(res.body.id, "user-123");
+  assert.ok(res.body.token);
+  assert.ok(res.body.refreshToken);
 
   const decoded = jwt.verify(res.body.token, process.env.SECRET_KEY);
   assert.equal(decoded.id, "user-123");

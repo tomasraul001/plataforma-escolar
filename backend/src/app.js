@@ -2,6 +2,7 @@ import express from 'express';
 import cors from "cors";
 import "dotenv/config";
 
+import { globalLimiter } from './middleware/rateLimit.middleware.js';
 import authRouter from './modules/auth/auth.routes.js';
 import userRouter from './modules/users/users.routes.js';
 import classesRouter from './modules/classes/classes.routes.js';
@@ -12,6 +13,8 @@ import reportsRouter from './modules/reports/reports.routes.js';
 import attendanceRouter from './modules/attendance/attendance.routes.js';
 
 const app = express();
+
+app.set("trust proxy", 1);
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -25,6 +28,7 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true
 }));
+app.use(globalLimiter);
 
 
 app.get("/", (req, res) => res.json({ status: "ok" }));

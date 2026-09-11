@@ -30,7 +30,20 @@ model User {
   enrollments    Enrollment[]
   auditLogs      AuditLog[]
   updatedGrades  Grade[]      @relation("GradeUpdater")
+  refreshTokens  RefreshToken[]
 
+}
+
+// 1.1. REFRESH TOKEN
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  userId String
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // 2. ÁREA DE FORMAÇÃO (Informática, Mecânica, etc)

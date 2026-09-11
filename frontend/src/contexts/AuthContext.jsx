@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadUser = useCallback(async () => {
+  const loadUser = useCallback(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
     const name = localStorage.getItem("userName");
@@ -25,6 +25,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const { data } = await api.post("/auth/login", { email, password });
     localStorage.setItem("token", data.token);
+    localStorage.setItem("refreshToken", data.refreshToken);
     localStorage.setItem("role", data.role);
     localStorage.setItem("userName", data.name || "");
     localStorage.setItem("userId", data.id || "");
@@ -36,8 +37,17 @@ export function AuthProvider({ children }) {
     await api.post("/auth/register", userData);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (refreshToken) {
+      try {
+        await api.post("/auth/logout", { refreshToken });
+      } catch {
+        // Silently fail
+      }
+    }
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("role");
     localStorage.removeItem("userName");
     localStorage.removeItem("userId");

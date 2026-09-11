@@ -37,8 +37,11 @@ export default function Login(){
             }
             toast.success("Login efetuado com sucesso")
         }catch (error){
-            console.log('email ou senha errados',error)
-            toast.error("Email ou senha incorreto")
+            if (error.response?.status === 429) {
+                toast.error("Muitas tentativas. Aguarde alguns minutos e tente novamente.")
+            } else {
+                toast.error("Email ou senha incorreto")
+            }
         }finally{
             setLoading(false)
         }

@@ -9,7 +9,8 @@ Two independent npm packages (no root workspace, no shared scripts):
 - Frontend: `npm run dev` (Vite), `npm run lint` (ESLint), `npm run build`
 - Backend tests: `npm test` (Node built-in `node:test`, roda todos os `test/*.test.js`, cada um num processo separado — via auto-discovery). Suíte:
   - `assessmentWeights.test.js` — zero deps; roda em qualquer env.
-  - `createClass.test.js`, `classes.controller.test.js`, `users.controller.test.js`, `auth.controller.test.js` — importam controllers/singleton `prisma`: exigem `npm install` (express, bcrypt, jsonwebtoken) + `npx prisma generate`. Não tocam em banco (monkey-patch no singleton `prisma` via stubs) nem em rede.
+  - `createClass.test.js`, `classes.controller.test.js`, `users.controller.test.js`, `auth.controller.test.js` — importam controllers/singleton `prisma`: exigem `npm install` (express, bcrypt, jsonwebtoken) + `npx prisma generate`. Não tocam em banco (monkey-patch no singleton `prisma` via stubs) nem em rede. `auth.controller.test.js` também stubs `prisma.refreshToken` (login agora retorna `refreshToken`).
+  - `refreshToken.test.js` — importa `refresh`/`logout` do auth controller + stubs `prisma.refreshToken`. Não toca em banco nem em rede.
   - `auth.middleware.test.js` — requer `jsonwebtoken` instalado.
 - Padrão de stubbing: `test/*.test.js` (exceto `assessmentWeights.test.js`) importa o mesmo singleton `prisma` que o controller, reatribui os delegates (`findUnique`, `findMany`, `create`, etc.), usa `mockRes()` e restaura via `after()`. Cada arquivo roda em processo próprio, então não há interferência entre eles. Se o delegate não existir no cliente gerado local (gitignored/desatualizado), recrie-o dentro do stub (ver `createClass.test.js` — cria `prisma.region`).
 - O controller de turma usa `locationId` (referência a Region), preenchido pelo `regionId` vindo do body da requisição (ver `createClass.test.js`).
@@ -23,10 +24,16 @@ Two independent npm packages (no root workspace, no shared scripts):
 - `backend/.env` (gitignored, not in repo) must define `DATABASE_URL` (PostgreSQL) and `SECRET_KEY` (JWT signing). Backend will not run without it.
 
 ## Wiring
-- Backend entry: `backend/src/app.js` — mounts modular routers under `/`: `auth.js`, `users.js`, `classes.js`, `enrollments.js`, `assessments.js`, `grades.js`, `reports.js`. Public: `POST /register`, `POST /login`. Private: `GET /users/lista`, expects JWT as `Authorization: Bearer <token>`.
+- Backend entry: `backend/src/app.js` — mounts modular routers under `/`: `auth.js`, `users.js`, `classes.js`, `enrollments.js`, `assessments.js`, `grades.js`, `reports.js`. Public: `POST /register`, `POST /login`, `POST /refresh`, `POST /logout`. Private: `GET /users/lista`, expects JWT as `Authorization: Bearer <token>`.
 - Frontend routes in `src/App.jsx` are case-sensitive: `/` (Sigin), `/Login`, `/List`.
 - `frontend/api/api.js` hardcodes `baseURL: "http://localhost:3000"` (no Vite proxy) — the backend must be running for the UI to work; CORS is open on the backend.
-- Frontend stores the JWT in `localStorage.token`.
+- Frontend stores JWT in `localStorage.token` and refresh token in `localStorage.refreshToken`.
+- Auth flow: access token (1h), refresh token (7d, SHA-256 hashed in DB). Interceptor auto-refreshes on 401 with single-flight dedup; on failure, redirects to `/login`.
+
+## Rate Limiting
+- Global: 300 req/15min per IP (`backend/src/middleware/rateLimit.middleware.js`).
+- Auth endpoints (`/auth/login`, `/auth/register`, `/auth/refresh`): 10 req/15min.
+- `trust proxy` enabled for Railway. 429 returns JSON PT-BR.
 
 ## Conventions
 - UI strings, error messages, and comments are Portuguese (PT-BR); keep new ones in Portuguese.
