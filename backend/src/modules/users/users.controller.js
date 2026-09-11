@@ -1,5 +1,6 @@
 import prisma from "../../config/prisma.js";
 import bcrypt from "bcrypt";
+import { validatePassword } from "../../utils/validations.js";
 
 
 export const getAllUsers = async (req, res) => {
@@ -128,8 +129,9 @@ export const changePassword = async (req, res) => {
         return res.status(400).json({ message: "Senha atual e nova senha são obrigatórias" });
     }
 
-    if (newPassword.length < 6) {
-        return res.status(400).json({ message: "A nova senha deve ter pelo menos 6 caracteres" });
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+        return res.status(400).json({ message: passwordError });
     }
 
     try {

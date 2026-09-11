@@ -13,6 +13,7 @@ Two independent npm packages (no root workspace, no shared scripts):
   - `refreshToken.test.js` — importa `refresh`/`logout` do auth controller + stubs `prisma.refreshToken`. Não toca em banco nem em rede.
   - `assessments.controller.test.js` — importa `listAssessments` + stubs `prisma.class`/`prisma.enrollment`/`prisma.assessment`. Testa IDOR (formando inscrito vs não inscrito).
   - `classesPrng.test.js` — importa `generateSecretKey`/`generateClassCode` do classes controller; valida formato regex e unicidade. Zero deps externas.
+  - `validations.test.js` — importa `validateEmail`/`validatePassword` do utils; valida todas as regras de formato. Zero deps externas.
   - `auth.middleware.test.js` — requer `jsonwebtoken` instalado.
 - Padrão de stubbing: `test/*.test.js` (exceto `assessmentWeights.test.js`) importa o mesmo singleton `prisma` que o controller, reatribui os delegates (`findUnique`, `findMany`, `create`, etc.), usa `mockRes()` e restaura via `after()`. Cada arquivo roda em processo próprio, então não há interferência entre eles. Se o delegate não existir no cliente gerado local (gitignored/desatualizado), recrie-o dentro do stub (ver `createClass.test.js` — cria `prisma.region`).
 - O controller de turma usa `locationId` (referência a Region), preenchido pelo `regionId` vindo do body da requisição (ver `createClass.test.js`).

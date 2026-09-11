@@ -3,6 +3,7 @@ import prisma from "../../config/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { validateEmail, validatePassword } from "../../utils/validations.js";
 
 const REFRESH_TOKEN_TTL_DAYS = 7;
 
@@ -40,6 +41,16 @@ export const register = async (req, res) => {
   ];
   if (envKeys.some((k) => !k)) {
     return res.status(500).json({ message: "Chaves de acesso não configuradas. Contacte o administrador." });
+  }
+
+  const emailError = validateEmail(email);
+  if (emailError) {
+    return res.status(400).json({ message: emailError });
+  }
+
+  const passwordError = validatePassword(password);
+  if (passwordError) {
+    return res.status(400).json({ message: passwordError });
   }
 
   const accessKeysMap = {

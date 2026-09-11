@@ -3,6 +3,29 @@ import { useRef, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useToast } from "../../contexts/ToastContext"
 
+function validateEmail(email) {
+  if (!email) return "Email é obrigatório";
+  if (!email.trim().toLowerCase().endsWith("@gmail.com")) return "Email deve ser um endereço @gmail.com";
+  if (email.trim().split("@")[0].length < 3) return "Email deve ter pelo menos 3 caracteres antes do @";
+  return null;
+}
+
+function validatePassword(password) {
+  if (!password) return "Senha é obrigatória";
+  if (password.length < 4) return "Senha deve ter pelo menos 4 caracteres";
+  if (new Set(password).size === 1) return "Senha não pode ter todos os caracteres iguais";
+  const digits = password.split("").map(Number);
+  if (digits.every((d) => !isNaN(d))) {
+    let ascending = true, descending = true;
+    for (let i = 1; i < digits.length; i++) {
+      if (digits[i] !== digits[i - 1] + 1) ascending = false;
+      if (digits[i] !== digits[i - 1] - 1) descending = false;
+    }
+    if (ascending || descending) return "Senha não pode conter dígitos sequenciais";
+  }
+  return null;
+}
+
 export default function Sigin(){
     let inputName = useRef()
     let inputEmail = useRef()
@@ -21,6 +44,12 @@ export default function Sigin(){
 
         if(!inputKey.current.value) return toast.error("Insira a chave de acesso!")
         if(!inputName.current.value || !inputEmail.current.value || !inputPassword.current.value) return toast.error("Preencha todos os campos")
+
+        const emailErr = validateEmail(inputEmail.current.value);
+        if (emailErr) return toast.error(emailErr);
+
+        const passwordErr = validatePassword(inputPassword.current.value);
+        if (passwordErr) return toast.error(passwordErr);
 
         try{
             setLoading(true)
