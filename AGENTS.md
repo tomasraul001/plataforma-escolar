@@ -11,6 +11,8 @@ Two independent npm packages (no root workspace, no shared scripts):
   - `assessmentWeights.test.js` — zero deps; roda em qualquer env.
   - `createClass.test.js`, `classes.controller.test.js`, `users.controller.test.js`, `auth.controller.test.js` — importam controllers/singleton `prisma`: exigem `npm install` (express, bcrypt, jsonwebtoken) + `npx prisma generate`. Não tocam em banco (monkey-patch no singleton `prisma` via stubs) nem em rede. `auth.controller.test.js` também stubs `prisma.refreshToken` (login agora retorna `refreshToken`).
   - `refreshToken.test.js` — importa `refresh`/`logout` do auth controller + stubs `prisma.refreshToken`. Não toca em banco nem em rede.
+  - `assessments.controller.test.js` — importa `listAssessments` + stubs `prisma.class`/`prisma.enrollment`/`prisma.assessment`. Testa IDOR (formando inscrito vs não inscrito).
+  - `classesPrng.test.js` — importa `generateSecretKey`/`generateClassCode` do classes controller; valida formato regex e unicidade. Zero deps externas.
   - `auth.middleware.test.js` — requer `jsonwebtoken` instalado.
 - Padrão de stubbing: `test/*.test.js` (exceto `assessmentWeights.test.js`) importa o mesmo singleton `prisma` que o controller, reatribui os delegates (`findUnique`, `findMany`, `create`, etc.), usa `mockRes()` e restaura via `after()`. Cada arquivo roda em processo próprio, então não há interferência entre eles. Se o delegate não existir no cliente gerado local (gitignored/desatualizado), recrie-o dentro do stub (ver `createClass.test.js` — cria `prisma.region`).
 - O controller de turma usa `locationId` (referência a Region), preenchido pelo `regionId` vindo do body da requisição (ver `createClass.test.js`).

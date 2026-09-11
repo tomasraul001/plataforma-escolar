@@ -32,6 +32,16 @@ async function cleanupExpiredTokens(userId) {
 export const register = async (req, res) => {
   let { name, email, password, accessKey, phone } = req.body;
 
+  const envKeys = [
+    process.env.COORDENADOR_KEY,
+    process.env.FORMADOR_KEY,
+    process.env.FORMANDO_KEY,
+    process.env.SECRETARIA_KEY,
+  ];
+  if (envKeys.some((k) => !k)) {
+    return res.status(500).json({ message: "Chaves de acesso não configuradas. Contacte o administrador." });
+  }
+
   const accessKeysMap = {
     [process.env.COORDENADOR_KEY]: "coordenador",
     [process.env.FORMADOR_KEY]: "formador",

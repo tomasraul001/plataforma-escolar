@@ -41,7 +41,10 @@ api.interceptors.response.use(
       const refreshToken = localStorage.getItem("refreshToken");
       if (!refreshToken) {
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         localStorage.removeItem("role");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userId");
         window.location.href = "/login";
         return Promise.reject(error);
       }

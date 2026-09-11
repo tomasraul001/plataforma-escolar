@@ -261,3 +261,24 @@ test("register: phone undefined grava null", async () => {
   assert.equal(res.statusCode, 201);
   assert.equal(createCalls[0].phone, null);
 });
+
+test("register: retorna 500 quando env vars de chave nao estao configuradas", async () => {
+  installStubs();
+  resetState();
+
+  const savedKey = process.env.COORDENADOR_KEY;
+  delete process.env.COORDENADOR_KEY;
+
+  const req = {
+    body: { name: "Teste", email: "teste@email.com", password: "123456", accessKey: "chave-coordenador" },
+  };
+  const res = mockRes();
+
+  await register(req, res);
+
+  assert.equal(res.statusCode, 500);
+  assert.equal(res.body.message, "Chaves de acesso não configuradas. Contacte o administrador.");
+  assert.equal(createCalls.length, 0);
+
+  process.env.COORDENADOR_KEY = savedKey;
+});

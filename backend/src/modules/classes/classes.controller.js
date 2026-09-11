@@ -1,20 +1,21 @@
 import prisma from "../../config/prisma.js";
 import { ensureDefaultAssessments } from "../grades/planilha.controller.js";
+import { randomInt } from "crypto";
 
-function generateSecretKey() {
+export function generateSecretKey() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let key = "";
   for (let i = 0; i < 8; i++) {
-    key += chars.charAt(Math.floor(Math.random() * chars.length));
+    key += chars.charAt(randomInt(chars.length));
     if (i === 3) key += "-";
   }
   return key;
 }
 
-function generateClassCode(areaName) {
+export function generateClassCode(areaName) {
   const prefix = areaName.substring(0, 3).toUpperCase();
   const year = new Date().getFullYear();
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
+  const random = randomInt(1000).toString().padStart(3, "0");
   return `${prefix}-${year}-${random}`;
 }
 

@@ -3,17 +3,35 @@ import api from "../services/api";
 
 const AuthContext = createContext(null);
 
+function decodeTokenPayload(token) {
+  try {
+    const base64 = token.split(".")[1];
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const loadUser = useCallback(() => {
     const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
     const name = localStorage.getItem("userName");
     const id = localStorage.getItem("userId");
-    if (token && role) {
-      setUser({ role, name: name || "", id: id || "" });
+    if (token) {
+      const payload = decodeTokenPayload(token);
+      const role = payload?.role;
+      if (role) {
+        setUser({ role, name: name || "", id: id || "" });
+      } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("role");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userId");
+      }
     }
     setLoading(false);
   }, []);

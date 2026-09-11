@@ -43,9 +43,17 @@ export const listAssessments = async (req, res) => {
 
     if (classData.trainerId !== req.user.id && 
         req.user.role !== "coordenador" && 
-        req.user.role !== "secretaria" &&
-        req.user.role !== "formando") {
-      return res.status(403).json({ message: "Acesso negado" });
+        req.user.role !== "secretaria") {
+      if (req.user.role === "formando") {
+        const enrollment = await prisma.enrollment.findFirst({
+          where: { studentId: req.user.id, classId, status: "ACTIVE" },
+        });
+        if (!enrollment) {
+          return res.status(403).json({ message: "Acesso negado" });
+        }
+      } else {
+        return res.status(403).json({ message: "Acesso negado" });
+      }
     }
 
     const assessments = await prisma.assessment.findMany({
