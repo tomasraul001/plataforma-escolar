@@ -373,7 +373,7 @@ export default function CoordinatorDashboard() {
 
         {/* Modal Nova/Editar Área */}
         {activeModal === "area" && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]">
             <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900">
@@ -391,7 +391,6 @@ export default function CoordinatorDashboard() {
                     placeholder="Ex: Informática, Eletricidade, Mecânica"
                     className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
                     required
-                    disabled={editingArea}
                   />
                 </div>
                 <div>
@@ -529,7 +528,7 @@ export default function CoordinatorDashboard() {
 
         {/* Modal Nova/Editar Local */}
         {activeModal === "region" && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]">
             <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900">
