@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
 import LocationFilter from "../../components/LocationFilter";
@@ -372,9 +373,9 @@ export default function CoordinatorDashboard() {
         )}
 
         {/* Modal Nova/Editar Área */}
-        {activeModal === "area" && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]">
-            <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
+        {activeModal === "area" && createPortal(
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+            <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md border border-white/50 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900">
                   {editingArea ? "Editar Área" : "Nova Área de Formação"}
@@ -444,7 +445,8 @@ export default function CoordinatorDashboard() {
                 </div>
               </form>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 
@@ -527,9 +529,9 @@ export default function CoordinatorDashboard() {
         )}
 
         {/* Modal Nova/Editar Local */}
-        {activeModal === "region" && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]">
-            <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md mx-4 border border-white/50 shadow-xl">
+        {activeModal === "region" && createPortal(
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+            <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-md border border-white/50 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900">
                   {editingRegion ? "Editar Local" : "Novo Local/Região"}
@@ -600,7 +602,8 @@ export default function CoordinatorDashboard() {
                 </div>
               </form>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 
