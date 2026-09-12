@@ -42,3 +42,14 @@ Two independent npm packages (no root workspace, no shared scripts):
 - UI strings, error messages, and comments are Portuguese (PT-BR); keep new ones in Portuguese.
 - Tailwind 4 is CSS-first via `@tailwindcss/vite` — there is no `tailwind.config`, don't create one; style via `src/index.css`.
 - Backend imports use explicit `.js` extensions (Node ESM).
+
+## Firebase Analytics + Error Tracking (frontend)
+- Firebase SDK v12.19 instalado em `frontend/` (`firebase/analytics`).
+- `frontend/src/firebase.js` — inicializa Firebase Analytics; exporta `log` (logEvent), `setCustomKey` (setUserProperties), `setUserIdentifier` (setUserId).
+- `frontend/src/components/ErrorBoundary.jsx` — React Error Boundary (classe) que captura erros de renderização e envia como eventos Analytics.
+- `frontend/src/main.jsx` — Error Boundary envolve toda a árvore; `window.onerror` e `window.onunhandledrejection` capturam erros globais como eventos Analytics.
+- `frontend/src/contexts/AuthContext.jsx` — `setUserIdentifier` no login/logout; `setCustomKey("role", ...)` para filtrar erros por role.
+- `frontend/src/services/api.js` — eventos `api_error` e `api_401_auth` no interceptor.
+- Variáveis de ambiente: `VITE_FIREBASE_*` em `frontend/.env` (gitignored). App funciona sem elas (Analytics silencia).
+- Eventos rastreados: `js_error`, `unhandled_rejection`, `render_error`, `api_error`, `api_401_auth`, `login`, `logout`.
+- **Nota:** Firebase Crashlytics NÃO tem SDK web — use Analytics para tracking de erros no web.

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import api from "../services/api";
+import { setUserIdentifier, log, setCustomKey } from "../firebase";
 
 const AuthContext = createContext(null);
 
@@ -48,6 +49,11 @@ export function AuthProvider({ children }) {
     localStorage.setItem("userName", data.name || "");
     localStorage.setItem("userId", data.id || "");
     setUser({ role: data.role, name: data.name || "", id: data.id || "" });
+    try {
+      setUserIdentifier(data.id || "anonymous");
+      setCustomKey("role", data.role);
+      log("login", { role: data.role });
+    } catch { /* Analytics offline */ }
     return data.role;
   };
 
@@ -70,6 +76,10 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("userName");
     localStorage.removeItem("userId");
     setUser(null);
+    try {
+      log("logout");
+      setUserIdentifier("");
+    } catch { /* Analytics offline */ }
   };
 
   return (

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { log } from "../firebase";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
@@ -29,6 +30,7 @@ api.interceptors.response.use(
       const isAuthEndpoint = originalRequest.url?.includes("/auth/login") ||
                              originalRequest.url?.includes("/auth/refresh");
       if (isAuthEndpoint) {
+        log("api_401_auth", { url: originalRequest.url });
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("role");
@@ -71,6 +73,14 @@ api.interceptors.response.use(
         window.location.href = "/login";
         return Promise.reject(error);
       }
+    }
+
+    if (error.response?.status !== 401) {
+      log("api_error", {
+        status: error.response?.status || 0,
+        url: error.config?.url || "unknown",
+        code: error.code || "",
+      });
     }
 
     return Promise.reject(error);
