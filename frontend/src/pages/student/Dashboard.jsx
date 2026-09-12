@@ -47,13 +47,20 @@ export default function StudentDashboard() {
     setSelectedClass(cls);
     setShowJoinModal(false);
     try {
-      const res = await api.get(`/grades/pauta/${cls.id}`);
-      setGradesData(res.data);
+      const res = await api.get(`/grades/${cls.id}`);
+      setGradesData({ class: cls, grades: res.data });
       setShowGradesModal(true);
     } catch (error) {
       toast.error("Erro ao carregar notas: " + (error.response?.data?.message || "Erro desconhecido"));
     }
   };
+
+  const grades = gradesData?.grades || [];
+  const percentWeight = (name) => (name === "Exame" ? 60 : 40 / 3);
+  const gradedEntries = grades.filter((g) => g.value !== null && g.value !== undefined);
+  const totalWeight = gradedEntries.reduce((acc, g) => acc + percentWeight(g.assessment?.name), 0);
+  const weightedSum = gradedEntries.reduce((acc, g) => acc + g.value * percentWeight(g.assessment?.name), 0);
+  const media = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : null;
 
   if (loading) {
     return (
@@ -179,64 +186,52 @@ export default function StudentDashboard() {
           <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto border border-white/50 shadow-xl">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Minhas Notas - {gradesData.class.name}</h3>
-                <p className="text-gray-600 text-sm">Código: {gradesData.class.code}</p>
+                <h3 className="text-xl font-bold text-gray-900">Minhas Notas - {selectedClass?.name}</h3>
+                <p className="text-gray-600 text-sm">Código: {selectedClass?.code}</p>
               </div>
               <button
-                onClick={() => { setShowGradesModal(false); setGradesData(null); }}
+                onClick={() => { setShowGradesModal(false); setGradesData(null); setSelectedClass(null); }}
                 className="text-gray-400 hover:text-gray-600 text-2xl"
               >
                 ×
               </button>
             </div>
             <div>
-              {gradesData.students.length === 0 ? (
+              {grades.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">Nenhuma nota disponível ainda</p>
+                  <p className="text-gray-500">Nenhuma nota lançada ainda</p>
                 </div>
               ) : (
-                gradesData.students.map((s) => (
-                  <div key={s.enrollmentId} className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-gray-900">Suas Notas</h4>
-                      {s.media !== null && s.media !== undefined && (
-                        <span className="bg-purple-100/80 text-purple-800 px-3 py-1 rounded-full text-sm font-bold">
-                          Média: {s.media}
-                        </span>
-                      )}
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[440px] text-sm">
+                    <thead>
+                      <tr className="bg-white/40 text-left text-gray-500 border-b border-gray-200/50">
+                        <th className="pb-3 px-3 font-medium">Avaliação</th>
+                        <th className="pb-3 px-3 text-center font-medium">Nota</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200/50">
+                      {grades.map((g) => (
+                        <tr key={g.id} className="hover:bg-white/40 transition-colors">
+                          <td className="py-3 px-3">{g.assessment?.name || "—"}</td>
+                          <td className="py-3 px-3 text-center font-bold text-gray-900">
+                            {g.value !== null && g.value !== undefined ? g.value : <span className="text-gray-400">—</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {media !== null && (
+                    <div className="mt-4 pt-4 border-t border-gray-200/50 flex justify-end">
+                      <span className="text-lg font-bold text-purple-600">Média Final: {media}</span>
                     </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[440px] text-sm">
-                        <thead>
-                          <tr className="bg-white/40 text-left text-gray-500 border-b border-gray-200/50">
-                            <th className="pb-2 px-3 font-medium">Avaliação</th>
-                            <th className="pb-2 px-3 text-center font-medium">Nota</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200/50">
-                          {s.grades.map((g) => (
-                            <tr key={g.assessmentId} className="hover:bg-white/40 transition-colors">
-                              <td className="py-3 px-3">{g.assessmentName}</td>
-                              <td className="py-3 px-3 text-center font-bold text-gray-900">
-                                {g.value !== null ? g.value : <span className="text-gray-400">—</span>}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    {s.media !== null && s.media !== undefined && (
-                      <div className="mt-3 pt-3 border-t border-gray-200/50 flex justify-end">
-                        <span className="text-lg font-bold text-purple-600">Média Final: {s.media}</span>
-                      </div>
-                    )}
-                  </div>
-                ))
+                  )}
+                </div>
               )}
             </div>
             <div className="mt-6 text-center">
               <button
-                onClick={() => { setShowGradesModal(false); setGradesData(null); }}
+                onClick={() => { setShowGradesModal(false); setGradesData(null); setSelectedClass(null); }}
                 className="bg-gray-200/80 hover:bg-gray-300/80 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm"
               >
                 Fechar

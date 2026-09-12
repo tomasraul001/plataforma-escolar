@@ -30,6 +30,10 @@ export const createSession = async (req, res) => {
       return res.status(400).json({ message: "Só é possível lançar presenças em turmas abertas" });
     }
 
+    if (classData.trainerId !== req.user.id && req.user.role !== "coordenador") {
+      return res.status(403).json({ message: "Acesso negado" });
+    }
+
     const sessionDate = normalizeDate(date || new Date());
 
     const existing = await prisma.attendanceSession.findUnique({
@@ -87,6 +91,10 @@ export const listSessions = async (req, res) => {
       return res.status(404).json({ message: "Turma não encontrada" });
     }
 
+    if (classData.trainerId !== req.user.id && req.user.role !== "coordenador" && req.user.role !== "secretaria") {
+      return res.status(403).json({ message: "Acesso negado" });
+    }
+
     const sessions = await prisma.attendanceSession.findMany({
       where: { classId },
       include: {
@@ -122,6 +130,15 @@ export const getSession = async (req, res) => {
   const { classId, sessionId } = req.params;
 
   try {
+    const classData = await prisma.class.findUnique({ where: { id: classId } });
+    if (!classData) {
+      return res.status(404).json({ message: "Turma não encontrada" });
+    }
+
+    if (classData.trainerId !== req.user.id && req.user.role !== "coordenador") {
+      return res.status(403).json({ message: "Acesso negado" });
+    }
+
     const session = await prisma.attendanceSession.findFirst({
       where: { id: sessionId, classId },
       include: {
@@ -173,6 +190,10 @@ export const bulkUpdateRecords = async (req, res) => {
       return res.status(400).json({ message: "Só é possível lançar presenças em turmas abertas" });
     }
 
+    if (classData.trainerId !== req.user.id && req.user.role !== "coordenador") {
+      return res.status(403).json({ message: "Acesso negado" });
+    }
+
     const session = await prisma.attendanceSession.findFirst({
       where: { id: sessionId, classId },
     });
@@ -208,6 +229,10 @@ export const getSummary = async (req, res) => {
     const classData = await prisma.class.findUnique({ where: { id: classId } });
     if (!classData) {
       return res.status(404).json({ message: "Turma não encontrada" });
+    }
+
+    if (classData.trainerId !== req.user.id && req.user.role !== "coordenador" && req.user.role !== "secretaria") {
+      return res.status(403).json({ message: "Acesso negado" });
     }
 
     const sessions = await prisma.attendanceSession.findMany({

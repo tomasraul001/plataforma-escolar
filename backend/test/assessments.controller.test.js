@@ -12,7 +12,7 @@ function installStubs() {
 
   prisma.class.findUnique = async () => null;
   prisma.enrollment.findFirst = async () => null;
-  prisma.assessmentFindMany = async () => [];
+  prisma.assessment.findMany = async () => [];
 }
 
 function restoreStubs() {
@@ -87,7 +87,7 @@ test("listAssessments: formador dono da turma pode listar", async () => {
 test("listAssessments: coordenador pode listar qualquer turma", async () => {
   installStubs();
   prisma.class.findUnique = async () => ({ id: "c1", trainerId: "trainer-1", status: "OPEN" });
-  prisma.assessmentFindMany = async () => [];
+  prisma.assessment.findMany = async () => [];
 
   const req = { params: { classId: "c1" }, user: { id: "coord-1", role: "coordenador" } };
   const res = mockRes();

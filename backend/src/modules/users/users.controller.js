@@ -19,7 +19,7 @@ export const getAllUsers = async (req, res) => {
                 role: 'formando'
             }
         }else{
-            res.status(404).json({message: 'Acesso negado'})
+            return res.status(404).json({message: 'Acesso negado'})
         }
 
         // Pegar dados no banco

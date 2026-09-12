@@ -64,11 +64,14 @@ export const listMyClasses = async (req, res) => {
       where: { studentId, status: "ACTIVE" },
       include: {
         class: {
-          include: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true,
             trainingArea: true,
             location: true,
             trainer: { select: { id: true, name: true, email: true } },
-            assessments: true,
             _count: { select: { enrollments: true } },
           },
         },

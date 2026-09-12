@@ -76,8 +76,9 @@ export default function Notas() {
   const selected = myClasses.find((c) => c.id === selectedClass) || null;
 
   const percentWeight = (name) => (name === "Exame" ? 60 : 40 / 3);
-  const totalWeight = grades.reduce((acc, g) => acc + percentWeight(g.assessment?.name), 0);
-  const weightedSum = grades.reduce((acc, g) => acc + (g.value || 0) * percentWeight(g.assessment?.name), 0);
+  const gradedEntries = grades.filter((g) => g.value !== null && g.value !== undefined);
+  const totalWeight = gradedEntries.reduce((acc, g) => acc + percentWeight(g.assessment?.name), 0);
+  const weightedSum = gradedEntries.reduce((acc, g) => acc + g.value * percentWeight(g.assessment?.name), 0);
   const media = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : null;
 
   if (loadingClasses) {

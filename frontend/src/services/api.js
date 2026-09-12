@@ -28,7 +28,8 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       const isAuthEndpoint = originalRequest.url?.includes("/auth/login") ||
-                             originalRequest.url?.includes("/auth/refresh");
+                             originalRequest.url?.includes("/auth/refresh") ||
+                             originalRequest.url?.includes("/auth/register");
       if (isAuthEndpoint) {
         log("api_401_auth", { url: originalRequest.url });
         localStorage.removeItem("token");

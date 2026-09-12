@@ -124,6 +124,10 @@ export const listGrades = async (req, res) => {
       return res.status(404).json({ message: "Turma não encontrada" });
     }
 
+    if (req.user.role === "formador" && classData.trainerId !== req.user.id) {
+      return res.status(403).json({ message: "Acesso negado" });
+    }
+
     const canViewAll = ["formador", "coordenador", "secretaria"].includes(req.user.role);
 
     let where = {
