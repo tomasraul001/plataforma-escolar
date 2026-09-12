@@ -86,6 +86,28 @@ export const bulkCreateGrades = async (req, res) => {
       return res.status(400).json({ message: "Não é possível lançar notas em turma fechada" });
     }
 
+    if (!Array.isArray(grades) || grades.length === 0) {
+      return res.status(400).json({ message: "Lista de notas inválida" });
+    }
+
+    const hasInvalidValue = grades.some((g) => {
+      const n = Number(g.value);
+      return !Number.isFinite(n) || n < 0 || n > 20;
+    });
+    if (hasInvalidValue) {
+      return res.status(400).json({ message: "Nota deve ser entre 0 e 20" });
+    }
+
+    const enrollmentIds = [...new Set(grades.map((g) => g.enrollmentId))];
+    const validEnrollments = await prisma.enrollment.findMany({
+      where: { id: { in: enrollmentIds }, classId: assessment.classId },
+      select: { id: true },
+    });
+    const validIds = new Set(validEnrollments.map((e) => e.id));
+    if (grades.some((g) => !g.enrollmentId || !validIds.has(g.enrollmentId))) {
+      return res.status(400).json({ message: "Inscrição não pertence a esta turma" });
+    }
+
     const results = await Promise.all(
       grades.map(async ({ enrollmentId, value }) => {
         // Arredondamento aritmético (0.5 vai para cima)
@@ -189,6 +211,10 @@ export const getGradebook = async (req, res) => {
 
     if (!classData) {
       return res.status(404).json({ message: "Turma não encontrada" });
+    }
+
+    if (req.user.role === "formador" && classData.trainerId !== req.user.id) {
+      return res.status(403).json({ message: "Acesso negado" });
     }
 
     // Calcular médias (40% testes/trabalho + 60% exame)
