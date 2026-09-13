@@ -142,14 +142,7 @@ export const getSession = async (req, res) => {
     const session = await prisma.attendanceSession.findFirst({
       where: { id: sessionId, classId },
       include: {
-        records: {
-          include: {
-            enrollment: {
-              include: { student: { select: { id: true, name: true, email: true } } },
-            },
-          },
-          orderBy: { enrollment: { joinedAt: "asc" } },
-        },
+        records: true,
       },
     });
 
@@ -157,13 +150,24 @@ export const getSession = async (req, res) => {
       return res.status(404).json({ message: "Sessão não encontrada" });
     }
 
-    const students = session.records.map((r) => ({
-      recordId: r.id,
-      enrollmentId: r.enrollmentId,
-      name: r.enrollment.student?.name || r.enrollment.manualName || "—",
-      email: r.enrollment.student?.email || null,
-      present: r.present,
-    }));
+    const allEnrollments = await prisma.enrollment.findMany({
+      where: { classId, status: "ACTIVE" },
+      include: { student: { select: { id: true, name: true, email: true } } },
+      orderBy: { joinedAt: "asc" },
+    });
+
+    const recordsMap = new Map(session.records.map((r) => [r.enrollmentId, r]));
+
+    const students = allEnrollments.map((e) => {
+      const record = recordsMap.get(e.id);
+      return {
+        recordId: record?.id || null,
+        enrollmentId: e.id,
+        name: e.student?.name || e.manualName || "—",
+        email: e.student?.email || null,
+        present: record?.present ?? true,
+      };
+    });
 
     res.status(200).json({
       id: session.id,
@@ -205,14 +209,37 @@ export const bulkUpdateRecords = async (req, res) => {
       return res.status(400).json({ message: "Registros inválidos" });
     }
 
-    await prisma.$transaction(
-      records.map((r) =>
-        prisma.attendanceRecord.updateMany({
-          where: { sessionId, enrollmentId: r.enrollmentId },
-          data: { present: r.present },
-        })
-      )
-    );
+    await prisma.$transaction(async (tx) => {
+      const existingRecords = await tx.attendanceRecord.findMany({
+        where: { sessionId },
+        select: { enrollmentId: true },
+      });
+      const existingSet = new Set(existingRecords.map((r) => r.enrollmentId));
+
+      const toUpdate = records.filter((r) => existingSet.has(r.enrollmentId));
+      const toCreate = records.filter((r) => !existingSet.has(r.enrollmentId));
+
+      if (toUpdate.length > 0) {
+        await tx.$transaction(
+          toUpdate.map((r) =>
+            tx.attendanceRecord.updateMany({
+              where: { sessionId, enrollmentId: r.enrollmentId },
+              data: { present: r.present },
+            })
+          )
+        );
+      }
+
+      if (toCreate.length > 0) {
+        await tx.attendanceRecord.createMany({
+          data: toCreate.map((r) => ({
+            sessionId,
+            enrollmentId: r.enrollmentId,
+            present: r.present,
+          })),
+        });
+      }
+    });
 
     res.status(200).json({ message: "Presenças atualizadas" });
   } catch (error) {
