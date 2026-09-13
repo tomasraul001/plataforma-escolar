@@ -177,6 +177,7 @@ model AuditLog {
 model AttendanceSession {
   id        String   @id @default(uuid())
   date      DateTime
+  theme     String
   createdAt DateTime @default(now())
 
   classId   String

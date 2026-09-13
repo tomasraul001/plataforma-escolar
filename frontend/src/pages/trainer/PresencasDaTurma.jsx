@@ -30,6 +30,7 @@ export default function PresencasDaTurma({ color = "green" }) {
   const [loading, setLoading] = useState(true);
   const [showNewSession, setShowNewSession] = useState(false);
   const [sessionDate, setSessionDate] = useState("");
+  const [sessionTheme, setSessionTheme] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const [sessionDetail, setSessionDetail] = useState(null);
@@ -70,11 +71,16 @@ export default function PresencasDaTurma({ color = "green" }) {
       toast.error("Informe a data da sessão");
       return;
     }
+    if (!sessionTheme.trim()) {
+      toast.error("Informe o tema da aula");
+      return;
+    }
     setSubmitting(true);
     try {
-      await api.post(`/attendance/classes/${classId}/sessions`, { date: sessionDate });
+      await api.post(`/attendance/classes/${classId}/sessions`, { date: sessionDate, theme: sessionTheme.trim() });
       toast.success("Sessão criada com sucesso!");
       setSessionDate("");
+      setSessionTheme("");
       setShowNewSession(false);
       fetchData();
     } catch (error) {
@@ -205,10 +211,11 @@ export default function PresencasDaTurma({ color = "green" }) {
       ) : (
         <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[620px] text-sm">
+            <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="bg-white/40 text-left text-gray-500 border-b border-gray-200/50">
                   <th className="py-3 px-4">Data</th>
+                  <th className="py-3 px-4">Tema</th>
                   <th className="py-3 px-4 text-center">Total</th>
                   <th className="py-3 px-4 text-center">Presentes</th>
                   <th className="py-3 px-4 text-center">Faltosos</th>
@@ -221,6 +228,7 @@ export default function PresencasDaTurma({ color = "green" }) {
                     <td className="py-3 px-4 font-medium text-gray-900">
                       {new Date(s.date).toLocaleDateString("pt-BR")}
                     </td>
+                    <td className="py-3 px-4 text-gray-700">{s.theme || "—"}</td>
                     <td className="py-3 px-4 text-center text-gray-700">{s.totalStudents}</td>
                     <td className="py-3 px-4 text-center">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100/80 text-green-800">
@@ -255,6 +263,7 @@ export default function PresencasDaTurma({ color = "green" }) {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
                 Sessão de {new Date(sessionDetail.date).toLocaleDateString("pt-BR")}
+                {sessionDetail.theme && <span className="text-gray-500 font-normal"> — {sessionDetail.theme}</span>}
               </h3>
               <p className="text-sm text-gray-500 mt-1">Marque os alunos presentes nesta sessão.</p>
             </div>
@@ -350,6 +359,17 @@ export default function PresencasDaTurma({ color = "green" }) {
                   className="w-full px-3 py-2 border border-gray-300/60 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                   autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tema da Aula *</label>
+                <input
+                  type="text"
+                  value={sessionTheme}
+                  onChange={(e) => setSessionTheme(e.target.value)}
+                  placeholder="Ex: Introdução à Rede de Computadores"
+                  className="w-full px-3 py-2 border border-gray-300/60 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
                 />
               </div>
               <div className="flex gap-3 justify-end pt-2">

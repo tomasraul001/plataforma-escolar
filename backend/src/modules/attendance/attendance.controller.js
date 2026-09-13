@@ -19,7 +19,11 @@ const getActiveEnrollments = async (classId) => {
 // Criar sessão de presença (formador/coordenador, apenas turma OPEN)
 export const createSession = async (req, res) => {
   const { classId } = req.params;
-  const { date } = req.body;
+  const { date, theme } = req.body;
+
+  if (!theme || !theme.trim()) {
+    return res.status(400).json({ message: "O tema da aula é obrigatório" });
+  }
 
   try {
     const classData = await prisma.class.findUnique({ where: { id: classId } });
@@ -48,6 +52,7 @@ export const createSession = async (req, res) => {
         data: {
           classId,
           date: sessionDate,
+          theme: theme.trim(),
         },
       });
 
@@ -111,6 +116,7 @@ export const listSessions = async (req, res) => {
       return {
         id: s.id,
         date: s.date,
+        theme: s.theme,
         createdAt: s.createdAt,
         totalStudents,
         present,
@@ -172,6 +178,7 @@ export const getSession = async (req, res) => {
     res.status(200).json({
       id: session.id,
       date: session.date,
+      theme: session.theme,
       students,
     });
   } catch (error) {
