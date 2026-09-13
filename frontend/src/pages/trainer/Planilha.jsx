@@ -281,7 +281,7 @@ export default function Planilha() {
 
       {/* Status de salvamento */}
       {saveStatus && (
-        <div className={`fixed bottom-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition-all ${
+        <div className={`hidden md:block fixed bottom-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition-all ${
           saveStatus === "saving" ? "bg-yellow-100/80 text-yellow-800" :
           saveStatus === "saved" ? "bg-green-100/80 text-green-800" :
           "bg-red-100/80 text-red-800"
@@ -351,7 +351,7 @@ export default function Planilha() {
       </div>
 
       {/* Legenda */}
-      <div className="flex items-center gap-6 text-sm text-gray-600 mt-4 p-4 bg-white/40 rounded-lg">
+      <div className="hidden md:flex items-center gap-6 text-sm text-gray-600 mt-4 p-4 bg-white/40 rounded-lg">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-yellow-100 rounded"></div>
           <span>Salvando...</span>

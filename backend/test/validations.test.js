@@ -35,36 +35,33 @@ test("validatePassword: retorna erro para vazio", () => {
   assert.equal(validatePassword(null), "Senha é obrigatória");
 });
 
-test("validatePassword: rejeita senha com menos de 4 caracteres", () => {
-  assert.equal(validatePassword("123"), "Senha deve ter pelo menos 4 caracteres");
-  assert.equal(validatePassword("ab"), "Senha deve ter pelo menos 4 caracteres");
+test("validatePassword: rejeita senha com menos de 6 caracteres", () => {
+  assert.equal(validatePassword("12345"), "Senha deve ter pelo menos 6 caracteres");
+  assert.equal(validatePassword("abc"), "Senha deve ter pelo menos 6 caracteres");
 });
 
 test("validatePassword: rejeita todos os caracteres iguais", () => {
-  assert.equal(validatePassword("1111"), "Senha não pode ter todos os caracteres iguais");
-  assert.equal(validatePassword("aaaa"), "Senha não pode ter todos os caracteres iguais");
-  assert.equal(validatePassword("9999"), "Senha não pode ter todos os caracteres iguais");
+  assert.equal(validatePassword("111111"), "Senha não pode ter todos os caracteres iguais");
+  assert.equal(validatePassword("aaaaaa"), "Senha não pode ter todos os caracteres iguais");
+  assert.equal(validatePassword("999999"), "Senha não pode ter todos os caracteres iguais");
 });
 
 test("validatePassword: rejeita sequencia crescente", () => {
-  assert.equal(validatePassword("1234"), "Senha não pode conter dígitos sequenciais");
-  assert.equal(validatePassword("2345"), "Senha não pode conter dígitos sequenciais");
-  assert.equal(validatePassword("5678"), "Senha não pode conter dígitos sequenciais");
-  assert.equal(validatePassword("6789"), "Senha não pode conter dígitos sequenciais");
+  assert.equal(validatePassword("123456"), "Senha não pode conter dígitos sequenciais");
+  assert.equal(validatePassword("234567"), "Senha não pode conter dígitos sequenciais");
 });
 
 test("validatePassword: rejeita sequencia decrescente", () => {
-  assert.equal(validatePassword("4321"), "Senha não pode conter dígitos sequenciais");
-  assert.equal(validatePassword("5432"), "Senha não pode conter dígitos sequenciais");
-  assert.equal(validatePassword("9876"), "Senha não pode conter dígitos sequenciais");
-  assert.equal(validatePassword("8765"), "Senha não pode conter dígitos sequenciais");
+  assert.equal(validatePassword("654321"), "Senha não pode conter dígitos sequenciais");
+  assert.equal(validatePassword("543210"), "Senha não pode conter dígitos sequenciais");
+  assert.equal(validatePassword("987654"), "Senha não pode conter dígitos sequenciais");
 });
 
 test("validatePassword: aceita senha valida", () => {
-  assert.equal(validatePassword("abcd"), null);
-  assert.equal(validatePassword("1357"), null);
-  assert.equal(validatePassword("2468"), null);
+  assert.equal(validatePassword("abcdef"), null);
+  assert.equal(validatePassword("135792"), null);
+  assert.equal(validatePassword("246813"), null);
   assert.equal(validatePassword("me9a_senha!"), null);
-  assert.equal(validatePassword("a1b2"), null);
-  assert.equal(validatePassword("1122"), null);
+  assert.equal(validatePassword("a1b2c3"), null);
+  assert.equal(validatePassword("112233"), null);
 });

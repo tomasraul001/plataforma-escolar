@@ -173,8 +173,3 @@ export const generatePautaPDF = async (req, res) => {
     res.status(500).json({ message: "Erro ao gerar PDF", error: error.message });
   }
 };
-
-export const generateCertificadoPDF = async (req, res) => {
-  // Placeholder para certificados
-  res.status(501).json({ message: "Não implementado ainda" });
-};

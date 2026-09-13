@@ -89,7 +89,7 @@ export default function Sigin(){
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium text-blue-300" htmlFor="phone">Número de Celular (opcional)</label>
-                        <input id="phone" type="tel" placeholder="+258 8XX XXX XXX" className="w-full bg-white/10 text-white placeholder:text-gray/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" ref={inputPhone} />
+                        <input id="phone" type="tel" placeholder="Ex: 84 123 4567" className="w-full bg-white/10 text-white placeholder:text-gray/40 border border-white/20 focus:border-violet-400 focus:bg-white/15 outline-none rounded-lg px-4 py-3 transition-all" ref={inputPhone} />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium text-blue-300" htmlFor="password">Senha</label>
