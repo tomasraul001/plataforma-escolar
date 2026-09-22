@@ -12,7 +12,7 @@ function validateEmail(email) {
 
 function validatePassword(password) {
   if (!password) return "Senha é obrigatória";
-  if (password.length < 4) return "Senha deve ter pelo menos 4 caracteres";
+  if (password.length < 6) return "Senha deve ter pelo menos 6 caracteres";
   if (new Set(password).size === 1) return "Senha não pode ter todos os caracteres iguais";
   const digits = password.split("").map(Number);
   if (digits.every((d) => !isNaN(d))) {

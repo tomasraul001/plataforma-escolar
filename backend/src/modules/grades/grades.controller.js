@@ -61,7 +61,7 @@ export const createGrade = async (req, res) => {
     res.status(201).json({ message: "Nota lançada com sucesso", grade });
   } catch (error) {
     console.error("Erro ao lançar nota:", error);
-    res.status(500).json({ message: "Erro ao lançar nota", error: error.message });
+    res.status(500).json({ message: "Erro ao lançar nota" });
   }
 };
 
@@ -133,7 +133,7 @@ export const bulkCreateGrades = async (req, res) => {
     res.status(201).json({ message: "Notas lançadas com sucesso", count: results.length });
   } catch (error) {
     console.error("Erro ao lançar notas em lote:", error);
-    res.status(500).json({ message: "Erro ao lançar notas", error: error.message });
+    res.status(500).json({ message: "Erro ao lançar notas" });
   }
 };
 
@@ -184,7 +184,7 @@ export const listGrades = async (req, res) => {
     res.status(200).json(grades);
   } catch (error) {
     console.error("Erro ao listar notas:", error);
-    res.status(500).json({ message: "Erro ao listar notas", error: error.message });
+    res.status(500).json({ message: "Erro ao listar notas" });
   }
 };
 
@@ -252,7 +252,7 @@ export const getGradebook = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao gerar pauta:", error);
-    res.status(500).json({ message: "Erro ao gerar pauta", error: error.message });
+    res.status(500).json({ message: "Erro ao gerar pauta" });
   }
 };
 
@@ -286,6 +286,6 @@ export const updateGrade = async (req, res) => {
     res.status(200).json({ message: "Nota atualizada", grade: updated });
   } catch (error) {
     console.error("Erro ao atualizar nota:", error);
-    res.status(500).json({ message: "Erro ao atualizar nota", error: error.message });
+    res.status(500).json({ message: "Erro ao atualizar nota" });
   }
 };

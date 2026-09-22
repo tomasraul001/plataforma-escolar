@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from "cors";
+import helmet from "helmet";
 import "dotenv/config";
 
 import { globalLimiter } from './middleware/rateLimit.middleware.js';
@@ -16,6 +17,8 @@ const app = express();
 
 app.set("trust proxy", 1);
 
+app.use(helmet());
+
 const allowedOrigins = [
   "http://localhost:5173",
   process.env.FRONTEND_URL,
@@ -23,7 +26,7 @@ const allowedOrigins = [
   process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null,
 ].filter(Boolean);
 
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
 app.use(cors({
   origin: allowedOrigins,
   credentials: true

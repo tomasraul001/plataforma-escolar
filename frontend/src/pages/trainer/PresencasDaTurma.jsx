@@ -65,6 +65,15 @@ export default function PresencasDaTurma({ color = "green" }) {
     }
   };
 
+  const refreshSessions = async () => {
+    try {
+      const sessionsRes = await api.get(`/attendance/classes/${classId}/sessions`);
+      setSessions(sessionsRes.data);
+    } catch (error) {
+      console.error("Erro ao atualizar sessões:", error);
+    }
+  };
+
   const handleCreateSession = async (e) => {
     e.preventDefault();
     if (!sessionDate) {
@@ -82,7 +91,7 @@ export default function PresencasDaTurma({ color = "green" }) {
       setSessionDate("");
       setSessionTheme("");
       setShowNewSession(false);
-      fetchData();
+      await refreshSessions();
     } catch (error) {
       toast.error("Erro ao criar sessão: " + (error.response?.data?.message || "Erro desconhecido"));
     } finally {

@@ -170,6 +170,6 @@ export const generatePautaPDF = async (req, res) => {
 
   } catch (error) {
     console.error("Erro ao gerar PDF:", error);
-    res.status(500).json({ message: "Erro ao gerar PDF", error: error.message });
+    res.status(500).json({ message: "Erro ao gerar PDF" });
   }
 };

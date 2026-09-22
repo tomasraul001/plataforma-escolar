@@ -1,6 +1,6 @@
 import prisma from "../../config/prisma.js";
 import bcrypt from "bcrypt";
-import { validatePassword } from "../../utils/validations.js";
+import { validatePassword, validateEmail } from "../../utils/validations.js";
 
 
 export const getAllUsers = async (req, res) => {
@@ -19,7 +19,7 @@ export const getAllUsers = async (req, res) => {
                 role: 'formando'
             }
         }else{
-            return res.status(404).json({message: 'Acesso negado'})
+            return res.status(403).json({message: 'Acesso negado'})
         }
 
         // Pegar dados no banco
@@ -36,8 +36,8 @@ export const getAllUsers = async (req, res) => {
         res.status(200).json(user)
 
     } catch(error){
-        console.log(error)
-        res.status(400).json({ message: "Erro ao buscar users"})
+        console.error("Erro ao buscar usuarios:", error)
+        res.status(500).json({ message: "Erro ao buscar users"})
     }
 
 }
@@ -67,8 +67,8 @@ export const deleteUser = async (req, res) => {
 
         res.status(200).json({message: 'Usuário excluído com sucesso'})
     } catch (error) {
-        console.log(error)
-        res.status(400).json({ message: "Erro ao excluir usuário"})
+        console.error("Erro ao excluir usuário:", error)
+        res.status(500).json({ message: "Erro ao excluir usuário"})
     }
 }
 
@@ -83,8 +83,13 @@ export const updateProfile = async (req, res) => {
             return res.status(404).json({ message: "Usuário não encontrado" });
         }
 
-        // Se vai trocar email, validar senha atual
+        // Se vai trocar email, validar formato e senha atual
         if (email && email.toLowerCase() !== user.email) {
+            const emailErr = validateEmail(email);
+            if (emailErr) {
+                return res.status(400).json({ message: emailErr });
+            }
+
             if (!currentPassword) {
                 return res.status(400).json({ message: "Senha atual obrigatória para alterar o email" });
             }

@@ -77,7 +77,7 @@ export const createSession = async (req, res) => {
     res.status(201).json(session);
   } catch (error) {
     console.error("Erro ao criar sessão:", error);
-    res.status(500).json({ message: "Erro ao criar sessão", error: error.message });
+    res.status(500).json({ message: "Erro ao criar sessão" });
   }
 };
 
@@ -127,7 +127,7 @@ export const listSessions = async (req, res) => {
     res.status(200).json(result);
   } catch (error) {
     console.error("Erro ao listar sessões:", error);
-    res.status(500).json({ message: "Erro ao listar sessões", error: error.message });
+    res.status(500).json({ message: "Erro ao listar sessões" });
   }
 };
 
@@ -183,7 +183,7 @@ export const getSession = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao buscar sessão:", error);
-    res.status(500).json({ message: "Erro ao buscar sessão", error: error.message });
+    res.status(500).json({ message: "Erro ao buscar sessão" });
   }
 };
 
@@ -251,7 +251,7 @@ export const bulkUpdateRecords = async (req, res) => {
     res.status(200).json({ message: "Presenças atualizadas" });
   } catch (error) {
     console.error("Erro ao atualizar presenças:", error);
-    res.status(500).json({ message: "Erro ao atualizar presenças", error: error.message });
+    res.status(500).json({ message: "Erro ao atualizar presenças" });
   }
 };
 
@@ -300,7 +300,7 @@ export const getSummary = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao gerar resumo de presenças:", error);
-    res.status(500).json({ message: "Erro ao gerar resumo de presenças", error: error.message });
+    res.status(500).json({ message: "Erro ao gerar resumo de presenças" });
   }
 };
 
@@ -353,6 +353,6 @@ export const getMyAttendance = async (req, res) => {
     res.status(200).json(result);
   } catch (error) {
     console.error("Erro ao buscar participação:", error);
-    res.status(500).json({ message: "Erro ao buscar participação", error: error.message });
+    res.status(500).json({ message: "Erro ao buscar participação" });
   }
 };

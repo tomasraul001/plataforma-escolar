@@ -63,7 +63,7 @@ export const createClass = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao criar turma:", error);
-    res.status(500).json({ message: "Erro ao criar turma", error: error.message, code: error.code });
+    res.status(500).json({ message: "Erro ao criar turma" });
   }
 };
 

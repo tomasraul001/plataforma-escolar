@@ -156,7 +156,7 @@ export const getPlanilha = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao buscar planilha:", error);
-    res.status(500).json({ message: "Erro ao buscar planilha", error: error.message });
+    res.status(500).json({ message: "Erro ao buscar planilha" });
   }
 };
 
@@ -265,7 +265,7 @@ export const autoSaveGrade = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao salvar nota:", error);
-    res.status(500).json({ message: "Erro ao salvar nota", error: error.message });
+    res.status(500).json({ message: "Erro ao salvar nota" });
   }
 };
 
@@ -306,7 +306,7 @@ export const initializePlanilha = async (req, res) => {
     res.status(200).json({ message: "Planilha inicializada", template });
   } catch (error) {
     console.error("Erro ao inicializar planilha:", error);
-    res.status(500).json({ message: "Erro ao inicializar planilha", error: error.message });
+    res.status(500).json({ message: "Erro ao inicializar planilha" });
   }
 };
 

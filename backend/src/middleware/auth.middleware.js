@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken"
 
+const VALID_ROLES = ["coordenador", "formador", "formando", "secretaria"];
 
 export const auth = (req, res, next) => {
     const header = req.header('Authorization')
@@ -13,6 +14,11 @@ export const auth = (req, res, next) => {
         let token = header.replace('Bearer ', '')
         
         const decoded = jwt.verify(token, process.env.SECRET_KEY)
+
+        if (!decoded.role || !VALID_ROLES.includes(decoded.role)) {
+            return res.status(401).json({ message: 'Token inválido!' })
+        }
+
         req.user = decoded
 
         next()

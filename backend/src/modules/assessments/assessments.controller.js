@@ -28,7 +28,7 @@ export const createAssessment = async (req, res) => {
     res.status(201).json({ message: "Avaliação criada com sucesso", assessment });
   } catch (error) {
     console.error("Erro ao criar avaliação:", error);
-    res.status(500).json({ message: "Erro ao criar avaliação", error: error.message });
+    res.status(500).json({ message: "Erro ao criar avaliação" });
   }
 };
 
@@ -64,7 +64,7 @@ export const listAssessments = async (req, res) => {
     res.status(200).json(assessments);
   } catch (error) {
     console.error("Erro ao listar avaliações:", error);
-    res.status(500).json({ message: "Erro ao listar avaliações", error: error.message });
+    res.status(500).json({ message: "Erro ao listar avaliações" });
   }
 };
 
@@ -98,7 +98,7 @@ export const updateAssessment = async (req, res) => {
     res.status(200).json({ message: "Avaliação atualizada", assessment: updated });
   } catch (error) {
     console.error("Erro ao atualizar avaliação:", error);
-    res.status(500).json({ message: "Erro ao atualizar avaliação", error: error.message });
+    res.status(500).json({ message: "Erro ao atualizar avaliação" });
   }
 };
 
@@ -128,6 +128,6 @@ export const deleteAssessment = async (req, res) => {
     res.status(200).json({ message: "Avaliação excluída com sucesso" });
   } catch (error) {
     console.error("Erro ao excluir avaliação:", error);
-    res.status(500).json({ message: "Erro ao excluir avaliação", error: error.message });
+    res.status(500).json({ message: "Erro ao excluir avaliação" });
   }
 };
