@@ -9,7 +9,8 @@
   "scripts": {
     "test": "node --test",
     "start": "node src/app.js",
-    "dev": "node --watch src/app.js"
+    "dev": "node --watch src/app.js",
+    "seed": "node scripts/seed.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19",
@@ -24,6 +25,8 @@
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
+    "bcryptjs": "^3.0.3",
+    "pg": "^8.23.0",
     "prisma": "6.19"
   }
 }
