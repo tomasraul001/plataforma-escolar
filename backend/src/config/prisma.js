@@ -1,7 +1,9 @@
 import { config } from "dotenv";
-import { resolve } from "path";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 
-config({ path: resolve(process.cwd(), "backend/.env") });
+const here = dirname(fileURLToPath(import.meta.url));
+config({ path: resolve(here, "../..", ".env") });
 
 import { PrismaClient } from "../../generated/prisma/client.ts"
 
