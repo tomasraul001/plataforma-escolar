@@ -213,6 +213,59 @@ export const listAllClasses = async (req, res) => {
   }
 };
 
+const ATIVAS_STATUS = ["OPEN", "DRAFT"];
+const CONCLUIDAS_STATUS = ["CLOSED", "ARCHIVED"];
+
+async function countDistinctEnrolled(classIds) {
+  if (classIds.length === 0) return 0;
+  const rows = await prisma.enrollment.findMany({
+    where: { classId: { in: classIds }, status: "ACTIVE", studentId: { not: null } },
+    select: { studentId: true },
+  });
+  return new Set(rows.map((r) => r.studentId)).size;
+}
+
+export const getClassStats = async (req, res) => {
+  const { regionId } = req.query;
+
+  try {
+    if (regionId) {
+      const region = await prisma.region.findUnique({ where: { id: regionId } });
+      if (!region) {
+        return res.status(404).json({ message: "Local/Região não encontrada" });
+      }
+    }
+
+    const classes = await prisma.class.findMany({
+      where: regionId ? { locationId: regionId } : {},
+      select: { id: true, status: true, trainerId: true },
+    });
+
+    const openClasses = classes.filter((c) => c.status === "OPEN").length;
+    const closedClasses = classes.filter((c) => c.status === "CLOSED").length;
+    const formadores = new Set(classes.map((c) => c.trainerId).filter(Boolean)).size;
+
+    const activeClassIds = classes.filter((c) => ATIVAS_STATUS.includes(c.status)).map((c) => c.id);
+    const closedClassIds = classes.filter((c) => CONCLUIDAS_STATUS.includes(c.status)).map((c) => c.id);
+
+    const [formandosAtivos, formandosConcluidos] = await Promise.all([
+      countDistinctEnrolled(activeClassIds),
+      countDistinctEnrolled(closedClassIds),
+    ]);
+
+    res.status(200).json({
+      turmasAbertas: openClasses,
+      turmasFechadas: closedClasses,
+      formadores,
+      formandosAtivos,
+      formandosConcluidos,
+    });
+  } catch (error) {
+    console.error("Erro ao buscar estatísticas das turmas:", error);
+    res.status(500).json({ message: "Erro ao buscar estatísticas das turmas" });
+  }
+};
+
 export const createTrainingArea = async (req, res) => {
   const { name, code, description } = req.body;
 

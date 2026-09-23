@@ -28,6 +28,9 @@ router.get("/minhas", authorize("formador", "coordenador"), classesController.li
 // Coordenador/Secretaria lista todas
 router.get("/todas", authorize("coordenador", "secretaria"), classesController.listAllClasses);
 
+// Estatísticas (global ou por região) - ANTES de /:id
+router.get("/stats", authorize("coordenador", "secretaria"), classesController.getClassStats);
+
 // Buscar turma por ID
 router.get("/:id", authorize("formador", "coordenador", "secretaria"), classesController.getClassById);
 

@@ -8,6 +8,7 @@ export default function SecretaryDashboard() {
   const navigate = useNavigate();
   const toast = useToast().toast;
   const [stats, setStats] = useState({ openClasses: 0, closedClasses: 0, archivedClasses: 0, trainers: 0 });
+  const [formandosStats, setFormandosStats] = useState({ ativos: 0, concluidos: 0 });
   const [allClasses, setAllClasses] = useState([]);
   const [regions, setRegions] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -46,10 +47,28 @@ export default function SecretaryDashboard() {
     }
   };
 
+  const fetchFormandosStats = async (regionId) => {
+    try {
+      const res = await api.get("/classes/stats", {
+        params: regionId ? { regionId } : {},
+      });
+      setFormandosStats({
+        ativos: res.data.formandosAtivos,
+        concluidos: res.data.formandosConcluidos,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar estatísticas de formandos:", error);
+    }
+  };
+
   useEffect(() => {
     fetchStats();
     fetchRegions();
   }, []);
+
+  useEffect(() => {
+    fetchFormandosStats(selectedLocation);
+  }, [selectedLocation]);
 
   const handleDownloadPauta = async (classId) => {
     try {
@@ -92,8 +111,11 @@ export default function SecretaryDashboard() {
     openClasses: filteredClasses.filter((c) => c.status === "OPEN").length,
     closedClasses: filteredClasses.filter((c) => c.status === "CLOSED").length,
     archivedClasses: filteredClasses.filter((c) => c.status === "ARCHIVED").length,
-    trainers: stats.trainers,
   };
+
+  const trainerCount = selectedLocation
+    ? new Set(filteredClasses.map((c) => c.trainer?.id).filter(Boolean)).size
+    : stats.trainers;
 
   if (loading) {
     return (
@@ -119,7 +141,7 @@ export default function SecretaryDashboard() {
         onChange={setSelectedLocation}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -171,7 +193,35 @@ export default function SecretaryDashboard() {
             </div>
             <div className="ml-3">
               <p className="text-xs font-medium text-gray-500">Formadores</p>
-              <p className="text-xl font-bold text-gray-900">{stats.trainers}</p>
+              <p className="text-xl font-bold text-gray-900">{trainerCount}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-purple-100/80">
+                <span className="text-xl">🎓</span>
+              </div>
+            </div>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Formandos</p>
+              <p className="text-xl font-bold text-gray-900">{formandosStats.ativos}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-amber-100/80">
+                <span className="text-xl">🎖️</span>
+              </div>
+            </div>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Formandos Concluídos</p>
+              <p className="text-xl font-bold text-gray-900">{formandosStats.concluidos}</p>
             </div>
           </div>
         </div>

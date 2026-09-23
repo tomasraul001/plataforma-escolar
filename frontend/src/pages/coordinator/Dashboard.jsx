@@ -7,6 +7,7 @@ import LocationFilter from "../../components/LocationFilter";
 export default function CoordinatorDashboard() {
   const toast = useToast().toast;
   const [stats, setStats] = useState({ openClasses: 0, closedClasses: 0, trainers: 0, students: 0 });
+  const [formandosStats, setFormandosStats] = useState({ ativos: 0, concluidos: 0 });
   const [activeClasses, setActiveClasses] = useState([]);
   const [areas, setAreas] = useState([]);
   const [regions, setRegions] = useState([]);
@@ -23,6 +24,10 @@ export default function CoordinatorDashboard() {
     fetchAreas();
     fetchRegions();
   }, []);
+
+  useEffect(() => {
+    fetchFormandosStats(selectedLocation);
+  }, [selectedLocation]);
 
   const fetchStats = async () => {
     try {
@@ -62,6 +67,20 @@ export default function CoordinatorDashboard() {
       setRegions(res.data);
     } catch (error) {
       console.error("Erro ao buscar locais/regiões:", error);
+    }
+  };
+
+  const fetchFormandosStats = async (regionId) => {
+    try {
+      const res = await api.get("/classes/stats", {
+        params: regionId ? { regionId } : {},
+      });
+      setFormandosStats({
+        ativos: res.data.formandosAtivos,
+        concluidos: res.data.formandosConcluidos,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar estatísticas de formandos:", error);
     }
   };
 
@@ -215,9 +234,11 @@ export default function CoordinatorDashboard() {
   const filteredStats = {
     openClasses: filteredClasses.filter((c) => c.status === "OPEN").length,
     closedClasses: filteredClasses.filter((c) => c.status === "CLOSED").length,
-    trainers: stats.trainers,
-    students: stats.students,
   };
+
+  const trainerCount = selectedLocation
+    ? new Set(filteredClasses.map((c) => c.trainer?.id).filter(Boolean)).size
+    : stats.trainers;
 
   return (
     <div className="space-y-6">
@@ -236,7 +257,7 @@ export default function CoordinatorDashboard() {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -274,7 +295,7 @@ export default function CoordinatorDashboard() {
             </div>
             <div className="ml-3">
               <p className="text-xs font-medium text-gray-500">Formadores</p>
-              <p className="text-xl font-bold text-gray-900">{filteredStats.trainers}</p>
+              <p className="text-xl font-bold text-gray-900">{trainerCount}</p>
             </div>
           </div>
         </div>
@@ -288,7 +309,21 @@ export default function CoordinatorDashboard() {
             </div>
             <div className="ml-3">
               <p className="text-xs font-medium text-gray-500">Formandos</p>
-              <p className="text-xl font-bold text-gray-900">{filteredStats.students}</p>
+              <p className="text-xl font-bold text-gray-900">{formandosStats.ativos}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-5">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="flex items-center justify-center h-11 w-11 rounded-lg bg-amber-100/80">
+                <span className="text-xl">🎖️</span>
+              </div>
+            </div>
+            <div className="ml-3">
+              <p className="text-xs font-medium text-gray-500">Formandos Concluídos</p>
+              <p className="text-xl font-bold text-gray-900">{formandosStats.concluidos}</p>
             </div>
           </div>
         </div>
