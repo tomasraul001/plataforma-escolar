@@ -1,6 +1,11 @@
-import PDFDocument from "pdfkit";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import prisma from "../../config/prisma.js";
-import { calculateMediaByAssessments } from "../grades/assessmentWeights.js";
+import { buildPautaPdf } from "./pautaPdf.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const LOGO_PATH = path.join(__dirname, "../../../assets/logo.png");
 
 export const generatePautaPDF = async (req, res) => {
   const { classId } = req.params;
@@ -33,140 +38,19 @@ export const generatePautaPDF = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    // Calcular médias (40% testes/trabalho + 60% exame)
-    const studentsWithGrades = classData.enrollments.map((enrollment) => {
-      const gradesMap = {};
-      enrollment.grades.forEach((g) => {
-        gradesMap[g.assessmentId] = g.value;
-      });
+    let logo = null;
+    try {
+      logo = fs.readFileSync(LOGO_PATH);
+    } catch {
+      logo = null;
+    }
 
-      const media = calculateMediaByAssessments(gradesMap, classData.assessments) ?? "—";
+    const pdf = await buildPautaPdf(classData, { logo });
 
-      return {
-        enrollmentId: enrollment.id,
-        student: enrollment.student,
-        grades: classData.assessments.map((a) => ({
-          assessmentId: a.id,
-          assessmentName: a.name,
-          value: gradesMap[a.id] ?? null,
-        })),
-        media,
-      };
-    });
-
-    // Gerar PDF
-    const doc = new PDFDocument({ margin: 40, size: "A4", layout: "landscape" });
-    
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="pauta-${classData.code}.pdf"`);
-    
-    doc.pipe(res);
-
-    // Header
-    doc.fontSize(20).font("Helvetica-Bold").text("PAUTA DE NOTAS", { align: "center" });
-    doc.moveDown(0.5);
-    doc.fontSize(12).font("Helvetica").text(`Turma: ${classData.name}`, { align: "center" });
-    doc.text(`Código: ${classData.code} | Área: ${classData.trainingArea?.name || "—"} | Local: ${classData.location?.name || "—"}`, { align: "center" });
-    doc.text(`Formador: ${classData.trainer?.name || "—"}`, { align: "center" });
-    doc.text(`Status: ${classData.status}`, { align: "center" });
-    doc.moveDown(1);
-
-    // Tabela
-    const assessments = classData.assessments;
-    const students = classData.enrollments;
-
-    // Calcular larguras
-    const pageWidth = doc.page.width - 80; // margem 40 cada lado
-    const colStudent = 120;
-    const colMedia = 50;
-    const remainingWidth = pageWidth - colStudent - colMedia;
-    const colAssessment = remainingWidth / assessments.length;
-
-    // Cabeçalho da tabela
-    let x = 40;
-    const headerY = doc.y;
-    
-    doc.font("Helvetica-Bold").fontSize(8);
-    
-    // Coluna Aluno
-    doc.rect(x, headerY, colStudent, 20).stroke();
-    doc.text("Aluno", x + 2, headerY + 5, { width: colStudent - 4, align: "center" });
-    x += colStudent;
-
-    // Colunas Avaliações
-    classData.assessments.forEach((a) => {
-      doc.rect(x, headerY, colAssessment, 20).stroke();
-      doc.text(`${a.name}`, x + 2, headerY + 6, { 
-        width: colAssessment - 4, 
-        align: "center",
-        lineBreak: false
-      });
-      x += colAssessment;
-    });
-
-    // Coluna Média
-    doc.rect(x, headerY, colMedia, 20).stroke();
-    doc.text("Média", x + 2, headerY + 5, { width: colMedia - 4, align: "center" });
-
-    doc.y = headerY + 20;
-
-    // Linhas dos alunos
-    let rowIndex = 0;
-    classData.enrollments.forEach((enrollment) => {
-      const gradesMap = {};
-      enrollment.grades.forEach((g) => {
-        gradesMap[g.assessmentId] = g.value;
-      });
-
-      let media = calculateMediaByAssessments(gradesMap, classData.assessments);
-      if (media === null) media = "—";
-
-      // Verificar se precisa de nova página
-      if (doc.y > 500) {
-        doc.addPage();
-      }
-
-      x = 40;
-      const rowY = doc.y;
-
-      // Zebra striping
-      if (rowIndex % 2 === 0) {
-        doc.rect(40, rowY, pageWidth, 18).fill("#f8f9fa");
-      }
-
-      doc.font("Helvetica").fontSize(8).fillColor("black");
-
-      // Nome do aluno
-      doc.rect(40, doc.y, colStudent, 18).stroke();
-      doc.text(enrollment.student?.name || enrollment.manualName || "—", 42, doc.y + 4, { width: colStudent - 4, align: "left" });
-
-      x = 40 + colStudent;
-      
-      // Notas
-      classData.assessments.forEach((a) => {
-        const grade = gradesMap[a.id];
-        doc.rect(x, doc.y, colAssessment, 18).stroke();
-        const val = gradesMap[a.id] !== undefined ? Math.round(gradesMap[a.id]) : "—";
-        doc.text(String(val), x + 2, doc.y + 4, { width: colAssessment - 4, align: "center" });
-        x += colAssessment;
-      });
-
-      // Média
-      doc.rect(x, doc.y, colMedia, 18).stroke();
-      doc.text(media, x + 2, doc.y + 4, { width: colMedia - 4, align: "center" });
-
-      doc.y += 18;
-      rowIndex++;
-    });
-
-    // Rodapé
-    doc.moveDown(2);
-    doc.fontSize(8).fillColor("gray").text(
-      `Gerado em ${new Date().toLocaleDateString("pt-BR")} | Sistema de Gestão Escolar`,
-      { align: "center" }
-    );
-
-    doc.end();
+    res.setHeader("Content-Length", pdf.length);
+    res.send(pdf);
 
   } catch (error) {
     console.error("Erro ao gerar PDF:", error);
