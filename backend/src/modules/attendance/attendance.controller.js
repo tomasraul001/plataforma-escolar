@@ -216,6 +216,26 @@ export const bulkUpdateRecords = async (req, res) => {
       return res.status(400).json({ message: "Registros inválidos" });
     }
 
+    // IDOR: garantir que todas as inscrições enviadas pertencem a esta turma.
+    // Sem esta validação um formador criava presenças para alunos de outra turma.
+    const enrollmentIds = [...new Set(records.map((r) => r.enrollmentId))];
+    if (enrollmentIds.some((id) => typeof id !== "string" || !id)) {
+      return res.status(400).json({ message: "Inscrição inválida" });
+    }
+
+    const validEnrollments = await prisma.enrollment.findMany({
+      where: { id: { in: enrollmentIds }, classId, status: "ACTIVE" },
+      select: { id: true },
+    });
+
+    const validIds = new Set(validEnrollments.map((e) => e.id));
+    const invalidIds = enrollmentIds.filter((id) => !validIds.has(id));
+    if (invalidIds.length > 0) {
+      return res.status(400).json({
+        message: "Inscrição não pertence a esta turma",
+      });
+    }
+
     await prisma.$transaction(async (tx) => {
       const existingRecords = await tx.attendanceRecord.findMany({
         where: { sessionId },

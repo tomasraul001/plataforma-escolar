@@ -1,5 +1,6 @@
 import prisma from "../../config/prisma.js";
 import { getAssessmentPercent, calculateMediaByAssessments, calculateMediaByGradeEntries } from "./assessmentWeights.js";
+import { isLocked, lockedMessage } from "../../utils/classStatus.js";
 
 // Configuração fixa da planilha (hardcoded conforme requisitos)
 const DEFAULT_COLUMNS = [
@@ -190,8 +191,8 @@ export const autoSaveGrade = async (req, res) => {
     }
 
     // Verificar se a turma permite lançamento de notas
-    if (classData.status === "CLOSED" || classData.status === "ARCHIVED") {
-      return res.status(400).json({ message: "Não é possível alterar notas em turma fechada/arquivada" });
+    if (isLocked(classData.status)) {
+      return res.status(400).json({ message: lockedMessage("alterar notas") });
     }
 
     // Encontrar assessment correspondente à coluna

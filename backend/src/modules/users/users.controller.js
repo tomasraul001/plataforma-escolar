@@ -59,6 +59,30 @@ export const deleteUser = async (req, res) => {
             return res.status(404).json({message: 'Usuário não encontrado'})
         }
 
+        // O utilizador é referenciado por turmas, inscrições, notas e registos de
+        // auditoria. Sem estes testes a BD rejeita o DELETE com P2003 e o
+        // coordenador via apenas um 500 genérico, sem saber o que o impede.
+        const [turmas, inscricoes, notas, auditorias] = await Promise.all([
+            prisma.class.count({ where: { trainerId: user.id } }),
+            prisma.enrollment.count({ where: { studentId: user.id } }),
+            prisma.grade.count({ where: { updatedById: user.id } }),
+            prisma.auditLog.count({ where: { userId: user.id } }),
+        ])
+
+        const bloqueios = []
+        if (turmas > 0) bloqueios.push(`${turmas} turma(s) como formador`)
+        if (inscricoes > 0) bloqueios.push(`${inscricoes} inscrição(ões) como formando`)
+        if (notas > 0) bloqueios.push(`${notas} nota(s) lançada(s) por si`)
+        if (auditorias > 0) bloqueios.push(`${auditorias} registo(s) de auditoria`)
+
+        if (bloqueios.length > 0) {
+            return res.status(409).json({
+                message:
+                    "Não é possível excluir um utilizador com registos associados. " +
+                    `Bloqueado por: ${bloqueios.join(", ")}.`,
+            })
+        }
+
         await prisma.user.delete({
             where: {
                 id: req.params.id
@@ -67,6 +91,13 @@ export const deleteUser = async (req, res) => {
 
         res.status(200).json({message: 'Usuário excluído com sucesso'})
     } catch (error) {
+        // Rede de segurança: se uma relação não coberta acima existir, o Prisma
+        // devolve P2003 em vez de um 500 opaco.
+        if (error?.code === "P2003") {
+            return res.status(409).json({
+                message: "Não é possível excluir um utilizador com registos associados.",
+            })
+        }
         console.error("Erro ao excluir usuário:", error)
         res.status(500).json({ message: "Erro ao excluir usuário"})
     }

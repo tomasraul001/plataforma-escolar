@@ -138,3 +138,50 @@ test("getFicha: formador com acesso retorna 200", async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.user.name, "João");
 });
+
+test("getFicha: formador so recebe as turmas das quais e formador (IDOR)", async () => {
+  installStubs();
+  resetState();
+  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date() };
+  findFirstResult = { id: "enr-1" };
+
+  let enrollmentQuery = null;
+  prisma.class.findMany = async () => [{ id: "class-minha" }, { id: "class-minha-2" }];
+  prisma.enrollment.findMany = async (args) => {
+    enrollmentQuery = args;
+    return [];
+  };
+
+  const req = { params: { userId: "u1" }, user: { id: "trainer-1", role: "formador" } };
+  const res = mockRes();
+
+  await getFicha(req, res);
+
+  assert.equal(res.statusCode, 200);
+  // O filtro de turma tem de estar presente: sem ele o formador via o
+  // historico escolar do aluno noutras turmas, de outros formadores.
+  assert.ok(enrollmentQuery.where.classId, "ficha deve filtrar por turmas do formador");
+  assert.deepEqual(enrollmentQuery.where.classId, { in: ["class-minha", "class-minha-2"] });
+  assert.equal(enrollmentQuery.where.studentId, "u1");
+});
+
+test("getFicha: coordenador e secretaria nao levam filtro de turma", async () => {
+  installStubs();
+  resetState();
+  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date() };
+
+  let enrollmentQuery = null;
+  prisma.enrollment.findMany = async (args) => {
+    enrollmentQuery = args;
+    return [];
+  };
+
+  const req = { params: { userId: "u1" }, user: { id: "sec-1", role: "secretaria" } };
+  const res = mockRes();
+
+  await getFicha(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(enrollmentQuery.where.classId, undefined);
+  assert.deepEqual(enrollmentQuery.where, { studentId: "u1" });
+});

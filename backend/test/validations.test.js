@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateEmail, validatePassword } from "../src/utils/validations.js";
+import { validateEmail, validatePassword, validateGradeValue } from "../src/utils/validations.js";
 
 // === validateEmail ===
 
@@ -64,4 +64,35 @@ test("validatePassword: aceita senha valida", () => {
   assert.equal(validatePassword("me9a_senha!"), null);
   assert.equal(validatePassword("a1b2c3"), null);
   assert.equal(validatePassword("112233"), null);
+});
+
+// === validateGradeValue ===
+
+test("validateGradeValue: aceita notas dentro de 0 a 20", () => {
+  assert.equal(validateGradeValue(0), null);
+  assert.equal(validateGradeValue(20), null);
+  assert.equal(validateGradeValue(10), null);
+  assert.equal(validateGradeValue(17.5), null);
+  assert.equal(validateGradeValue("15"), null);
+});
+
+test("validateGradeValue: rejeita nota acima de 20", () => {
+  assert.equal(validateGradeValue(21), "Nota deve ser entre 0 e 20");
+  assert.equal(validateGradeValue(100), "Nota deve ser entre 0 e 20");
+  assert.equal(validateGradeValue("20.5"), "Nota deve ser entre 0 e 20");
+});
+
+test("validateGradeValue: rejeita nota negativa", () => {
+  assert.equal(validateGradeValue(-1), "Nota deve ser entre 0 e 20");
+  assert.equal(validateGradeValue(-0.5), "Nota deve ser entre 0 e 20");
+});
+
+test("validateGradeValue: rejeita valores nao numericos e vazios", () => {
+  const esperado = "Nota deve ser um número entre 0 e 20";
+  assert.equal(validateGradeValue(undefined), esperado);
+  assert.equal(validateGradeValue(null), esperado);
+  assert.equal(validateGradeValue(""), esperado);
+  assert.equal(validateGradeValue("abc"), esperado);
+  assert.equal(validateGradeValue(NaN), esperado);
+  assert.equal(validateGradeValue({}), esperado);
 });

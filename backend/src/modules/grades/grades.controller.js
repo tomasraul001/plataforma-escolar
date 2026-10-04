@@ -1,5 +1,7 @@
 import prisma from "../../config/prisma.js";
 import { calculateMediaByAssessments } from "./assessmentWeights.js";
+import { isLocked, lockedMessage } from "../../utils/classStatus.js";
+import { validateGradeValue } from "../../utils/validations.js";
 
 export const createGrade = async (req, res) => {
   const { assessmentId, enrollmentId, value } = req.body;
@@ -18,8 +20,13 @@ export const createGrade = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (assessment.class.status === "CLOSED") {
-      return res.status(400).json({ message: "Não é possível lançar notas em turma fechada" });
+    if (isLocked(assessment.class.status)) {
+      return res.status(400).json({ message: lockedMessage("lançar notas") });
+    }
+
+    const invalidValue = validateGradeValue(value);
+    if (invalidValue) {
+      return res.status(400).json({ message: invalidValue });
     }
 
     const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId } });
@@ -82,18 +89,15 @@ export const bulkCreateGrades = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (assessment.class.status === "CLOSED") {
-      return res.status(400).json({ message: "Não é possível lançar notas em turma fechada" });
+    if (isLocked(assessment.class.status)) {
+      return res.status(400).json({ message: lockedMessage("lançar notas") });
     }
 
     if (!Array.isArray(grades) || grades.length === 0) {
       return res.status(400).json({ message: "Lista de notas inválida" });
     }
 
-    const hasInvalidValue = grades.some((g) => {
-      const n = Number(g.value);
-      return !Number.isFinite(n) || n < 0 || n > 20;
-    });
+    const hasInvalidValue = grades.some((g) => validateGradeValue(g.value) !== null);
     if (hasInvalidValue) {
       return res.status(400).json({ message: "Nota deve ser entre 0 e 20" });
     }
@@ -274,8 +278,13 @@ export const updateGrade = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (grade.assessment.class.status === "CLOSED") {
-      return res.status(400).json({ message: "Não é possível alterar notas em turma fechada" });
+    if (isLocked(grade.assessment.class.status)) {
+      return res.status(400).json({ message: lockedMessage("alterar notas") });
+    }
+
+    const invalidValue = validateGradeValue(value);
+    if (invalidValue) {
+      return res.status(400).json({ message: invalidValue });
     }
 
     const updated = await prisma.grade.update({

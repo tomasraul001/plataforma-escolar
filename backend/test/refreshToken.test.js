@@ -33,7 +33,9 @@ function installStubs() {
   prisma.refreshToken.updateMany = async ({ where, data }) => {
     let count = 0;
     for (const t of storedRefreshTokens) {
-      if (where.userId && t.userId === where.userId && !t.revokedAt) {
+      const matchUser = where.userId && t.userId === where.userId;
+      const matchHash = where.tokenHash && t.tokenHash === where.tokenHash;
+      if ((matchUser || matchHash) && !t.revokedAt) {
         Object.assign(t, data);
         count++;
       }

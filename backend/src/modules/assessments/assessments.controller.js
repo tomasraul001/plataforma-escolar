@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { isLocked, lockedMessage } from "../../utils/classStatus.js";
 
 export const createAssessment = async (req, res) => {
   const { classId, name, weight } = req.body;
@@ -13,8 +14,8 @@ export const createAssessment = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (classData.status === "CLOSED") {
-      return res.status(400).json({ message: "Não é possível adicionar avaliações em turma fechada" });
+    if (isLocked(classData.status)) {
+      return res.status(400).json({ message: lockedMessage("adicionar avaliações") });
     }
 
     const assessment = await prisma.assessment.create({
@@ -86,8 +87,8 @@ export const updateAssessment = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (assessment.class.status === "CLOSED") {
-      return res.status(400).json({ message: "Não é possível alterar avaliações em turma fechada" });
+    if (isLocked(assessment.class.status)) {
+      return res.status(400).json({ message: lockedMessage("alterar avaliações") });
     }
 
     const updated = await prisma.assessment.update({
@@ -119,8 +120,8 @@ export const deleteAssessment = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (assessment.class.status === "CLOSED") {
-      return res.status(400).json({ message: "Não é possível excluir avaliações em turma fechada" });
+    if (isLocked(assessment.class.status)) {
+      return res.status(400).json({ message: lockedMessage("excluir avaliações") });
     }
 
     await prisma.assessment.delete({ where: { id } });

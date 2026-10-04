@@ -37,3 +37,18 @@ export function validatePassword(password) {
   }
   return null;
 }
+
+// Escala angolana: notas vão de 0 a 20.
+export const GRADE_MIN = 0;
+export const GRADE_MAX = 20;
+
+export function validateGradeValue(value) {
+  const n = Number(value);
+  if (value === null || value === undefined || value === "" || !Number.isFinite(n)) {
+    return "Nota deve ser um número entre 0 e 20";
+  }
+  if (n < GRADE_MIN || n > GRADE_MAX) {
+    return "Nota deve ser entre 0 e 20";
+  }
+  return null;
+}

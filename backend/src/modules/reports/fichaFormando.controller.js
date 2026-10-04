@@ -54,6 +54,9 @@ export const getFicha = async (req, res) => {
       return res.status(404).json({ message: "Formando não encontrado" });
     }
 
+    // O formador só pode ver turmas das quais é formador.
+    // Sem este filtro via de acesso, ele via o histórico inteiro do aluno.
+    let allowedClassIds = null;
     if (req.user.role === "formador") {
       const hasAccess = await prisma.enrollment.findFirst({
         where: {
@@ -65,10 +68,20 @@ export const getFicha = async (req, res) => {
       if (!hasAccess) {
         return res.status(403).json({ message: "Acesso negado a este formando" });
       }
+
+      allowedClassIds = (
+        await prisma.class.findMany({
+          where: { trainerId: req.user.id },
+          select: { id: true },
+        })
+      ).map((c) => c.id);
     }
 
     const enrollments = await prisma.enrollment.findMany({
-      where: { studentId: userId },
+      where: {
+        studentId: userId,
+        ...(allowedClassIds ? { classId: { in: allowedClassIds } } : {}),
+      },
       include: {
         class: {
           include: {

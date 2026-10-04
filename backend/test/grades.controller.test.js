@@ -1,7 +1,13 @@
 import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import prisma from "../src/config/prisma.js";
-import { listGrades, getGradebook, bulkCreateGrades } from "../src/modules/grades/grades.controller.js";
+import {
+  listGrades,
+  getGradebook,
+  createGrade,
+  updateGrade,
+  bulkCreateGrades,
+} from "../src/modules/grades/grades.controller.js";
 
 const backup = {};
 
@@ -12,6 +18,7 @@ function installStubs() {
   backup.gradeFindMany = prisma.grade?.findMany;
   backup.assessmentFindUnique = prisma.assessment?.findUnique;
   backup.gradeFindFirst = prisma.grade?.findFirst;
+  backup.gradeFindUnique = prisma.grade?.findUnique;
   backup.gradeCreate = prisma.grade?.create;
   backup.gradeUpdate = prisma.grade?.update;
 
@@ -21,6 +28,7 @@ function installStubs() {
   prisma.grade.findMany = async () => [];
   prisma.assessment.findUnique = async () => null;
   prisma.grade.findFirst = async () => null;
+  prisma.grade.findUnique = async () => null;
   prisma.grade.create = async (args) => ({ id: "g1", ...args.data });
   prisma.grade.update = async (args) => ({ id: args.where?.id || "g1", ...args.data });
 }
@@ -32,6 +40,7 @@ function restoreStubs() {
   if (backup.gradeFindMany !== undefined) prisma.grade.findMany = backup.gradeFindMany;
   if (backup.assessmentFindUnique !== undefined) prisma.assessment.findUnique = backup.assessmentFindUnique;
   if (backup.gradeFindFirst !== undefined) prisma.grade.findFirst = backup.gradeFindFirst;
+  if (backup.gradeFindUnique !== undefined) prisma.grade.findUnique = backup.gradeFindUnique;
   if (backup.gradeCreate !== undefined) prisma.grade.create = backup.gradeCreate;
   if (backup.gradeUpdate !== undefined) prisma.grade.update = backup.gradeUpdate;
 }
@@ -250,4 +259,179 @@ test("bulkCreateGrades: nota fora do intervalo recebe 400", async () => {
 
   assert.equal(res.statusCode, 400);
   assert.equal(res.body.message, "Nota deve ser entre 0 e 20");
+});
+
+test("bulkCreateGrades: turma ARQUIVADA bloqueia a escrita de notas", async () => {
+  installStubs();
+  prisma.assessment.findUnique = async () => ({
+    id: "a1",
+    classId: "c1",
+    class: { trainerId: "trainer-1", status: "ARCHIVED" },
+  });
+
+  let created = 0;
+  prisma.grade.create = async () => {
+    created += 1;
+    return { id: "g1" };
+  };
+
+  const req = {
+    body: { assessmentId: "a1", grades: [{ enrollmentId: "e1", value: 15 }] },
+    user: { id: "trainer-1", role: "formador" },
+  };
+  const res = mockRes();
+
+  await bulkCreateGrades(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.message, "Não é possível lançar notas em turma fechada ou arquivada");
+  assert.equal(created, 0);
+});
+
+test("createGrade: turma ARQUIVADA bloqueia o lançamento de nota", async () => {
+  installStubs();
+  prisma.assessment.findUnique = async () => ({
+    id: "a1",
+    classId: "c1",
+    class: { trainerId: "trainer-1", status: "ARCHIVED" },
+  });
+
+  const req = {
+    body: { assessmentId: "a1", enrollmentId: "e1", value: 15 },
+    user: { id: "trainer-1", role: "formador" },
+  };
+  const res = mockRes();
+
+  await createGrade(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.message, "Não é possível lançar notas em turma fechada ou arquivada");
+});
+
+test("updateGrade: turma ARQUIVADA bloqueia a alteração de nota", async () => {
+  installStubs();
+  prisma.grade.findUnique = async () => ({
+    id: "g1",
+    assessment: { id: "a1", class: { trainerId: "trainer-1", status: "ARCHIVED" } },
+  });
+
+  const req = { params: { id: "g1" }, body: { value: 18 }, user: { id: "trainer-1", role: "formador" } };
+  const res = mockRes();
+
+  await updateGrade(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.message, "Não é possível alterar notas em turma fechada ou arquivada");
+});
+
+test("createGrade: rejeita nota acima de 20 e nao escreve nada", async () => {
+  installStubs();
+  prisma.assessment.findUnique = async () => ({
+    id: "a1",
+    classId: "c1",
+    class: { trainerId: "trainer-1", status: "OPEN" },
+  });
+
+  let written = 0;
+  prisma.grade.create = async () => {
+    written += 1;
+    return { id: "g1" };
+  };
+  prisma.grade.update = async () => {
+    written += 1;
+    return { id: "g1" };
+  };
+
+  const req = {
+    body: { assessmentId: "a1", enrollmentId: "e1", value: 21 },
+    user: { id: "trainer-1", role: "formador" },
+  };
+  const res = mockRes();
+
+  await createGrade(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.message, "Nota deve ser entre 0 e 20");
+  assert.equal(written, 0);
+});
+
+test("createGrade: rejeita nota nao numerica em vez de gravar NaN", async () => {
+  installStubs();
+  prisma.assessment.findUnique = async () => ({
+    id: "a1",
+    classId: "c1",
+    class: { trainerId: "trainer-1", status: "OPEN" },
+  });
+
+  let written = 0;
+  prisma.grade.create = async () => {
+    written += 1;
+    return { id: "g1" };
+  };
+  prisma.grade.update = async () => {
+    written += 1;
+    return { id: "g1" };
+  };
+
+  const req = {
+    body: { assessmentId: "a1", enrollmentId: "e1", value: "abc" },
+    user: { id: "trainer-1", role: "formador" },
+  };
+  const res = mockRes();
+
+  await createGrade(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.message, "Nota deve ser um número entre 0 e 20");
+  assert.equal(written, 0);
+});
+
+test("createGrade: aceita nota valida e arredonda", async () => {
+  installStubs();
+  prisma.assessment.findUnique = async () => ({
+    id: "a1",
+    classId: "c1",
+    class: { trainerId: "trainer-1", status: "OPEN" },
+  });
+  prisma.enrollment.findUnique = async () => ({ id: "e1", classId: "c1" });
+
+  let saved;
+  prisma.grade.create = async (args) => {
+    saved = args.data;
+    return { id: "g1", ...args.data };
+  };
+
+  const req = {
+    body: { assessmentId: "a1", enrollmentId: "e1", value: 17.6 },
+    user: { id: "trainer-1", role: "formador" },
+  };
+  const res = mockRes();
+
+  await createGrade(req, res);
+
+  assert.equal(res.statusCode, 201);
+  assert.equal(saved.value, 18);
+});
+
+test("updateGrade: rejeita nota acima de 20 e nao escreve nada", async () => {
+  installStubs();
+  prisma.grade.findUnique = async () => ({
+    id: "g1",
+    assessment: { id: "a1", class: { trainerId: "trainer-1", status: "OPEN" } },
+  });
+
+  let written = 0;
+  prisma.grade.update = async () => {
+    written += 1;
+    return { id: "g1" };
+  };
+
+  const req = { params: { id: "g1" }, body: { value: 45 }, user: { id: "trainer-1", role: "formador" } };
+  const res = mockRes();
+
+  await updateGrade(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.message, "Nota deve ser entre 0 e 20");
+  assert.equal(written, 0);
 });

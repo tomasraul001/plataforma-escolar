@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { isLocked, lockedMessage } from "../../utils/classStatus.js";
 
 export const joinClass = async (req, res) => {
   const { secretKey, sexo } = req.body;
@@ -138,8 +139,8 @@ export const addStudentToClass = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (classData.status === "CLOSED" || classData.status === "ARCHIVED") {
-      return res.status(400).json({ message: "Não é possível adicionar alunos em turmas fechadas/arquivadas" });
+    if (isLocked(classData.status)) {
+      return res.status(400).json({ message: lockedMessage("adicionar alunos") });
     }
 
     const enrollment = await prisma.enrollment.create({
@@ -167,8 +168,16 @@ export const removeStudent = async (req, res) => {
     }
 
     const classData = await prisma.class.findUnique({ where: { id: classId } });
+    if (!classData) {
+      return res.status(404).json({ message: "Turma não encontrada" });
+    }
+
     if (classData.trainerId !== req.user.id && req.user.role !== "coordenador") {
       return res.status(403).json({ message: "Acesso negado" });
+    }
+
+    if (isLocked(classData.status)) {
+      return res.status(400).json({ message: lockedMessage("remover alunos") });
     }
 
     await prisma.enrollment.update({

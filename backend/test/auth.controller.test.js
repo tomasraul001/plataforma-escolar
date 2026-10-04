@@ -118,7 +118,7 @@ test("register: cria usuario com acesso valido, senha hasheada e role correto", 
   resetState();
 
   const req = {
-    body: { name: "João", email: "Joao@Email.com", password: "123456", accessKey: "chave-formador" },
+    body: { name: "João", email: "Joao@gmail.com", password: "Teste123", accessKey: "chave-formador" },
   };
   const res = mockRes();
 
@@ -128,10 +128,10 @@ test("register: cria usuario com acesso valido, senha hasheada e role correto", 
   assert.equal(createCalls.length, 1);
   const data = createCalls[0];
   assert.equal(data.name, "João");
-  assert.equal(data.email, "joao@email.com");
+  assert.equal(data.email, "joao@gmail.com");
   assert.equal(data.role, "formador");
-  assert.notEqual(data.password, "123456");
-  assert.equal(await bcrypt.compare("123456", data.password), true);
+  assert.notEqual(data.password, "Teste123");
+  assert.equal(await bcrypt.compare("Teste123", data.password), true);
 });
 
 test("register: rejeita chave de acesso invalida com 401", async () => {
@@ -139,7 +139,7 @@ test("register: rejeita chave de acesso invalida com 401", async () => {
   resetState();
 
   const req = {
-    body: { name: "João", email: "joao@email.com", password: "123456", accessKey: "chave-errada" },
+    body: { name: "João", email: "joao@gmail.com", password: "Teste123", accessKey: "chave-errada" },
   };
   const res = mockRes();
 
@@ -153,10 +153,10 @@ test("register: rejeita chave de acesso invalida com 401", async () => {
 test("register: retorna 400 quando o email ja existe", async () => {
   installStubs();
   resetState();
-  storedUsers.push({ email: "joao@email.com", name: "Existente" });
+  storedUsers.push({ email: "joao@gmail.com", name: "Existente" });
 
   const req = {
-    body: { name: "João", email: "joao@email.com", password: "123456", accessKey: "chave-formador" },
+    body: { name: "João", email: "joao@gmail.com", password: "Teste123", accessKey: "chave-formador" },
   };
   const res = mockRes();
 
@@ -171,7 +171,7 @@ test("login: retorna 404 quando o usuario nao existe", async () => {
   installStubs();
   resetState();
 
-  const req = { body: { email: "naoexiste@email.com", password: "123456" } };
+  const req = { body: { email: "naoexiste@email.com", password: "Teste123" } };
   const res = mockRes();
 
   await login(req, res);
@@ -234,7 +234,7 @@ test("register: aceita phone opcional e grava no banco", async () => {
   resetState();
 
   const req = {
-    body: { name: "Maria", email: "maria@email.com", password: "123456", accessKey: "chave-formando", phone: "+244 912345678" },
+    body: { name: "Maria", email: "maria@gmail.com", password: "Teste123", accessKey: "chave-formando", phone: "+244 912345678" },
   };
   const res = mockRes();
 
@@ -252,7 +252,7 @@ test("register: phone undefined grava null", async () => {
   resetState();
 
   const req = {
-    body: { name: "Ana", email: "ana@email.com", password: "123456", accessKey: "chave-formando" },
+    body: { name: "Ana", email: "ana@gmail.com", password: "Teste123", accessKey: "chave-formando" },
   };
   const res = mockRes();
 
@@ -270,7 +270,7 @@ test("register: retorna 500 quando env vars de chave nao estao configuradas", as
   delete process.env.COORDENADOR_KEY;
 
   const req = {
-    body: { name: "Teste", email: "teste@email.com", password: "123456", accessKey: "chave-coordenador" },
+    body: { name: "Teste", email: "teste@email.com", password: "Teste123", accessKey: "chave-coordenador" },
   };
   const res = mockRes();
 
