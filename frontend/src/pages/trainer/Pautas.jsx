@@ -16,10 +16,6 @@ export default function Pautas() {
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMyClasses();
-  }, []);
-
   const fetchMyClasses = async () => {
     try {
       const res = await api.get("/classes/minhas");
@@ -31,6 +27,10 @@ export default function Pautas() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMyClasses();
+  }, []);
 
   const handleDownloadPauta = async (classId) => {
     try {

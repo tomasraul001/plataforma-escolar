@@ -15,10 +15,6 @@ export default function Notas() {
   const [loadingGrades, setLoadingGrades] = useState(false);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
 
-  useEffect(() => {
-    fetchMyClasses();
-  }, []);
-
   const fetchMyClasses = async () => {
     try {
       const res = await api.get("/enrollments/minhas");
@@ -36,16 +32,6 @@ export default function Notas() {
       setLoadingClasses(false);
     }
   };
-
-  useEffect(() => {
-    if (selectedClass) {
-      fetchGrades(selectedClass);
-      fetchAttendance(selectedClass);
-    } else {
-      setGrades([]);
-      setAttendance(null);
-    }
-  }, [selectedClass]);
 
   const fetchGrades = async (classId) => {
     setLoadingGrades(true);
@@ -73,10 +59,24 @@ export default function Notas() {
     }
   };
 
+  useEffect(() => {
+    fetchMyClasses();
+  }, []);
+
+  useEffect(() => {
+    if (selectedClass) {
+      fetchGrades(selectedClass);
+      fetchAttendance(selectedClass);
+    }
+  }, [selectedClass]);
+
+  // Derivado durante o render: evita o setState sincrono dentro do effect.
+  const visibleGrades = selectedClass ? grades : [];
+  const visibleAttendance = selectedClass ? attendance : null;
   const selected = myClasses.find((c) => c.id === selectedClass) || null;
 
   const percentWeight = (name) => (name === "Exame" ? 60 : 40 / 3);
-  const gradedEntries = grades.filter((g) => g.value !== null && g.value !== undefined);
+  const gradedEntries = visibleGrades.filter((g) => g.value !== null && g.value !== undefined);
   const totalWeight = gradedEntries.reduce((acc, g) => acc + percentWeight(g.assessment?.name), 0);
   const weightedSum = gradedEntries.reduce((acc, g) => acc + g.value * percentWeight(g.assessment?.name), 0);
   const media = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : null;
@@ -130,25 +130,25 @@ export default function Notas() {
             </div>
           )}
 
-          {selected && !loadingAttendance && attendance && (
+          {selected && !loadingAttendance && visibleAttendance && (
             <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-4 mb-4 flex items-center gap-4">
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-700">Participação</p>
                 <p className="text-xs text-gray-500">
-                  {attendance.present} de {attendance.totalSessions} sessões
+                  {visibleAttendance.present} de {visibleAttendance.totalSessions} sessões
                 </p>
               </div>
               <div className="text-right">
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
-                    attendance.percentage >= 75
+                    visibleAttendance.percentage >= 75
                       ? "bg-green-100/80 text-green-800"
-                      : attendance.percentage >= 50
+                      : visibleAttendance.percentage >= 50
                       ? "bg-amber-100/80 text-amber-800"
                       : "bg-red-100/80 text-red-800"
                   }`}
                 >
-                  {attendance.percentage}%
+                  {visibleAttendance.percentage}%
                 </span>
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function Notas() {
             <div className="flex items-center justify-center h-32">
               <div className="animate-spin rounded-full h-10 w-10 border-4 border-purple-600 border-t-transparent"></div>
             </div>
-          ) : grades.length === 0 ? (
+          ) : visibleGrades.length === 0 ? (
             <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
               <p className="text-gray-500 text-sm">Nenhuma nota lançada nesta turma ainda.</p>
             </div>
@@ -173,7 +173,7 @@ export default function Notas() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200/50">
-                    {grades.map((g) => (
+                    {visibleGrades.map((g) => (
                       <tr key={g.id} className="hover:bg-white/40 transition-colors">
                         <td className="py-4 px-4 font-medium text-gray-900">{g.assessment?.name || "—"}</td>
                         <td className="py-4 px-4 text-center font-bold text-gray-900">

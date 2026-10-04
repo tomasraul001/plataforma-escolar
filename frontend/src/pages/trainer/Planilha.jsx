@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
-import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 
 const FIXED_COLUMNS = [
@@ -14,26 +13,14 @@ const FIXED_COLUMNS = [
 export default function Planilha() {
   const { classId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const toast = useToast().toast;
   const [planilhaData, setPlanilhaData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // null, 'saving', 'saved', 'error'
   const [gradeInputs, setGradeInputs] = useState({});
   const [students, setStudents] = useState([]);
-  const [columns] = useState([
-    { id: "teste1", name: "Teste 1",  },
-    { id: "teste2", name: "Teste 2",  },
-    { id: "trabalho", name: "Trabalho Prático",  },
-    { id: "exame", name: "Exame",  },
-  ]);
   const saveTimeoutRef = useRef(null);
   const inputRefs = useRef({});
-
-  useEffect(() => {
-    fetchPlanilha();
-  }, [classId]);
 
   const fetchPlanilha = async () => {
     try {
@@ -60,6 +47,10 @@ export default function Planilha() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPlanilha();
+  }, [classId]);
 
   const handleDownloadPauta = async () => {
     try {
@@ -109,8 +100,7 @@ export default function Planilha() {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
-    setSaving(true);
-    setSaveStatus("saving");
+        setSaveStatus("saving");
 
     saveTimeoutRef.current = setTimeout(() => {
       autoSaveGrade(enrollmentId, columnId, roundedValue);
@@ -136,8 +126,6 @@ export default function Planilha() {
         return next;
       });
       setTimeout(() => setSaveStatus(null), 3000);
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -253,7 +241,6 @@ export default function Planilha() {
       </div>
     );
   }
-
 
   return (
     <div className="space-y-6">

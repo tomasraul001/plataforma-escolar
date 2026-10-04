@@ -19,16 +19,6 @@ export default function CoordinatorDashboard() {
   const [regionForm, setRegionForm] = useState({ name: "", code: "", description: "", active: true });
   const [selectedLocation, setSelectedLocation] = useState(null);
 
-  useEffect(() => {
-    fetchStats();
-    fetchAreas();
-    fetchRegions();
-  }, []);
-
-  useEffect(() => {
-    fetchFormandosStats(selectedLocation);
-  }, [selectedLocation]);
-
   const fetchStats = async () => {
     try {
       const [classesRes, usersRes] = await Promise.all([
@@ -83,6 +73,16 @@ export default function CoordinatorDashboard() {
       console.error("Erro ao buscar estatísticas de formandos:", error);
     }
   };
+
+  useEffect(() => {
+    fetchStats();
+    fetchAreas();
+    fetchRegions();
+  }, []);
+
+  useEffect(() => {
+    fetchFormandosStats(selectedLocation);
+  }, [selectedLocation]);
 
   const handleDownloadPauta = async (classId) => {
     try {

@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
-import { useAuth } from "../../contexts/AuthContext";
 
 export default function CoordinatorUsers() {
-  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 

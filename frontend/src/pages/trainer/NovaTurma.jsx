@@ -12,11 +12,6 @@ export default function NovaTurma() {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ name: "", trainingAreaId: "", regionId: "", startDate: "" });
 
-  useEffect(() => {
-    fetchAreas();
-    fetchRegions();
-  }, []);
-
   const fetchAreas = async () => {
     try {
       const res = await api.get("/classes/areas");
@@ -39,6 +34,11 @@ export default function NovaTurma() {
     }
   };
 
+  useEffect(() => {
+    fetchAreas();
+    fetchRegions();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.trainingAreaId || !form.regionId) {
@@ -47,7 +47,7 @@ export default function NovaTurma() {
     }
     setSubmitting(true);
     try {
-      const res = await api.post("/classes", form);
+      await api.post("/classes", form);
       toast.success("Turma criada com sucesso!");
       navigate("/formador/turmas");
     } catch (error) {

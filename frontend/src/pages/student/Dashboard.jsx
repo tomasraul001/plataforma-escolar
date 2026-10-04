@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
-import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 
 export default function StudentDashboard() {
-  const { user } = useAuth();
   const toast = useToast().toast;
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,10 +12,6 @@ export default function StudentDashboard() {
   const [showGradesModal, setShowGradesModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [gradesData, setGradesData] = useState(null);
-
-  useEffect(() => {
-    fetchMyClasses();
-  }, []);
 
   const fetchMyClasses = async () => {
     try {
@@ -29,6 +23,10 @@ export default function StudentDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMyClasses();
+  }, []);
 
   const handleJoinClass = async (e) => {
     e.preventDefault();

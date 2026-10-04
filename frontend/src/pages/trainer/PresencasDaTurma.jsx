@@ -5,13 +5,6 @@ import { useToast } from "../../contexts/ToastContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { LoadingCard } from "../../components/badges";
 
-const LOADING_COLORS = {
-  green: "border-green-600",
-  blue: "border-blue-600",
-  orange: "border-orange-600",
-  purple: "border-purple-600",
-};
-
 const BASE_PATHS = {
   green: "/formador",
   blue: "/coordenador",
@@ -40,10 +33,6 @@ export default function PresencasDaTurma({ color = "green" }) {
   const isOpen = classData?.status === "OPEN";
   const basePath = BASE_PATHS[color] || "/formador";
 
-  useEffect(() => {
-    fetchData();
-  }, [classId]);
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -64,6 +53,10 @@ export default function PresencasDaTurma({ color = "green" }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [classId]);
 
   const refreshSessions = async () => {
     try {
@@ -104,7 +97,7 @@ export default function PresencasDaTurma({ color = "green" }) {
       const res = await api.get(`/attendance/classes/${classId}/sessions/${sessionId}`);
       setSessionDetail(res.data);
       setSelectedSession(sessionId);
-    } catch (error) {
+    } catch {
       toast.error("Erro ao abrir sessão");
     }
   };

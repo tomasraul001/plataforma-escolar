@@ -16,10 +16,6 @@ export default function MinhasTurmas() {
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMyClasses();
-  }, []);
-
   const fetchMyClasses = async () => {
     try {
       const res = await api.get("/enrollments/minhas");
@@ -31,6 +27,10 @@ export default function MinhasTurmas() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMyClasses();
+  }, []);
 
   if (loading) {
     return (

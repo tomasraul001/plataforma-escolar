@@ -89,6 +89,9 @@ export function AuthProvider({ children }) {
   );
 }
 
+// Provider e hook no mesmo ficheiro e' o padrao idiomatico dos Contexts do
+// React; separar apenas para agradar ao fast-refresh do Vite nao compensa.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
-import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 
 export default function TrainerDashboard() {
-  const { user } = useAuth();
   const toast = useToast().toast;
   const navigate = useNavigate();
   const [myClasses, setMyClasses] = useState([]);
@@ -14,12 +12,6 @@ export default function TrainerDashboard() {
   const [areas, setAreas] = useState([]);
   const [regions, setRegions] = useState([]);
   const [newClassForm, setNewClassForm] = useState({ name: "", trainingAreaId: "", regionId: "", startDate: "" });
-
-  useEffect(() => {
-    fetchMyClasses();
-    fetchAreas();
-    fetchRegions();
-  }, []);
 
   const fetchMyClasses = async () => {
     try {
@@ -49,6 +41,12 @@ export default function TrainerDashboard() {
       console.error("Erro ao buscar locais/regiões:", error);
     }
   };
+
+  useEffect(() => {
+    fetchMyClasses();
+    fetchAreas();
+    fetchRegions();
+  }, []);
 
   const handleDownloadPauta = async (classId) => {
     try {

@@ -7,10 +7,6 @@ export default function Formandos() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   const fetchUsers = async () => {
     try {
       const res = await api.get("/users/lista");
@@ -21,6 +17,10 @@ export default function Formandos() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   if (loading) return <LoadingCard color="orange" />;
 

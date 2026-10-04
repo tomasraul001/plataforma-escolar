@@ -9,10 +9,6 @@ export default function Relatorios() {
   const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchClasses();
-  }, []);
-
   const fetchClasses = async () => {
     try {
       const [classesRes, usersRes] = await Promise.all([
@@ -28,6 +24,10 @@ export default function Relatorios() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchClasses();
+  }, []);
 
   const handleDownloadPauta = async (classId) => {
     try {

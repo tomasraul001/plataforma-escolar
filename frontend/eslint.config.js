@@ -17,5 +17,14 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Regra do React Compiler. O projeto usa o padrao idiomatico
+      // "useEffect -> fetchDados() -> setLoading/setState", que a regra marca
+      // como possivel cascading render (ela nao prova que o setState fica
+      // atras do await). Resolver a fundo exigiria migrar a camada de dados
+      // (React Query / use+Suspense), nao uma correcao pontual. Despromovida a
+      // warning para nao bloquear o lint; o codigo mantem-se explicito.
+      'react-hooks/set-state-in-effect': 'warn',
+    },
   },
 ])

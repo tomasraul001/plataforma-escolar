@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { LoadingCard } from "../../components/badges";
 
 const LOADING_COLORS = {
   green: "border-green-600",
@@ -23,13 +21,8 @@ export default function PautaDeTurma({ color = "green" }) {
   const { classId } = useParams();
   const navigate = useNavigate();
   const toast = useToast().toast;
-  const { user } = useAuth();
   const [gradebook, setGradebook] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchGradebook();
-  }, [classId]);
 
   const fetchGradebook = async () => {
     try {
@@ -42,6 +35,10 @@ export default function PautaDeTurma({ color = "green" }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchGradebook();
+  }, [classId]);
 
   const handleDownloadPauta = async () => {
     try {

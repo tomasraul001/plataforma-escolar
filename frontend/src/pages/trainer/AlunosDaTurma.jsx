@@ -5,13 +5,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { LoadingCard } from "../../components/badges";
 
-const LOADING_COLORS = {
-  green: "border-green-600",
-  blue: "border-blue-600",
-  orange: "border-orange-600",
-  purple: "border-purple-600",
-};
-
 const BASE_PATHS = {
   green: "/formador",
   blue: "/coordenador",
@@ -33,10 +26,6 @@ export default function AlunosDaTurma({ color = "green" }) {
 
   const canManage = user.role === "formador" || user.role === "coordenador";
 
-  useEffect(() => {
-    fetchData();
-  }, [classId]);
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -53,6 +42,10 @@ export default function AlunosDaTurma({ color = "green" }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [classId]);
 
   const handleAddStudent = async (e) => {
     e.preventDefault();
