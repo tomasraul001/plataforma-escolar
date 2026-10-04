@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import "dotenv/config";
 
+import { validateEnv } from './config/env.js';
 import { globalLimiter } from './middleware/rateLimit.middleware.js';
 import authRouter from './modules/auth/auth.routes.js';
 import userRouter from './modules/users/users.routes.js';
@@ -14,6 +15,8 @@ import reportsRouter from './modules/reports/reports.routes.js';
 import attendanceRouter from './modules/attendance/attendance.routes.js';
 
 const app = express();
+
+validateEnv();
 
 app.set("trust proxy", 1);
 
