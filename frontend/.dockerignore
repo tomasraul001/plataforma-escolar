@@ -3,7 +3,8 @@ dist
 build
 .env
 .env.local
-.env.production
+# .env.production NAO pode ser ignorado: contem VITE_API_URL e e lido
+# durante `npm run build`. Sem ele a build cai no default localhost:3000.
 *.log
 .DS_Store
 coverage

@@ -29,5 +29,8 @@
     "@types/node": "^26.1.1",
     "bcryptjs": "^3.0.3",
     "pg": "^8.23.0"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.2"
   }
 }
