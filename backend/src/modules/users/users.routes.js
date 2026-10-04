@@ -10,6 +10,7 @@ userRouter.get("/lista", auth, usersController.getAllUsers);
 // Exclusão de usuários é exclusiva do coordenador
 userRouter.delete("/delete/:id", auth, authorize("coordenador"), auditLog("user.delete"), usersController.deleteUser);
 // Perfil proprio
+userRouter.get("/perfil", auth, usersController.getProfile);
 userRouter.patch("/perfil", auth, auditLog("user.update_profile"), usersController.updateProfile);
 userRouter.post("/trocar-senha", auth, auditLog("user.change_password"), usersController.changePassword);
 

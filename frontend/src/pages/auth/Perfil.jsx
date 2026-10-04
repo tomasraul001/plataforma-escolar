@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
@@ -7,6 +7,17 @@ export default function Perfil() {
   const { user, setUser } = useAuth();
   const toast = useToast().toast;
   const [activeTab, setActiveTab] = useState("perfil");
+
+  // Dados vindos da BD. O AuthContext so monta { role, name, id } a partir do
+  // localStorage, portanto email/telefone/sexo nunca chegam por ai.
+  const [perfil, setPerfil] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [erroCarregamento, setErroCarregamento] = useState("");
+
+  // Valores tal como vieram da BD, para saber o que o utilizador alterou.
+  // Sem isto o payload mandava phone: null sempre que o campo estivesse vazio
+  // e apagava o telefone de quem so queria mudar o nome.
+  const original = useRef({ phone: "", sexo: "" });
 
   // Form perfil
   const [perfilForm, setPerfilForm] = useState({
@@ -17,6 +28,39 @@ export default function Perfil() {
     sexo: user?.sexo || "",
   });
   const [perfilSubmitting, setPerfilSubmitting] = useState(false);
+
+  useEffect(() => {
+    let cancelado = false;
+
+    async function carregarPerfil() {
+      try {
+        const { data } = await api.get("/users/perfil");
+        if (cancelado) return;
+        setPerfil(data.user);
+        setPerfilForm((prev) => ({
+          ...prev,
+          name: data.user.name || "",
+          phone: data.user.phone || "",
+          sexo: data.user.sexo || "",
+        }));
+        original.current = {
+          phone: data.user.phone || "",
+          sexo: data.user.sexo || "",
+        };
+      } catch (error) {
+        if (!cancelado) {
+          setErroCarregamento(error.response?.data?.message || "Erro ao carregar o perfil");
+        }
+      } finally {
+        if (!cancelado) setCarregando(false);
+      }
+    }
+
+    carregarPerfil();
+    return () => { cancelado = true; };
+    // toast nao entra: o ToastContext nao o memoiza, e coloca-lo aqui
+    // dispararia um loop de renders.
+  }, []);
 
   // Form senha
   const [senhaForm, setSenhaForm] = useState({
@@ -39,12 +83,23 @@ export default function Perfil() {
         payload.email = perfilForm.email;
         payload.currentPassword = perfilForm.currentPassword;
       }
-      payload.phone = perfilForm.phone || null;
-      payload.sexo = perfilForm.sexo || null;
+      // So envia o que mudou. O backend trata `undefined` como "manter", e
+      // null como "apagar", por isso mandar null sem querer apaga o dado.
+      if (perfilForm.phone !== original.current.phone) {
+        payload.phone = perfilForm.phone || null;
+      }
+      if (perfilForm.sexo !== original.current.sexo) {
+        payload.sexo = perfilForm.sexo || null;
+      }
       const res = await api.patch("/users/perfil", payload);
       setUser((prev) => ({ ...prev, name: res.data.user.name, phone: res.data.user.phone, sexo: res.data.user.sexo }));
+      setPerfil(res.data.user);
       localStorage.setItem("userName", res.data.user.name);
       setPerfilForm({ ...perfilForm, email: "", currentPassword: "" });
+      original.current = {
+        phone: res.data.user.phone || "",
+        sexo: res.data.user.sexo || "",
+      };
       toast.success(res.data.message);
     } catch (error) {
       toast.error(error.response?.data?.message || "Erro ao atualizar perfil");
@@ -124,8 +179,16 @@ export default function Perfil() {
       {activeTab === "perfil" && (
         <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-6">
           <div className="mb-6 space-y-2 text-sm text-gray-600">
-            <p>Nome: <span className="font-medium text-gray-900">{user?.name || "—"}</span></p>
-            <p>Cargo: <span className="font-medium text-gray-900">{roleLabels[user?.role] || user?.role}</span></p>
+            {erroCarregamento && (
+              <p className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-red-700">
+                {erroCarregamento}
+              </p>
+            )}
+            <p>Nome: <span className="font-medium text-gray-900">{perfil?.name || user?.name || "—"}</span></p>
+            <p>Email: <span className="font-medium text-gray-900">{perfil?.email || "—"}</span></p>
+            <p>Celular: <span className="font-medium text-gray-900">{perfil?.phone || "Não informado"}</span></p>
+            <p>Sexo: <span className="font-medium text-gray-900">{perfil?.sexo === "M" ? "Masculino" : perfil?.sexo === "F" ? "Feminino" : "Não informado"}</span></p>
+            <p>Cargo: <span className="font-medium text-gray-900">{roleLabels[perfil?.role] || roleLabels[user?.role] || user?.role}</span></p>
           </div>
           <form onSubmit={handleUpdatePerfil} className="space-y-4">
             <div>
@@ -135,6 +198,7 @@ export default function Perfil() {
                 value={perfilForm.name}
                 onChange={(e) => setPerfilForm({ ...perfilForm, name: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50"
+                disabled={carregando}
                 required
               />
             </div>
@@ -146,6 +210,7 @@ export default function Perfil() {
                 onChange={(e) => setPerfilForm({ ...perfilForm, phone: e.target.value })}
                 placeholder="+258 8XX XXX XXX"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={carregando}
               />
             </div>
             <div>
@@ -154,6 +219,7 @@ export default function Perfil() {
                 value={perfilForm.sexo}
                 onChange={(e) => setPerfilForm({ ...perfilForm, sexo: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={carregando}
               >
                 <option value="">Não informado</option>
                 <option value="M">Masculino</option>

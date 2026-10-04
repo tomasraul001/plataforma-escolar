@@ -103,6 +103,35 @@ export const deleteUser = async (req, res) => {
     }
 }
 
+// Perfil do utilizador autenticado. A pagina "Meu Perfil" so tinha acesso ao
+// que o AuthContext montava a partir do localStorage (role, name, id), entao
+// email, telefone e sexo nunca chegavam ao frontend.
+export const getProfile = async (req, res) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                phone: true,
+                sexo: true,
+                createdAt: true,
+            },
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "Usuário não encontrado" });
+        }
+
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error("Erro ao buscar perfil:", error);
+        res.status(500).json({ message: "Erro ao buscar perfil" });
+    }
+};
+
 // Atualizar perfil proprio
 export const updateProfile = async (req, res) => {
     const { name, email, currentPassword, phone, sexo } = req.body;
