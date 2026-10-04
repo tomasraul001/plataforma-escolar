@@ -7,16 +7,27 @@ Two independent npm packages (no root workspace, no shared scripts):
 ## Commands
 - Backend: `npm run dev` (`node --watch src/app.js`, hot reload) or `npm start` (`node src/app.js`, sem watch) in `backend/`
 - Frontend: `npm run dev` (Vite), `npm run lint` (ESLint), `npm run build`
-- Backend tests: `npm test` (Node built-in `node:test`, roda todos os `test/*.test.js`, cada um num processo separado — via auto-discovery). Suíte:
-  - `assessmentWeights.test.js` — zero deps; roda em qualquer env.
-  - `createClass.test.js`, `classes.controller.test.js`, `users.controller.test.js`, `auth.controller.test.js` — importam controllers/singleton `prisma`: exigem `npm install` (express, bcrypt, jsonwebtoken) + `npx prisma generate`. Não tocam em banco (monkey-patch no singleton `prisma` via stubs) nem em rede. `auth.controller.test.js` também stubs `prisma.refreshToken` (login agora retorna `refreshToken`).
-  - `refreshToken.test.js` — importa `refresh`/`logout` do auth controller + stubs `prisma.refreshToken`. Não toca em banco nem em rede.
-  - `assessments.controller.test.js` — importa `listAssessments` + stubs `prisma.class`/`prisma.enrollment`/`prisma.assessment`. Testa IDOR (formando inscrito vs não inscrito).
-  - `classesPrng.test.js` — importa `generateSecretKey`/`generateClassCode` do classes controller; valida formato regex e unicidade. Zero deps externas.
-  - `validations.test.js` — importa `validateEmail`/`validatePassword` do utils; valida todas as regras de formato. Zero deps externas.
-  - `auth.middleware.test.js` — requer `jsonwebtoken` instalado.
-- Padrão de stubbing: `test/*.test.js` (exceto `assessmentWeights.test.js`) importa o mesmo singleton `prisma` que o controller, reatribui os delegates (`findUnique`, `findMany`, `create`, etc.), usa `mockRes()` e restaura via `after()`. Cada arquivo roda em processo próprio, então não há interferência entre eles. Se o delegate não existir no cliente gerado local (gitignored/desatualizado), recrie-o dentro do stub (ver `createClass.test.js` — cria `prisma.region`).
+- Backend tests: `npm test` (Node built-in `node:test`, roda todos os `test/*.test.js`, cada um num processo separado — via auto-discovery).
+  - **Requisito prévio**: `DATABASE_URL` tem de estar definida (mesmo que aponte para uma BD inexistente). `prisma.config.ts` usa `env("DATABASE_URL")` e o `prisma generate` falha sem ela, logo sem o cliente gerado quase todos os testes falham com `ERR_MODULE_NOT_FOUND`. Nenhum teste toca na BD — só precisa da variável presente.
+  - Zero deps externas (rodam mesmo sem `npm install`): `assessmentWeights.test.js`, `validations.test.js`, `classStatus.test.js`.
+  - Exigem `npm install` + `npx prisma generate` (importam controllers/singleton `prisma`): `auth.controller.test.js`, `refreshToken.test.js`, `users.controller.test.js`, `classes.controller.test.js`, `classesPrng.test.js`, `classesStats.test.js`, `createClass.test.js`, `assessments.controller.test.js`, `grades.controller.test.js`, `attendance.controller.test.js`, `fichaFormando.test.js`, `pautaPdf.test.js`, `auth.middleware.test.js`.
+  - Cobertura por área: IDOR em `attendance`, `assessments`, `grades`, `fichaFormando`; rotação/reuso de refresh token em `refreshToken`; regra `CLOSED || ARCHIVED` em `grades`, `attendance`, `classStatus`; escala 0–20 em `validations` e `grades`.
+  - Estado atual: **125 testes, 125 a passar**.
+- Padrão de stubbing: `test/*.test.js` importa o mesmo singleton `prisma` que o controller, reatribui os delegates (`findUnique`, `findMany`, `create`, etc.), usa `mockRes()` e restaura via `after()`. Cada arquivo roda em processo próprio, então não há interferência entre eles. Se o delegate não existir no cliente gerado local (gitignored/desatualizado), recrie-o dentro do stub (ver `createClass.test.js` — cria `prisma.region`).
+  - Ao stubbar `prisma.$transaction` tem de suportar as duas formas: `$transaction(callback)` e `$transaction([...promessas])` (usada em `attendance.bulkUpdateRecords`).
 - O controller de turma usa `locationId` (referência a Region), preenchido pelo `regionId` vindo do body da requisição (ver `createClass.test.js`).
+
+## Regras de escrita em turmas (backend/src/utils/classStatus.js)
+- `isLocked(status)` → `true` para `CLOSED` e `ARCHIVED`. `lockedMessage(action)` gera a mensagem PT-BR padrão.
+- **Todos** os guards de escrita (notas, avaliações, inscrições, presenças) devem usar este helper. `status === "CLOSED"` isolado é um bug: turmas arquivadas ficavam editáveis.
+
+## Escala de notas
+- Escala angolana 0–20. A regra vive em `validateGradeValue` (`backend/src/utils/validations.js`) e tem de ser usada em `createGrade`, `updateGrade` e `bulkCreateGrades` — `Math.round(Number(x))` sozinho gravava `NaN` e valores fora do intervalo.
+
+## Docker
+- `backend/Dockerfile` copia `src`, `prisma`, `prisma.config.ts` e **`assets`** (o logo em `reports.controller.js` resolve para `/app/assets/logo.png`; sem o COPY a geração de pauta falha com ENOENT).
+- `prisma.config.ts` chama `env("DATABASE_URL")`, por isso o `RUN npx prisma generate` no build precisa de uma `DATABASE_URL` placeholder inline; o valor real vem do runtime (`entrypoint.sh` → `migrate deploy`).
+- `frontend/.dockerignore` **não** pode ignorar `.env.production` (é lido no `npm run build` e contém `VITE_API_URL`; sem ele `src/services/api.js` cai no default `http://localhost:3000`). `.env` e `.env.local` continuam ignorados.
 
 ## Prisma / PostgreSQL (backend)
 - Schema: `backend/prisma/schema.prisma` (provider `postgresql`); config in `backend/prisma.config.ts` (Prisma 6 style, `engine: "classic"`, loads env via `dotenv/config`)
@@ -38,10 +49,20 @@ Two independent npm packages (no root workspace, no shared scripts):
 - Auth endpoints (`/auth/login`, `/auth/register`, `/auth/refresh`): 10 req/15min.
 - `trust proxy` enabled for Railway. 429 returns JSON PT-BR.
 
+## Exclusão de utilizadores
+- `DELETE /users/delete/:id` faz **hard delete**. Como `User` é referenciado por `Class.trainerId`, `Enrollment.studentId`, `Grade.updatedById` e `AuditLog.userId` (FKs sem `onDelete`), o controller conta essas 4 dependências antes de apagar e devolve **409** com o detalhe do que bloqueia. `P2003` do Prisma é apanhado como rede de segurança (nunca deve chegar a 500).
+- Soft delete exigiria `deletedAt` em `User` + migração; não implementado por decisão de produto.
+
 ## Conventions
 - UI strings, error messages, and comments are Portuguese (PT-BR); keep new ones in Portuguese.
 - Tailwind 4 is CSS-first via `@tailwindcss/vite` — there is no `tailwind.config`, don't create one; style via `src/index.css`.
 - Backend imports use explicit `.js` extensions (Node ESM).
+- Frontend: `npm run lint` está a **0 erros / 40 avisos** (todos avisos, nenhum bloqueia o build).
+  - Os avisos dividem-se em `react-hooks/set-state-in-effect` (despromovido a `warn` em `eslint.config.js`) e `react-hooks/exhaustive-deps`.
+  - **`set-state-in-effect` foi despromovido de propósito:** a regra do React Compiler marca o padrão `useEffect(() => fetchX(), [])` → `setState`, porque não prova que o `setState` fica depois do `await`. Corrigir as 25 instâncias exigiria migrar a camada de dados (React Query / `use`+Suspense), não uma correção pontual. Reverter a regra em `frontend/eslint.config.js` se essa migração for feita.
+  - `toast` em `ToastContext.jsx` **não** é memoizado (objeto novo a cada render). Por isso **nunca** adicionar `toast` às deps de um `useEffect`/`useCallback` — dispara loop infinito de renders. Se precisares, memoiza com `useMemo` primeiro.
+  - `react-refresh/only-export-components` está desativado por linha nos dois contexts: provider + hook no mesmo ficheiro é o padrão idiomático dos Contexts do React.
+  - Ao mover uma função `fetch` para cima do respetivo `useEffect` (para calar `react-hooks/immutability`), confirma que ela não referencia estado declarado abaixo — é um TDZ em runtime que o build não apanha.
 
 ## Firebase Analytics + Error Tracking (frontend)
 - Firebase SDK v12.19 instalado em `frontend/` (`firebase/analytics`).
@@ -53,3 +74,4 @@ Two independent npm packages (no root workspace, no shared scripts):
 - Variáveis de ambiente: `VITE_FIREBASE_*` em `frontend/.env` (gitignored). App funciona sem elas (Analytics silencia).
 - Eventos rastreados: `js_error`, `unhandled_rejection`, `render_error`, `api_error`, `api_401_auth`, `login`, `logout`.
 - **Nota:** Firebase Crashlytics NÃO tem SDK web — use Analytics para tracking de erros no web.
+- `npm audit` no frontend reporta 4 highs em `@firebase/firestore` (via `@firebase/firestore-compat`). São falsos positivos práticos: só se importa `firebase/analytics` e o bundle não contém código do Firestore (`firestore.googleapis.com`/`FirestoreClient` ausentes). A "fix" oficial é `--force` com quebra de major — não aplicar.
