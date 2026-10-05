@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { notifyUser, notifyEnrollmentStudents } from "../../utils/notifications.js";
 import { ensureDefaultAssessments } from "../grades/planilha.controller.js";
 import { randomInt } from "crypto";
 
@@ -186,6 +187,30 @@ export const closeClass = async (req, res) => {
         endDate: new Date(),
       },
     });
+
+    // Fechar a turma é o evento mais consequente do sistema: a partir daqui
+    // notas e inscrições ficam bloqueadas. Os formandos precisam de saber
+    // disso, e a secretaria precisa de ter a turma na lista de fechadas.
+    notifyEnrollmentStudents(id, {
+      type: "class_closed",
+      title: "Turma fechada",
+      body: `A turma ${classData.name} foi encerrada. As notas e inscrições estão bloqueadas.`,
+      link: "/formando/turmas",
+    });
+
+    const staff = await prisma.user.findMany({
+      where: { role: "secretaria" },
+      select: { id: true },
+    });
+    for (const { id: staffId } of staff) {
+      if (staffId === req.user.id) continue;
+      notifyUser(staffId, {
+        type: "class_closed",
+        title: "Turma fechada",
+        body: `${req.user.name || "Um formador"} fechou a turma ${classData.name} (${classData.code}).`,
+        link: "/secretaria/turmas/fechadas",
+      });
+    }
 
     res.status(200).json({ message: "Turma fechada com sucesso", class: updated });
   } catch (error) {

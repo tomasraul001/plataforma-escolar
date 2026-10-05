@@ -1,7 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
+import { usePolling } from "../../hooks/usePolling";
+
+// A cor vem do `status` calculado no backend (utils/attendance.js). O limiar
+// de 75% é regra de domínio e não deve voltar a aparecer aqui como ternário:
+// se mudar no backend, esta UI acompanha sozinha.
+const STATUS_STYLES = {
+  ok: "bg-green-100/80 text-green-800",
+  warning: "bg-amber-100/80 text-amber-800",
+  critical: "bg-red-100/80 text-red-800",
+};
 
 export default function Notas() {
   const navigate = useNavigate();
@@ -70,6 +80,25 @@ export default function Notas() {
     }
   }, [selectedClass]);
 
+  // Pseudo-tempo real: substitui o WebSocket (descartado). O formador pode ter
+  // acabado de lancar notas; o forming ve a pauta no maximo 60s depois.
+  // Variante silenciosa: nunca toca em loading, senao a pagina pisca a cada minuto.
+  const refreshSilently = useCallback(async () => {
+    if (!selectedClass) return;
+    try {
+      const [gradesRes, attendanceRes] = await Promise.all([
+        api.get(`/grades/${selectedClass}`),
+        api.get(`/attendance/minha?classId=${selectedClass}`),
+      ]);
+      setGrades(gradesRes.data);
+      setAttendance(attendanceRes.data[0] || null);
+    } catch {
+      /* falha silenciosa: o proximo tick volta a tentar */
+    }
+  }, [selectedClass]);
+
+  usePolling(refreshSilently, { active: Boolean(selectedClass) });
+
   // Derivado durante o render: evita o setState sincrono dentro do effect.
   const visibleGrades = selectedClass ? grades : [];
   const visibleAttendance = selectedClass ? attendance : null;
@@ -137,15 +166,16 @@ export default function Notas() {
                 <p className="text-xs text-gray-500">
                   {visibleAttendance.present} de {visibleAttendance.totalSessions} sessões
                 </p>
+                {visibleAttendance.status && visibleAttendance.status !== "ok" && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Frequência abaixo do mínimo exigido.
+                  </p>
+                )}
               </div>
               <div className="text-right">
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
-                    visibleAttendance.percentage >= 75
-                      ? "bg-green-100/80 text-green-800"
-                      : visibleAttendance.percentage >= 50
-                      ? "bg-amber-100/80 text-amber-800"
-                      : "bg-red-100/80 text-red-800"
+                    STATUS_STYLES[visibleAttendance.status] || STATUS_STYLES.ok
                   }`}
                 >
                   {visibleAttendance.percentage}%

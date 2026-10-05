@@ -1,15 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { LoadingCard } from "../../components/badges";
+import { usePolling } from "../../hooks/usePolling";
 
 const BASE_PATHS = {
   green: "/formador",
   blue: "/coordenador",
   orange: "/secretaria",
   purple: "/formador",
+};
+
+// Cores do status de frequência. O `status` vem calculado no backend
+// (utils/attendance.js); o limiar de 75% não é repetido aqui.
+const STATUS_STYLES = {
+  ok: "bg-green-100/80 text-green-800",
+  warning: "bg-amber-100/80 text-amber-800",
+  critical: "bg-red-100/80 text-red-800",
 };
 
 export default function PresencasDaTurma({ color = "green" }) {
@@ -33,6 +42,11 @@ export default function PresencasDaTurma({ color = "green" }) {
   const isOpen = classData?.status === "OPEN";
   const basePath = BASE_PATHS[color] || "/formador";
 
+  // O resumo traz os totais E a frequência por aluno. Pedir em formador e
+  // coordenador também, não só em secretaria: quem lança presenças é quem
+  // precisa de ver quem está a falhar o mínimo.
+  const wantsSummary = user.role === "secretaria" || user.role === "formador" || user.role === "coordenador";
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -42,7 +56,7 @@ export default function PresencasDaTurma({ color = "green" }) {
       ]);
       setClassData(classRes.data);
       setSessions(sessionsRes.data);
-      if (user.role === "secretaria") {
+      if (wantsSummary) {
         const summaryRes = await api.get(`/attendance/classes/${classId}/summary`);
         setSummary(summaryRes.data);
       }
@@ -66,6 +80,28 @@ export default function PresencasDaTurma({ color = "green" }) {
       console.error("Erro ao atualizar sessões:", error);
     }
   };
+
+  // Pseudo-tempo real: seccao e secretaria lancam sessoes na mesma turma.
+  // Nao toca em sessionDetail, para nao apagar as marcacoes em andamento.
+  const refreshSilently = useCallback(async () => {
+    try {
+      const requests = [
+        api.get(`/classes/${classId}`),
+        api.get(`/attendance/classes/${classId}/sessions`),
+      ];
+      if (wantsSummary) {
+        requests.push(api.get(`/attendance/classes/${classId}/summary`));
+      }
+      const [classRes, sessionsRes, summaryRes] = await Promise.all(requests);
+      setClassData(classRes.data);
+      setSessions(sessionsRes.data);
+      if (summaryRes) setSummary(summaryRes.data);
+    } catch {
+      /* o proximo tick volta a tentar */
+    }
+  }, [classId, wantsSummary]);
+
+  usePolling(refreshSilently);
 
   const handleCreateSession = async (e) => {
     e.preventDefault();
@@ -175,6 +211,53 @@ export default function PresencasDaTurma({ color = "green" }) {
       {!isOpen && canManage && (
         <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-3 rounded-lg">
           Esta turma não está aberta. As presenças estão em modo somente leitura.
+        </div>
+      )}
+
+      {/* Frequência por aluno. O `status` e o `percentage` vêm calculados do
+          backend (utils/attendance.js); o limiar de 75% não é repetido aqui. */}
+      {summary?.perStudent?.length > 0 && (
+        <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-200/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h3 className="text-sm font-semibold text-gray-900">Frequência por aluno</h3>
+            {summary.belowMinimum > 0 && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100/80 text-red-800">
+                {summary.belowMinimum} abaixo do mínimo
+              </span>
+            )}
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] text-sm">
+              <thead>
+                <tr className="bg-white/40 text-left text-gray-500 border-b border-gray-200/50">
+                  <th className="py-3 px-4">Aluno</th>
+                  <th className="py-3 px-4 text-center">Presentes</th>
+                  <th className="py-3 px-4 text-center">Sessões</th>
+                  <th className="py-3 px-4 text-center">Frequência</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200/50">
+                {summary.perStudent.map((s) => (
+                  <tr key={s.enrollmentId} className="hover:bg-white/40 transition-colors">
+                    <td className="py-3 px-4 font-medium text-gray-900">{s.name}</td>
+                    <td className="py-3 px-4 text-center text-gray-700">{s.present}</td>
+                    <td className="py-3 px-4 text-center text-gray-700">
+                      {s.awaitingSessions ? "—" : s.totalSessions}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      {s.awaitingSessions ? (
+                        <span className="text-xs text-gray-400">Sem sessões</span>
+                      ) : (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[s.status] || STATUS_STYLES.ok}`}>
+                          {s.percentage}%
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

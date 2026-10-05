@@ -1,5 +1,6 @@
 import prisma from "../../config/prisma.js";
 import { isLocked, lockedMessage } from "../../utils/classStatus.js";
+import { notifyUser } from "../../utils/notifications.js";
 
 export const joinClass = async (req, res) => {
   const { secretKey, sexo } = req.body;
@@ -46,6 +47,16 @@ export const joinClass = async (req, res) => {
         await prisma.user.update({ where: { id: studentId }, data: { sexo } });
       }
     }
+
+    // O formador vê o novo aluno no sino em 60s, sem ter de recarregar a página.
+    // Non-blocking: se esta escrita falhar, a inscrição já está gravada e o
+    // response tem de ser 201 na mesma.
+    notifyUser(classData.trainerId, {
+      type: "enrollment_joined",
+      title: "Novo aluno inscrito",
+      body: `${req.user.name || "Um aluno"} entrou na turma ${classData.name}.`,
+      link: `/formador/turma/${classData.id}/alunos`,
+    });
 
     res.status(201).json({
       message: "Inscrito na turma com sucesso!",

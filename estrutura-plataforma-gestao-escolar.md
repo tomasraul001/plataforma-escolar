@@ -13,7 +13,7 @@ Sistema de gestão escolar provincial para reduzir o trabalho manual da secretar
 - Fechamento de turmas.
 - Acompanhamento das turmas pela secretaria e coordenação.
 - Geração de pautas e relatórios.
-- Atualização em tempo real das notas, quando o WebSocket for implementado.
+- Atualização periódica das notas, presenças e notificações, por polling de 60 segundos.
 
 ## 2. Stack definida
 
@@ -31,7 +31,7 @@ Sistema de gestão escolar provincial para reduzir o trabalho manual da secretar
 - Prisma ORM
 - JWT para autenticação
 - bcrypt/argon2 para hash de senhas
-- WebSocket/Socket.IO para tempo real, quando necessário
+- Polling com `setInterval` para pseudo-tempo real (ver secção 13)
 
 ### Banco de dados
 
@@ -406,20 +406,41 @@ Registrar também no histórico de auditoria.
 
 ---
 
-# 13. Atualização em tempo real
+# 13. Atualização periódica (pseudo-tempo real)
 
-Objetivo:
+## DECISÃO: WebSocket descartado
+
+O WebSocket foi avaliado e **descartado de propósito** para este projeto.
+
+Motivo:
+
+```text
+Volume real de alterações
+   Notas: algumas por dia, no máximo
+   Presenças: uma por sessão de aula
+   Inscrições:Domains-quantas por semana
+
+Ninguém precisa de ver a alteração no mesmo segundo.
+```
+
+O ganho de um canal push permanente não paga o custo aqui:
+
+- Nenhuma dependência nova nem servidor com estado partilhado.
+- O Railway continua a escalar horizontalmente sem sticky sessions.
+- Menos superfície de segurança (um canal bidirecional sempre aberto é um vetor de ataque).
+- O `setInterval` já resolve o caso de uso com uma fração da complexidade.
+
+Substituição adotada: **polling de 60 segundos**, nas páginas que mostram dado que muda sozinho, mais o sino de notificações.
+
+## Como funciona
 
 ```text
 Formador altera nota
         ↓
-Backend
+Backend grava na BD
         ↓
-MongoDB
-        ↓
-WebSocket
-        ↓
-Formandos conectados
+Frontend do formando, a cada 60s:
+        GET /grades/:classId
         ↓
 Pauta atualizada
 ```
@@ -427,18 +448,26 @@ Pauta atualizada
 Exemplo:
 
 ```text
-João: 14 → 16
+João: 14 → 16     (visível no máximo 60 segundos depois)
 ```
 
-O formando poderá receber a atualização sem recarregar a página.
+Regras:
 
-Isso pode ser implementado depois do núcleo da aplicação estar estável.
+```text
+Intervalo          60 segundos
+Pausa             aba oculta (document.hidden)
+Ressincronização  busca imediata ao voltar a ser visível
+Não faz           setLoading — a página não pode piscar a cada minuto
+Endpoint           GET /notifications/unread-count para o badge
+```
+
+Implementação: `frontend/src/hooks/usePolling.js`.
+
+Limite a respeitar: o rate limit global são 300 req/15 min por IP. O polling nunca deve correr em todas as páginas em simultâneo, só nas de dados.
 
 ---
 
 # 14. Presença
-
-Funcionalidade recomendada para uma segunda fase.
 
 Exemplo:
 
@@ -460,11 +489,20 @@ Pedro    61%
 Ana      95%
 ```
 
-E futuramente permitir uma frequência mínima, por exemplo:
+Frequência mínima já implementada como regra de domínio:
 
 ```text
 Frequência mínima: 75%
+
+backend/src/utils/attendance.js
+   MIN_ATTENDANCE_PERCENT = 75
+   attendanceStatus(pct) -> ok | warning | critical
+
+warning  50% a 74%   (abaixo do mínimo, ainda recuperável)
+critical abaixo de 50%
 ```
+
+`GET /attendance/classes/:classId/summary` devolve `perStudent`, com `present`, `total`, `percentage` e `status` por aluno. O denominador é o **número de sessões**, não o número de registos: um aluno que entra a meio do curso só tem registos nas sessões a que assistiu, e usar `records.length` dava-lhe 100% falso.
 
 ---
 
@@ -801,7 +839,7 @@ Depois adicionar:
 
 ```text
 TrainingArea
-Notification
+Notification    (Fase 6 — já implementado)
 Document
 Certificate
 AcademicRecord
@@ -966,13 +1004,16 @@ GET /api/reports/classes/:classId/pdf
 - [ ] Histórico de turmas.
 - [ ] Arquivamento.
 
-## FASE 6 — Tempo real e presença
+## FASE 6 — Pseudo-tempo real, presença e notificações
 
-- [ ] Implementar WebSocket.
-- [ ] Atualização de notas em tempo real.
-- [ ] Implementar presença.
-- [ ] Calcular frequência.
-- [ ] Notificações.
+> O WebSocket foi descartado (ver secção 13). A atualização é por polling de 60s.
+
+- [x] Implementar presença.
+- [x] Calcular frequência.
+- [x] Atualização de notas por polling de 60s.
+- [x] Frequência por aluno e alerta de frequência mínima.
+- [x] Notificações in-app (sino + badge).
+- [~] WebSocket — **descartado por decisão**; polling de 60s em sua lugar.
 
 ## FASE 7 — Recursos avançados
 
@@ -980,7 +1021,9 @@ GET /api/reports/classes/:classId/pdf
 - [ ] Certificados.
 - [ ] Declarações.
 - [ ] Auditoria avançada.
-- [ ] Sistema de notificações.
+- [ ] Notificações por email e push (o sino in-app já existe desde a Fase 6).
+- [ ] Editar e apagar sessões de presença.
+- [ ] Exportar presenças em CSV/PDF.
 - [ ] Melhorias de segurança.
 - [ ] Backup e recuperação.
 - [ ] Monitoramento.
@@ -1010,13 +1053,13 @@ Seguir:
         ↓
 8. Avaliações e notas
         ↓
-9. Dashboards
+        9. Dashboards
         ↓
 10. Frontend completo
         ↓
-11. WebSocket
+11. PDFs e relatórios
         ↓
-12. PDFs e relatórios
+12. Presenças e notificações (polling de 60s)
 ```
 
 ---

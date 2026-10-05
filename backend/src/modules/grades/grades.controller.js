@@ -2,6 +2,21 @@ import prisma from "../../config/prisma.js";
 import { calculateMediaByAssessments } from "./assessmentWeights.js";
 import { isLocked, lockedMessage } from "../../utils/classStatus.js";
 import { validateGradeValue } from "../../utils/validations.js";
+import { notifyUserReplacing } from "../../utils/notifications.js";
+
+// O formando vê a nota no sino em 60s. É isto que substitui o WebSocket
+// descartado: sem canal push, a atualização chega por polling.
+// Replacing, e não notify: se o formador corrigir a mesma nota cinco vezes,
+// o sino mostra uma notificação, não cinco.
+const notifyStudentOfGrade = async (classId, className, assessmentName, studentId, studentName, value) => {
+  if (!studentId) return;
+  await notifyUserReplacing(studentId, {
+    type: "grade_updated",
+    title: "Nota atualizada",
+    body: `${studentName || "Uma nota"} em ${assessmentName} (${className}): ${value}.`,
+    link: `/formando/notas?turma=${classId}`,
+  });
+};
 
 export const createGrade = async (req, res) => {
   const { assessmentId, enrollmentId, value } = req.body;
@@ -29,7 +44,10 @@ export const createGrade = async (req, res) => {
       return res.status(400).json({ message: invalidValue });
     }
 
-    const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId } });
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { id: enrollmentId },
+      include: { student: { select: { id: true, name: true } } },
+    });
     if (!enrollment) {
       return res.status(404).json({ message: "Inscrição não encontrada" });
     }
@@ -64,6 +82,17 @@ export const createGrade = async (req, res) => {
         },
       });
     }
+
+    // A inscrição pode ser de um aluno sem conta (manualName); nesse caso não
+    // há utilizador para notificar.
+    notifyStudentOfGrade(
+      assessment.classId,
+      assessment.class.name,
+      assessment.name,
+      enrollment.studentId,
+      enrollment.student?.name,
+      roundedValue
+    );
 
     res.status(201).json({ message: "Nota lançada com sucesso", grade });
   } catch (error) {
@@ -105,8 +134,9 @@ export const bulkCreateGrades = async (req, res) => {
     const enrollmentIds = [...new Set(grades.map((g) => g.enrollmentId))];
     const validEnrollments = await prisma.enrollment.findMany({
       where: { id: { in: enrollmentIds }, classId: assessment.classId },
-      select: { id: true },
+      include: { student: { select: { id: true, name: true } } },
     });
+    const enrollmentById = new Map(validEnrollments.map((e) => [e.id, e]));
     const validIds = new Set(validEnrollments.map((e) => e.id));
     if (grades.some((g) => !g.enrollmentId || !validIds.has(g.enrollmentId))) {
       return res.status(400).json({ message: "Inscrição não pertence a esta turma" });
@@ -133,6 +163,21 @@ export const bulkCreateGrades = async (req, res) => {
         }
       })
     );
+
+    // Sem await: o lançamento de 60 notas não pode ficar à espera de 60 escritas
+    // de notificação. notifyUser já engole erros, logo isto nunca rejeita.
+    validEnrollments.forEach((enrollment) => {
+      const entry = grades.find((g) => g.enrollmentId === enrollment.id);
+      if (!entry) return;
+      notifyStudentOfGrade(
+        assessment.classId,
+        assessment.class.name,
+        assessment.name,
+        enrollment.studentId,
+        enrollment.student?.name,
+        Math.round(Number(entry.value))
+      );
+    });
 
     res.status(201).json({ message: "Notas lançadas com sucesso", count: results.length });
   } catch (error) {
@@ -267,7 +312,10 @@ export const updateGrade = async (req, res) => {
   try {
     const grade = await prisma.grade.findUnique({
       where: { id },
-      include: { assessment: { include: { class: true } } },
+      include: {
+        assessment: { include: { class: true } },
+        enrollment: { include: { student: { select: { id: true, name: true } } } },
+      },
     });
 
     if (!grade) {
@@ -287,10 +335,20 @@ export const updateGrade = async (req, res) => {
       return res.status(400).json({ message: invalidValue });
     }
 
+    const roundedValue = Math.round(Number(value));
     const updated = await prisma.grade.update({
       where: { id },
-      data: { value: Math.round(Number(value)), updatedById: req.user.id },
+      data: { value: roundedValue, updatedById: req.user.id },
     });
+
+    notifyStudentOfGrade(
+      grade.assessment.classId,
+      grade.assessment.class.name,
+      grade.assessment.name,
+      grade.enrollment.studentId,
+      grade.enrollment.student?.name,
+      roundedValue
+    );
 
     res.status(200).json({ message: "Nota atualizada", grade: updated });
   } catch (error) {

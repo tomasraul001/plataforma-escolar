@@ -76,7 +76,17 @@ async function main() {
   console.log(`Conectando via ${host}:${url.port} (hostname original: ${url.hostname})`);
   url.hostname = host;
 
-  const client = new pg.Client({ connectionString: url.toString(), ssl: { rejectUnauthorized: false } });
+  // SSL: segue o que o DSN pedir. `prefer` e `allow` ficam a cargo do proprio
+  // pg, que le o sslmode da connectionString e cai para texto simples se o
+  // servidor recusar. Passar `ssl: {}` incondicional significaria exigir SSL e
+  // rebentar contra um Postgres local com "The server does not support SSL
+  // connections".
+  const sslMode = url.searchParams.get("sslmode") || "prefer";
+  const verifySsl = sslMode === "require" || sslMode === "verify-ca" || sslMode === "verify-full";
+  const client = new pg.Client({
+    connectionString: url.toString(),
+    ...(verifySsl ? { ssl: { rejectUnauthorized: true } } : {}),
+  });
   await client.connect();
   const q = (text, params, opts) => client.query(text, params, opts);
 

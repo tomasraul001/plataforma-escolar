@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
+import { usePolling } from "../../hooks/usePolling";
 
 const LOADING_COLORS = {
   green: "border-green-600",
@@ -39,6 +40,19 @@ export default function PautaDeTurma({ color = "green" }) {
   useEffect(() => {
     fetchGradebook();
   }, [classId]);
+
+  // Pseudo-tempo real: enquanto o formador ve esta pauta, outro dispositivo ou
+  // o coordenador podem estar a alterar notas. Variante silenciosa, sem loading.
+  const refreshSilently = useCallback(async () => {
+    try {
+      const res = await api.get(`/grades/pauta/${classId}`);
+      setGradebook(res.data);
+    } catch {
+      /* o proximo tick volta a tentar */
+    }
+  }, [classId]);
+
+  usePolling(refreshSilently);
 
   const handleDownloadPauta = async () => {
     try {

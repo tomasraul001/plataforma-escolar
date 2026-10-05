@@ -12,9 +12,11 @@ Two independent npm packages (no root workspace, no shared scripts):
   - Zero deps externas (rodam mesmo sem `npm install`): `assessmentWeights.test.js`, `validations.test.js`, `classStatus.test.js`.
   - Exigem `npm install` + `npx prisma generate` (importam controllers/singleton `prisma`): `auth.controller.test.js`, `refreshToken.test.js`, `users.controller.test.js`, `classes.controller.test.js`, `classesPrng.test.js`, `classesStats.test.js`, `createClass.test.js`, `assessments.controller.test.js`, `grades.controller.test.js`, `attendance.controller.test.js`, `fichaFormando.test.js`, `pautaPdf.test.js`, `auth.middleware.test.js`, `getProfile.test.js`, `updateProfile.test.js`.
   - Cobertura por área: IDOR em `attendance`, `assessments`, `grades`, `fichaFormando`; rotação/reuso de refresh token em `refreshToken`; regra `CLOSED || ARCHIVED` em `grades`, `attendance`, `classStatus`; escala 0–20 em `validations` e `grades`; `GET /users/perfil` em `getProfile` e o contrato `undefined`=manter / `null`=apagar de `updateProfile` em `updateProfile`.
-  - Estado atual: **136 testes, 136 a passar**.
+  - Estado atual: **170 testes, 170 a passar**.
 - Padrão de stubbing: `test/*.test.js` importa o mesmo singleton `prisma` que o controller, reatribui os delegates (`findUnique`, `findMany`, `create`, etc.), usa `mockRes()` e restaura via `after()`. Cada arquivo roda em processo próprio, então não há interferência entre eles. Se o delegate não existir no cliente gerado local (gitignored/desatualizado), recrie-o dentro do stub (ver `createClass.test.js` — cria `prisma.region`).
-  - Ao stubbar `prisma.$transaction` tem de suportar as duas formas: `$transaction(callback)` e `$transaction([...promessas])` (usada em `attendance.bulkUpdateRecords`).
+  - Ao stubbar `prisma.$transaction` tem de suportar as duas formas: `$transaction(callback)` e `$transaction([...promessas])`.
+  - **O `tx` de dentro do `$transaction(callback)` não é o mesmo que `prisma`.** Se o stub passar `prisma` como `tx`, qualquer `tx.$transaction(...)` aninhado passa no teste rebenta em produção — o cliente transacional do Prisma não tem `$transaction`. Quando o código usar `tx`, faça o stub passar um `tx` mais pobre que o real (sem `$transaction`), senão o teste está a mentir. Ver o teste "nao aninha `$transaction`" em `attendance.controller.test.js`.
+  - **Um stub que devolve o objeto inteiro esconde bugs de `select`.** Se o controller pede `select: { present: true }` mas agrupa por `enrollmentId`, o teste passa (o mock devolve o campo todo) e o `perStudent` sai vazio na BD real. Quando o código depender de um `select`, o stub tem de devolver só os campos pedidos e/ou o teste tem de verificar o `args.select`.
 - O controller de turma usa `locationId` (referência a Region), preenchido pelo `regionId` vindo do body da requisição (ver `createClass.test.js`).
 
 ## Regras de escrita em turmas (backend/src/utils/classStatus.js)
@@ -23,6 +25,15 @@ Two independent npm packages (no root workspace, no shared scripts):
 
 ## Escala de notas
 - Escala angolana 0–20. A regra vive em `validateGradeValue` (`backend/src/utils/validations.js`) e tem de ser usada em `createGrade`, `updateGrade` e `bulkCreateGrades` — `Math.round(Number(x))` sozinho gravava `NaN` e valores fora do intervalo.
+
+## Frequência e presença
+- `MIN_ATTENDANCE_PERCENT = 75` e `attendanceStatus(pct)` → `ok` / `warning` / `critical` vivem em `backend/src/utils/attendance.js`. O limiar é regra de domínio: o frontend consome o `status` que o backend devolve, nunca repete o ternário `>= 75`.
+- **O denominador da percentagem é o número de sessões, nunca o número de registos.** Um aluno que entra a meio do curso só tem registos nas sessões a que assistiu; usar `records.length` como total dá-lhe 100% falso. Ver `getSummary` em `attendance.controller.js`.
+- A query de `attendanceSession` em `getSummary` faz `include: { records: { select: { enrollmentId: true, present: true } } }`. **`enrollmentId` tem de estar no `select`**: é por ele que o `perStudent` agrupa, e sem ele todos os alunos saem como `awaitingSessions` com 0%.
+
+## Notificações
+- `backend/src/utils/notifications.js` — `createNotification(userId, {...})` é non-blocking e engole erros: uma notificação falhada nunca pode fazer falhar a operação que a originou. Mesmo padrão do `auditLog.middleware.js`.
+- Modelo `Notification` com `onDelete: Cascade` no `userId` (como `RefreshToken`) para não ser a 5.ª dependência do hard delete em `users.controller.js`.
 
 ## Docker
 - `backend/Dockerfile` copia `src`, `prisma`, `prisma.config.ts` e **`assets`** (o logo em `reports.controller.js` resolve para `/app/assets/logo.png`; sem o COPY a geração de pauta falha com ENOENT).
@@ -48,6 +59,13 @@ Two independent npm packages (no root workspace, no shared scripts):
 - Global: 300 req/15min per IP (`backend/src/middleware/rateLimit.middleware.js`).
 - Auth endpoints (`/auth/login`, `/auth/register`, `/auth/refresh`): 10 req/15min.
 - `trust proxy` enabled for Railway. 429 returns JSON PT-BR.
+
+## Pseudo-tempo real: polling de 60s (WebSocket descartado)
+O WebSocket foi **descartado por decisão de produto** — nunca chegou a existir em código (zero `socket.io`/`ws`/`EventSource`/`setInterval` no repo). Ver `estrutura-plataforma-gestao-escolar.md` secção 13 para o raciocínio. Não reintroduzir sem falar com o utilizador: a razão foi volume de alterações (notas = algumas/dia, presenças = 1/sessão) versus o custo de um canal bidirecional sempre aberto e de um servidor com estado partilhado que impediria escalar sem sticky sessions.
+- `frontend/src/hooks/usePolling.js` — hook único, intervalo 60s. Pausa o timer enquanto `document.hidden` e dispara uma busca imediata ao voltar a ser visível.
+- **O callback do polling nunca toca em `setLoading`** — a página pisca a cada minuto. Só escreve nos estados de dados (`setGrades`, `setSessions`, ...).
+- Só ligar em páginas que mostram dado que muda sozinho (`Notas`, `PresencasDaTurma`, `PautaDeTurma`, `Planilha`, `Dashboard` do formador). O polling não corre no `useEffect` de carga inicial, e nunca em todas as páginas em simultâneo — o rate limit global é 300 req/15min.
+- O badge do sino usa `GET /notifications/unread-count` (endpoint leve), não a lista completa, a cada minuto.
 
 ## Exclusão de utilizadores
 - `DELETE /users/delete/:id` faz **hard delete**. Como `User` é referenciado por `Class.trainerId`, `Enrollment.studentId`, `Grade.updatedById` e `AuditLog.userId` (FKs sem `onDelete`), o controller conta essas 4 dependências antes de apagar e devolve **409** com o detalhe do que bloqueia. `P2003` do Prisma é apanhado como rede de segurança (nunca deve chegar a 500).

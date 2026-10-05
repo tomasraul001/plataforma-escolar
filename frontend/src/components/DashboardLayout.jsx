@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 const colorConfig = {
   blue: {
@@ -100,6 +101,7 @@ export default function DashboardLayout({ color, navItems, title, roleLabel }) {
               <h1 className="text-base lg:text-lg font-semibold text-gray-800 truncate">Painel do {roleLabel}</h1>
             </div>
             <div className="flex items-center gap-3 text-sm text-gray-500">
+              <NotificationBell />
               <span className="hidden sm:inline">{user?.name || roleLabel}</span>
               <span className="hidden sm:inline text-xs bg-white/50 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-gray-200/50 text-gray-600">{roleLabel}</span>
             </div>

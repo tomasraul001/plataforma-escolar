@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
+import { usePolling } from "../../hooks/usePolling";
 
 const FIXED_COLUMNS = [
   { id: "teste1", name: "Teste 1",  order: 1 },
@@ -22,23 +23,26 @@ export default function Planilha() {
   const saveTimeoutRef = useRef(null);
   const inputRefs = useRef({});
 
+  // Converte a resposta do servidor no buffer local dos inputs.
+  const toGradeInputs = (data) => {
+    const inputs = {};
+    data.students?.forEach((student) => {
+      Object.entries(student.grades || {}).forEach(([colId, grade]) => {
+        if (grade?.value !== null && grade?.value !== undefined) {
+          inputs[`${student.enrollmentId}-${colId}`] = grade.value;
+        }
+      });
+    });
+    return inputs;
+  };
+
   const fetchPlanilha = async () => {
     try {
       setLoading(true);
       const res = await api.get(`/grades/planilha/${classId}`);
       setPlanilhaData(res.data);
       setStudents(res.data.students || []);
-      
-      // Inicializar gradeInputs com valores existentes
-      const initialInputs = {};
-      res.data.students?.forEach((student) => {
-        Object.entries(student.grades || {}).forEach(([colId, grade]) => {
-          if (grade?.value !== null && grade?.value !== undefined) {
-            initialInputs[`${student.enrollmentId}-${colId}`] = grade.value;
-          }
-        });
-      });
-      setGradeInputs(initialInputs);
+      setGradeInputs(toGradeInputs(res.data));
     } catch (error) {
       console.error("Erro ao carregar planilha:", error);
       toast.error("Erro ao carregar planilha");
@@ -51,6 +55,27 @@ export default function Planilha() {
   useEffect(() => {
     fetchPlanilha();
   }, [classId]);
+
+  // Pseudo-tempo real. O que nao pode acontecer e piscar as notas debaixo dos
+  // dedos do formador enquanto ele escreve, por isso o tick cede quando ha uma
+  // edicao em curso: `saveStatus` a "saving", ou o debounce do auto-save ainda
+  // armed. Nao se pode usar "ha notas na tela" como guarda: o buffer local e
+  // preenchido na carga inicial e nunca volta a ficar vazio, o que desligava o
+  // polling para sempre depois da primeira nota.
+  const refreshSilently = useCallback(async () => {
+    if (saveStatus === "saving") return;
+    if (saveTimeoutRef.current) return;
+    try {
+      const res = await api.get(`/grades/planilha/${classId}`);
+      setPlanilhaData(res.data);
+      setStudents(res.data.students || []);
+      setGradeInputs(toGradeInputs(res.data));
+    } catch {
+      /* o proximo tick volta a tentar */
+    }
+  }, [classId, saveStatus]);
+
+  usePolling(refreshSilently);
 
   const handleDownloadPauta = async () => {
     try {
@@ -108,6 +133,10 @@ export default function Planilha() {
   };
 
   const autoSaveGrade = async (enrollmentId, columnId, value) => {
+    // O timer dispara uma vez só: limpar a ref aqui é o que permite ao polling
+    // saber que já não há nada a caminho. Sem isto a ref ficava com o id de um
+    // timeout já disparado e o polling nunca mais atualizava a página.
+    saveTimeoutRef.current = null;
     try {
       await api.post(`/grades/planilha/${classId}/auto-save`, {
         enrollmentId,

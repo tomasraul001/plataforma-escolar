@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../contexts/ToastContext";
+import { usePolling } from "../../hooks/usePolling";
 
 export default function TrainerDashboard() {
   const toast = useToast().toast;
@@ -47,6 +48,20 @@ export default function TrainerDashboard() {
     fetchAreas();
     fetchRegions();
   }, []);
+
+  // Pseudo-tempo real: um formando pode entrar na turma a qualquer momento e o
+  // contador de matriculados nao se atualiza sozinho. Só as turmas, que e o
+  // dado que muda — areas e regioes sao praticamente estaticas.
+  const refreshClassesSilently = useCallback(async () => {
+    try {
+      const res = await api.get("/classes/minhas");
+      setMyClasses(res.data);
+    } catch {
+      /* o proximo tick volta a tentar */
+    }
+  }, []);
+
+  usePolling(refreshClassesSilently);
 
   const handleDownloadPauta = async (classId) => {
     try {

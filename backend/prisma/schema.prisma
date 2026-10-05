@@ -31,6 +31,7 @@ model User {
   auditLogs      AuditLog[]
   updatedGrades  Grade[]      @relation("GradeUpdater")
   refreshTokens  RefreshToken[]
+  notifications  Notification[]
 
 }
 
@@ -200,6 +201,28 @@ model AttendanceRecord {
   enrollment   Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, enrollmentId])
+}
+
+// 9. NOTIFICAÇÃO (sino in-app, substitui o WebSocket descartado)
+//
+// onDelete: Cascade para acompanhar o RefreshToken: quando um utilizador é
+// apagado a notificação vai com ele, e não se torna mais uma dependência a
+// contar no hard delete de users.controller.js (que já verifica 4).
+model Notification {
+  id        String   @id @default(uuid())
+  type      String   // Ex: grade_updated, class_closed, enrollment_joined, attendance_session
+  title     String
+  body      String
+  link      String?  // Rota do frontend para onde o sino leva
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // O badge do sino consulta por (userId, readAt) a cada minuto.
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
 }
 
 
