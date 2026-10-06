@@ -1,4 +1,4 @@
-import { Link, Navigate, useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useRef, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useToast } from "../../contexts/ToastContext"
@@ -37,6 +37,7 @@ export default function Sigin(){
     let [loading, setLoading] = useState(false)
     const { register } = useAuth()
     const toast = useToast().toast
+    const navigate = useNavigate()
 
     async function handleSigin(event){
         event.preventDefault();
@@ -63,7 +64,7 @@ export default function Sigin(){
             })
 
             toast.success("Usuario criado com sucesso")
-            Navigate("/login")
+            navigate("/login")
         }catch (error){
             console.log('Erro ao criar usuario', error)
             toast.error("Erro ao criar usuario")
