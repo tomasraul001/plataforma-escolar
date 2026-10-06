@@ -5,6 +5,7 @@ Two independent npm packages (no root workspace, no shared scripts):
 - `frontend/` — React 19 + Vite + Tailwind 4, port 5173
 
 ## Commands
+- CI: `.github/workflows/ci.yml` corre em push/PR para `main` — 2 jobs paralelos: backend (`prisma generate` + `npm test` com `DATABASE_URL` dummy) e frontend (`npm run lint` + `npm run build`). Node 23, `npm ci` com cache. Erros de lint falham o CI (avisos não).
 - Backend: `npm run dev` (`node --watch src/app.js`, hot reload) or `npm start` (`node src/app.js`, sem watch) in `backend/`
 - Frontend: `npm run dev` (Vite), `npm run lint` (ESLint), `npm run build`
 - Backend tests: `npm test` (Node built-in `node:test`, roda todos os `test/*.test.js`, cada um num processo separado — via auto-discovery).
@@ -75,7 +76,7 @@ O WebSocket foi **descartado por decisão de produto** — nunca chegou a existi
 - UI strings, error messages, and comments are Portuguese (PT-BR); keep new ones in Portuguese.
 - Tailwind 4 is CSS-first via `@tailwindcss/vite` — there is no `tailwind.config`, don't create one; style via `src/index.css`.
 - Backend imports use explicit `.js` extensions (Node ESM).
-- Frontend: `npm run lint` está a **0 erros / 40 avisos** (todos avisos, nenhum bloqueia o build).
+- Frontend: `npm run lint` está a **0 erros / 41 avisos** (todos avisos, nenhum bloqueia o build).
   - Os avisos dividem-se em `react-hooks/set-state-in-effect` (despromovido a `warn` em `eslint.config.js`) e `react-hooks/exhaustive-deps`.
   - **`set-state-in-effect` foi despromovido de propósito:** a regra do React Compiler marca o padrão `useEffect(() => fetchX(), [])` → `setState`, porque não prova que o `setState` fica depois do `await`. Corrigir as 25 instâncias exigiria migrar a camada de dados (React Query / `use`+Suspense), não uma correção pontual. Reverter a regra em `frontend/eslint.config.js` se essa migração for feita.
   - `toast` em `ToastContext.jsx` **não** é memoizado (objeto novo a cada render). Por isso **nunca** adicionar `toast` às deps de um `useEffect`/`useCallback` — dispara loop infinito de renders. Se precisares, memoiza com `useMemo` primeiro.
