@@ -5,7 +5,7 @@ Two independent npm packages (no root workspace, no shared scripts):
 - `frontend/` — React 19 + Vite + Tailwind 4, port 5173
 
 ## Commands
-- CI: `.github/workflows/ci.yml` corre em push/PR para `main` — 2 jobs paralelos: backend (`prisma generate` + `npm test` com `DATABASE_URL` dummy) e frontend (`npm run lint` + `npm run build`). Node 23, `npm ci` com cache. Erros de lint falham o CI (avisos não).
+- CI: `.github/workflows/ci.yml` corre em push/PR para `master` — 2 jobs paralelos: backend (`prisma generate` + `npm test` com `DATABASE_URL` dummy) e frontend (`npm run lint` + `npm run build`). Node 23, `npm ci` com cache. Erros de lint falham o CI (avisos não).
 - Backend: `npm run dev` (`node --watch src/app.js`, hot reload) or `npm start` (`node src/app.js`, sem watch) in `backend/`
 - Frontend: `npm run dev` (Vite), `npm run lint` (ESLint), `npm run build`
 - Backend tests: `npm test` (Node built-in `node:test`, roda todos os `test/*.test.js`, cada um num processo separado — via auto-discovery).
