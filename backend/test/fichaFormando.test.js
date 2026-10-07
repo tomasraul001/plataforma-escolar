@@ -96,7 +96,7 @@ test("getFicha: retorna 404 quando formando nao existe", async () => {
 test("getFicha: retorna ficha com dados pessoais e turmas vazias", async () => {
   installStubs();
   resetState();
-  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: "912", sexo: "M", createdAt: new Date() };
+  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: "912", sexo: "M", createdAt: new Date(), role: "formando" };
 
   const req = { params: { userId: "u1" }, user: { id: "coord-1", role: "coordenador" } };
   const res = mockRes();
@@ -105,13 +105,14 @@ test("getFicha: retorna ficha com dados pessoais e turmas vazias", async () => {
 
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.user.name, "João");
+  assert.equal(res.body.user.role, undefined, "role nao deve aparecer na resposta");
   assert.equal(res.body.turmas.length, 0);
 });
 
 test("getFicha: formador sem acesso retorna 403", async () => {
   installStubs();
   resetState();
-  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date() };
+  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date(), role: "formando" };
   findFirstResult = null;
 
   const req = { params: { userId: "u1" }, user: { id: "trainer-1", role: "formador" } };
@@ -126,7 +127,7 @@ test("getFicha: formador sem acesso retorna 403", async () => {
 test("getFicha: formador com acesso retorna 200", async () => {
   installStubs();
   resetState();
-  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date() };
+  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date(), role: "formando" };
   findFirstResult = { id: "enr-1" };
   prisma.enrollment.findMany = async () => [];
 
@@ -142,7 +143,7 @@ test("getFicha: formador com acesso retorna 200", async () => {
 test("getFicha: formador so recebe as turmas das quais e formador (IDOR)", async () => {
   installStubs();
   resetState();
-  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date() };
+  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date(), role: "formando" };
   findFirstResult = { id: "enr-1" };
 
   let enrollmentQuery = null;
@@ -168,7 +169,7 @@ test("getFicha: formador so recebe as turmas das quais e formador (IDOR)", async
 test("getFicha: coordenador e secretaria nao levam filtro de turma", async () => {
   installStubs();
   resetState();
-  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date() };
+  findUniqueResult = { id: "u1", name: "João", email: "j@email.com", phone: null, sexo: null, createdAt: new Date(), role: "formando" };
 
   let enrollmentQuery = null;
   prisma.enrollment.findMany = async (args) => {
@@ -184,4 +185,25 @@ test("getFicha: coordenador e secretaria nao levam filtro de turma", async () =>
   assert.equal(res.statusCode, 200);
   assert.equal(enrollmentQuery.where.classId, undefined);
   assert.deepEqual(enrollmentQuery.where, { studentId: "u1" });
+});
+
+test("getFicha: alvo que nao e formando devolve 400", async () => {
+  installStubs();
+  resetState();
+  findUniqueResult = { id: "u1", name: "Sec", email: "s@email.com", phone: null, sexo: null, createdAt: new Date(), role: "secretaria" };
+
+  let enrollmentsCalled = false;
+  prisma.enrollment.findMany = async () => {
+    enrollmentsCalled = true;
+    return [];
+  };
+
+  const req = { params: { userId: "u1" }, user: { id: "coord-1", role: "coordenador" } };
+  const res = mockRes();
+
+  await getFicha(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.message, /não é um formando/);
+  assert.equal(enrollmentsCalled, false, "nao deve continuar para o historico");
 });

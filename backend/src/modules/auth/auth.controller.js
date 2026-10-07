@@ -94,20 +94,27 @@ export const register = async (req, res) => {
 };
 
 // Login do usuario
+// Hash dummy so para gastar o mesmo tempo de bcrypt.compare quando o
+// email nao existe — sem isto da para inferir contas pela latencia.
+const DUMMY_PASSWORD_HASH = "$2b$10$gU6uzUzppntpfxUSwiSBHO3tTOKrYXnWKatKoF//tNGEZx4rQxh6G";
+
 export const login = async (req, res) => {
   try {
-    let userLogin = await prisma.user.findUnique({
-      where: { email: req.body.email.toLowerCase() },
-    });
+    const email = typeof req.body.email === "string" ? req.body.email.toLowerCase() : null;
+    const password = typeof req.body.password === "string" ? req.body.password : null;
 
-    if (!userLogin) {
-      return res.status(404).json({ message: "Usuário não encontrado!" });
-    }
+    const userLogin = email ? await prisma.user.findUnique({ where: { email } }) : null;
 
-    let isMatch = await bcrypt.compare(req.body.password, userLogin.password);
+    // Resposta UNICA para email inexistente, senha errada e tipos
+    // invalidos: o antigo 404 "Usuário não encontrado!" deixava
+    // qualquer pessoa enumerar contas, e um email nao-string rebentava
+    // em .toLowerCase() com 500.
+    const hash =
+      userLogin && typeof userLogin.password === "string" ? userLogin.password : DUMMY_PASSWORD_HASH;
+    const isMatch = password !== null && (await bcrypt.compare(password, hash)) && userLogin !== null;
 
-    if (!isMatch) {
-      return res.status(401).json({ message: "Senha incorreta!" });
+    if (!userLogin || !isMatch) {
+      return res.status(401).json({ message: "Email ou senha incorretos" });
     }
 
     let token = jwt.sign(

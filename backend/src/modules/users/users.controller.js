@@ -15,9 +15,18 @@ export const getAllUsers = async (req, res) => {
                 }
             }
         }else if(req.user.role === 'formador'){
+            // So formandos com inscricao ATIVA nas turmas deste formador.
+            // Antes vinham TODOS os formandos da plataforma — o formador
+            // via nome/email de alunos de outras turmas (vazamento de PII).
             filter = {
-                role: 'formando'
-            }
+                role: 'formando',
+                enrollments: {
+                    some: {
+                        class: { trainerId: req.user.id },
+                        status: "ACTIVE",
+                    },
+                },
+            };
         }else{
             return res.status(403).json({message: 'Acesso negado'})
         }

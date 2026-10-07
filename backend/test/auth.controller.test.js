@@ -167,7 +167,7 @@ test("register: retorna 400 quando o email ja existe", async () => {
   assert.equal(createCalls.length, 0);
 });
 
-test("login: retorna 404 quando o usuario nao existe", async () => {
+test("login: usuario inexistente devolve 401 generico (nao enumera contas)", async () => {
   installStubs();
   resetState();
 
@@ -176,8 +176,9 @@ test("login: retorna 404 quando o usuario nao existe", async () => {
 
   await login(req, res);
 
-  assert.equal(res.statusCode, 404);
-  assert.equal(res.body.message, "Usuário não encontrado!");
+  // 404 com "Usuário não encontrado!" permitia enumerar emails registrados
+  assert.equal(res.statusCode, 401);
+  assert.equal(res.body.message, "Email ou senha incorretos");
 });
 
 test("login: retorna 401 quando a senha esta incorreta", async () => {
@@ -197,7 +198,21 @@ test("login: retorna 401 quando a senha esta incorreta", async () => {
   await login(req, res);
 
   assert.equal(res.statusCode, 401);
-  assert.equal(res.body.message, "Senha incorreta!");
+  assert.equal(res.body.message, "Email ou senha incorretos");
+});
+
+test("login: email nao-string devolve 401 (nao 500)", async () => {
+  installStubs();
+  resetState();
+
+  const req = { body: { email: { $ne: null }, password: "qualquer" } };
+  const res = mockRes();
+
+  await login(req, res);
+
+  // .toLowerCase() em objeto rebentava com 500 — e possivel input de attacker
+  assert.equal(res.statusCode, 401);
+  assert.equal(res.body.message, "Email ou senha incorretos");
 });
 
 test("login: retorna token, refreshToken e dados do usuario", async () => {

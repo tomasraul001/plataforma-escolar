@@ -116,12 +116,17 @@ export const getClassById = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado a esta turma" });
     }
 
-    res.status(200).json(classData);
+    // secretKey e a credencial de auto-inscricao: nao sai daqui (a lista
+    // visivel ao formador dono continua em listMyClasses, que a mantem).
+    const { secretKey: _secretKey, ...classDataPublic } = classData;
+    res.status(200).json(classDataPublic);
   } catch (error) {
     console.error("Erro ao buscar turma:", error);
     res.status(500).json({ message: "Erro ao buscar turma" });
   }
 };
+
+const ALLOWED_STATUSES = ["DRAFT", "OPEN", "CLOSED"];
 
 export const updateClass = async (req, res) => {
   const { id } = req.params;
@@ -137,8 +142,35 @@ export const updateClass = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (status === "ARCHIVED") {
-      return res.status(400).json({ message: "Use a rota /archive para arquivar" });
+    // O status vem do body (a UI abre/fecha turma por aqui), por isso e
+    // validado: so transicoes explicitas entre estados proprios do ciclo
+    // de vida. ARCHIVED so sai daqui pela rota /archive (secretaria) e
+    // qualquer string arbitaria e rejeitada — sem isto, um formador
+    // reabria turmas arquivadas e contornava todos os guards isLocked.
+    if (status !== undefined) {
+      if (status === "ARCHIVED") {
+        return res.status(400).json({ message: "Use a rota /archive para arquivar" });
+      }
+      if (!ALLOWED_STATUSES.includes(status)) {
+        return res.status(400).json({ message: "Status inválido. Use DRAFT, OPEN ou CLOSED" });
+      }
+      if (classData.status === "ARCHIVED") {
+        return res.status(400).json({ message: "Turma arquivada não pode mudar de status" });
+      }
+    }
+
+    // startDate: undefined = manter o valor atual (antes, qualquer PATCH
+    // sem data apagava a data de inicio para null); null/"" = limpar;
+    // valor presente tem de ser uma data valida (antes: Invalid Date -> 500).
+    let startDateUpdate;
+    if (startDate === null || startDate === "") {
+      startDateUpdate = null;
+    } else if (startDate !== undefined) {
+      const parsed = new Date(startDate);
+      if (Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({ message: "Data de início inválida" });
+      }
+      startDateUpdate = parsed;
     }
 
     // Ao fechar a turma, a data de término é a data/hora do fechamento
@@ -149,7 +181,7 @@ export const updateClass = async (req, res) => {
       where: { id },
       data: {
         name,
-        startDate: startDate ? new Date(startDate) : null,
+        startDate: startDateUpdate,
         status,
         ...(isClosing ? { closedAt: now, endDate: now } : {}),
       },
@@ -231,7 +263,9 @@ export const listAllClasses = async (req, res) => {
       orderBy: { createdAt: "desc" },
     });
 
-    res.status(200).json(classes);
+    // secretKey (credencial de inscricao) nao pode ir para quem lista
+    // turmas alheias — ver M7 da auditoria. listMyClasses mantem-na.
+    res.status(200).json(classes.map(({ secretKey: _sk, ...rest }) => rest));
   } catch (error) {
     console.error("Erro ao listar todas as turmas:", error);
     res.status(500).json({ message: "Erro ao listar turmas" });

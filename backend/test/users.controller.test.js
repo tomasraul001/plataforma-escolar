@@ -127,7 +127,7 @@ test("getAllUsers: secretaria usa o mesmo filtro do coordenador", async () => {
   assert.deepEqual(findManyCall.where, { role: { in: ["formador", "formando"] } });
 });
 
-test("getAllUsers: formador ve somente formandos", async () => {
+test("getAllUsers: formador ve somente formandos das suas turmas (inscricao ativa)", async () => {
   installStubs();
   resetState();
   findManyResult = users.filter((u) => u.role === "formando");
@@ -138,7 +138,17 @@ test("getAllUsers: formador ve somente formandos", async () => {
   await getAllUsers(req, res);
 
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(findManyCall.where, { role: "formando" });
+  // O escopo tem de estar NO where: sem ele o formador recebia o
+  // diretorio de todos os formandos da plataforma (M4 da auditoria).
+  assert.deepEqual(findManyCall.where, {
+    role: "formando",
+    enrollments: {
+      some: {
+        class: { trainerId: "form-1" },
+        status: "ACTIVE",
+      },
+    },
+  });
 });
 
 test("getAllUsers: papel sem permissao recebe 403 Acesso negado e nao consulta o banco", async () => {

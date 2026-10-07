@@ -45,14 +45,23 @@ export const getFicha = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const user = await prisma.user.findUnique({
+    const target = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, email: true, phone: true, sexo: true, createdAt: true },
+      select: { id: true, name: true, email: true, phone: true, sexo: true, createdAt: true, role: true },
     });
 
-    if (!user) {
+    if (!target) {
       return res.status(404).json({ message: "Formando não encontrado" });
     }
+
+    // A ficha e um relatorio de aluno: so existe para role "formando".
+    // Sem este guarda, qualquer userId (formador, secretaria, coordenador)
+    // gerava ficha pessoal completa — pessoas a ver dados de pessoas.
+    if (target.role !== "formando") {
+      return res.status(400).json({ message: "O utilizador indicado não é um formando" });
+    }
+
+    const { role: _role, ...user } = target;
 
     // O formador só pode ver turmas das quais é formador.
     // Sem este filtro via de acesso, ele via o histórico inteiro do aluno.

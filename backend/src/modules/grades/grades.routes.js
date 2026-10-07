@@ -31,7 +31,7 @@ router.post("/planilha/:classId/auto-save", authorize("formador", "coordenador")
 
 // Inicializar/obter template da planilha
 router.post("/planilha/:classId/initialize", authorize("formador", "coordenador"), planilhaController.initializePlanilha);
-router.get("/planilha/:classId/template", authorize("formador", "coordenador", "formando"), planilhaController.getPlanilhaTemplate);
+router.get("/planilha/:classId/template", authorize("formador", "coordenador"), planilhaController.getPlanilhaTemplate);
 router.patch("/planilha/:classId/template", authorize("formador", "coordenador"), planilhaController.updatePlanilhaTemplate);
 
 export default router;

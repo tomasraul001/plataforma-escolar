@@ -61,19 +61,30 @@ export const getPlanilha = async (req, res) => {
       where: { classId },
     });
 
-    if (!template) {
-      // Criar template padrão
-      template = await prisma.gradebookTemplate.create({
-        data: {
-          classId,
-          columns: DEFAULT_COLUMNS,
-          isActive: true,
-        },
-      });
-    }
+    const locked = isLocked(classData.status);
 
-    // Garantir que as avaliações padrão existam
-    await ensureDefaultAssessments(classId);
+    if (!template && locked) {
+      // Turma fechada/arquivada: o GET e so-leitura. Devolve as colunas
+      // padrao sem criar template nem avaliacoes — antes um GET gravava
+      // linhas em turma ja fechada.
+      template = { columns: DEFAULT_COLUMNS, isActive: true };
+    } else {
+      if (!template) {
+        // Criar template padrão
+        template = await prisma.gradebookTemplate.create({
+          data: {
+            classId,
+            columns: DEFAULT_COLUMNS,
+            isActive: true,
+          },
+        });
+      }
+
+      if (!locked) {
+        // Garantir que as avaliações padrão existam
+        await ensureDefaultAssessments(classId);
+      }
+    }
 
     // Buscar alunos matriculados ativos
     const enrollments = await prisma.enrollment.findMany({
@@ -298,6 +309,10 @@ export const initializePlanilha = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
+    if (isLocked(classData.status)) {
+      return res.status(400).json({ message: lockedMessage("inicializar a planilha") });
+    }
+
     const template = await prisma.gradebookTemplate.upsert({
       where: { classId },
       update: { columns: DEFAULT_COLUMNS, isActive: true },
@@ -316,6 +331,17 @@ export const getPlanilhaTemplate = async (req, res) => {
   const { classId } = req.params;
 
   try {
+    // Mesma posse do update: formador dono ou coordenador. Sem este
+    // guarda qualquer formando/formador lia o template de turma alheia.
+    const classData = await prisma.class.findUnique({ where: { id: classId } });
+    if (!classData) {
+      return res.status(404).json({ message: "Turma não encontrada" });
+    }
+
+    if (classData.trainerId !== req.user.id && req.user.role !== "coordenador") {
+      return res.status(403).json({ message: "Acesso negado" });
+    }
+
     const template = await prisma.gradebookTemplate.findUnique({ where: { classId } });
     
     if (!template) {
