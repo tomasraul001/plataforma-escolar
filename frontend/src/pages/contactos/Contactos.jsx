@@ -5,6 +5,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { LoadingCard } from "../../components/badges";
 import { copyToClipboard } from "../../utils/clipboard";
 import { downloadCsv } from "../../utils/csv";
+import { buildSmsGroupLink, buildWhatsAppLink, normalizePhone } from "../../utils/phone";
 
 const FULL_ACCESS_ORDER = ["coordenador", "secretaria", "formador", "formando"];
 
@@ -50,6 +51,7 @@ export default function Contactos() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(new Set());
+  const [message, setMessage] = useState("");
 
   const fetchContacts = async () => {
     try {
@@ -104,6 +106,24 @@ export default function Contactos() {
     downloadCsv(`contactos-${date}.csv`, ["Categoria", "Nome", "Email", "Telefone"], rows);
   };
 
+  const handleSendWhatsApp = (contact) => {
+    const link = buildWhatsAppLink(contact.phone, message);
+    if (!link) {
+      toast.error("Número de telefone inválido para WhatsApp");
+      return;
+    }
+    window.open(link, "_blank", "noopener,noreferrer");
+  };
+
+  const handleSendSms = (category) => {
+    const link = buildSmsGroupLink(category.contacts.map((c) => c.phone), message);
+    if (!link) {
+      toast.error("Nenhum número válido nesta categoria");
+      return;
+    }
+    window.location.assign(link);
+  };
+
   if (loading) return <LoadingCard color={LOADING_COLOR[user.role] || "blue"} />;
 
   const total = contacts.length;
@@ -137,6 +157,20 @@ export default function Contactos() {
         </div>
       </div>
 
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="contact-message">
+          Mensagem a enviar
+        </label>
+        <textarea
+          id="contact-message"
+          value={message}
+          onChange={(event) => setMessage(event.target.value)}
+          rows={2}
+          placeholder="Escreve a mensagem. O 💬 de cada contacto abre o WhatsApp e o botão Enviar SMS da categoria abre a app de SMS com todos os números."
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm resize-y"
+        />
+      </div>
+
       {categories.length === 0 ? (
         <div className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm p-12 text-center">
           <p className="text-4xl mb-3">📇</p>
@@ -149,25 +183,42 @@ export default function Contactos() {
             const isOpen = expanded.has(category.key);
             return (
               <div key={category.key} className="bg-white/60 backdrop-blur-md rounded-xl border border-white/40 shadow-sm overflow-hidden">
-                <button
-                  onClick={() => toggleCategory(category.key)}
-                  className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-white/60 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between px-5 py-3 gap-3">
+                  <button
+                    onClick={() => toggleCategory(category.key)}
+                    className="flex items-center gap-3 flex-1 text-left hover:bg-white/60 transition-colors"
+                  >
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isOpen ? "bg-blue-100/80 text-blue-800" : "bg-gray-100/80 text-gray-800"}`}>
                       {category.label}
                     </span>
                     <span className="text-sm text-gray-500">{category.contacts.length} contacto(s)</span>
-                  </div>
-                  <svg
-                    className={`w-5 h-5 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                    <svg
+                      className={`w-5 h-5 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {(() => {
+                    const validCount = category.contacts.filter((c) => normalizePhone(c.phone)).length;
+                    return (
+                      <button
+                        onClick={() => handleSendSms(category)}
+                        disabled={validCount === 0}
+                        title={
+                          validCount === 0
+                            ? "Nenhum número válido nesta categoria"
+                            : `Abrir SMS em grupo (${validCount} destinatário(s))`
+                        }
+                        className="disabled:opacity-40 disabled:cursor-not-allowed bg-green-600 hover:bg-green-700 disabled:hover:bg-green-600 text-white px-3 py-1.5 rounded-lg font-medium text-sm whitespace-nowrap"
+                      >
+                        📩 Enviar SMS ({validCount})
+                      </button>
+                    );
+                  })()}
+                </div>
 
                 {isOpen && (
                   <ul className="divide-y divide-gray-100 border-t border-gray-100">
@@ -183,16 +234,29 @@ export default function Contactos() {
                           <p className="text-sm text-gray-500 truncate">{contact.email}</p>
                           <p className="text-sm text-gray-500 truncate">{contact.phone || "—"}</p>
                         </div>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleCopy(contact.email, contact.name, "Email");
-                          }}
-                          title="Copiar email"
-                          className="text-gray-400 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white/70"
-                        >
-                          📧
-                        </button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleSendWhatsApp(contact);
+                            }}
+                            disabled={!normalizePhone(contact.phone)}
+                            title={normalizePhone(contact.phone) ? "Enviar WhatsApp" : "Número inválido para WhatsApp"}
+                            className="text-gray-400 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-white/70 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:hover:bg-transparent"
+                          >
+                            💬
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleCopy(contact.email, contact.name, "Email");
+                            }}
+                            title="Copiar email"
+                            className="text-gray-400 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white/70"
+                          >
+                            📧
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>
