@@ -1,6 +1,7 @@
 import prisma from "../../config/prisma.js";
 import { notifyUser, notifyEnrollmentStudents } from "../../utils/notifications.js";
 import { ensureDefaultAssessments } from "../grades/planilha.controller.js";
+import { isLocked, lockedMessage } from "../../utils/classStatus.js";
 import { randomInt } from "crypto";
 
 export function generateSecretKey() {
@@ -207,8 +208,12 @@ export const closeClass = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
-    if (classData.status === "CLOSED") {
-      return res.status(400).json({ message: "Turma já está fechada" });
+    // isLocked (CLOSED || ARCHIVED), nao so CLOSED: sem isto um formador
+    // fechava uma turma ja arquivada (ARCHIVED -> CLOSED) e depois reabria
+    // com updateClass (CLOSED -> OPEN), contornando o arquivo. Fechar e a
+    // transicao para o estado terminal, nao se executa em estado ja travado.
+    if (isLocked(classData.status)) {
+      return res.status(400).json({ message: lockedMessage("fechar a turma") });
     }
 
     const updated = await prisma.class.update({

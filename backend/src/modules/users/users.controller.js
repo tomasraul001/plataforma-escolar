@@ -225,6 +225,14 @@ export const changePassword = async (req, res) => {
             data: { password: await bcrypt.hash(newPassword, salt) }
         });
 
+        // A troca de senha e tipicamente uma resposta a sessao roubada.
+        // Sem revogar os refresh tokens aqui, uma sessao que o atacante
+        // roubou continuava valida ate 7 dias apos a troca.
+        await prisma.refreshToken.updateMany({
+            where: { userId, revokedAt: null },
+            data: { revokedAt: new Date() },
+        });
+
         res.status(200).json({ message: "Senha alterada com sucesso" });
     } catch (error) {
         console.error("Erro ao trocar senha:", error);

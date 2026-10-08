@@ -1,7 +1,7 @@
 import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import prisma from "../src/config/prisma.js";
-import { listAllClasses, archiveClass, updateClass, getClassById } from "../src/modules/classes/classes.controller.js";
+import { listAllClasses, archiveClass, updateClass, getClassById, closeClass } from "../src/modules/classes/classes.controller.js";
 
 let findManyCalls = [];
 let findManyResult = [];
@@ -14,6 +14,7 @@ function installStubs() {
   backup.classFindMany = prisma.class?.findMany;
   backup.classFindUnique = prisma.class?.findUnique;
   backup.classUpdate = prisma.class?.update;
+  backup.userFindMany = prisma.user?.findMany;
 
   prisma.class.findMany = async (args) => {
     findManyCalls.push(args);
@@ -28,12 +29,17 @@ function installStubs() {
     updateCalls.push(args);
     return { ...findUniqueResult, ...args.data };
   };
+
+  // closeClass notifica a secretaria (prisma.user.findMany); sem stub o
+  // cliente real rejeita contra a BD dummy e o fecho cairia num 500.
+  prisma.user.findMany = async () => [];
 }
 
 function restoreStubs() {
   if (backup.classFindMany !== undefined) prisma.class.findMany = backup.classFindMany;
   if (backup.classFindUnique !== undefined) prisma.class.findUnique = backup.classFindUnique;
   if (backup.classUpdate !== undefined) prisma.class.update = backup.classUpdate;
+  if (backup.userFindMany !== undefined) prisma.user.findMany = backup.userFindMany;
 }
 
 function mockRes() {
@@ -293,4 +299,49 @@ test("updateClass: startDate invalido devolve 400 e nao escreve", async () => {
   assert.equal(res.statusCode, 400);
   assert.match(res.body.message, /início inválida/);
   assert.equal(updateCalls.length, 0);
+});
+
+test("closeClass: turma ARCHIVED devolve 400 (nao desarquiva)", async () => {
+  installStubs();
+  resetState();
+  findUniqueResult = { id: "turma-1", trainerId: "trainer-1", status: "ARCHIVED" };
+
+  const req = { params: { id: "turma-1" }, user: { id: "trainer-1", role: "formador" } };
+  const res = mockRes();
+
+  await closeClass(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.message, /fechada|arquivada/);
+  assert.equal(updateCalls.length, 0, "fechar nao pode desfazer o arquivamento");
+});
+
+test("closeClass: turma ja CLOSED devolve 400", async () => {
+  installStubs();
+  resetState();
+  findUniqueResult = { id: "turma-1", trainerId: "trainer-1", status: "CLOSED" };
+
+  const req = { params: { id: "turma-1" }, user: { id: "trainer-1", role: "formador" } };
+  const res = mockRes();
+
+  await closeClass(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(updateCalls.length, 0);
+});
+
+test("closeClass: turma OPEN fecha com sucesso", async () => {
+  installStubs();
+  resetState();
+  findUniqueResult = { id: "turma-1", trainerId: "trainer-1", status: "OPEN", name: "T1", code: "ADC" };
+
+  const req = { params: { id: "turma-1" }, user: { id: "trainer-1", role: "formador" } };
+  const res = mockRes();
+
+  await closeClass(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(updateCalls.length, 1);
+  assert.equal(updateCalls[0].data.status, "CLOSED");
+  assert.ok(updateCalls[0].data.closedAt, "fecho define closedAt");
 });

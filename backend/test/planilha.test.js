@@ -1,7 +1,12 @@
 import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import prisma from "../src/config/prisma.js";
-import { getPlanilha, getPlanilhaTemplate, initializePlanilha } from "../src/modules/grades/planilha.controller.js";
+import {
+  getPlanilha,
+  getPlanilhaTemplate,
+  initializePlanilha,
+  updatePlanilhaTemplate,
+} from "../src/modules/grades/planilha.controller.js";
 
 // Stubs por monkey-patch no singleton do prisma (zero dependências).
 // gradebookTemplate pode não existir no cliente gerado local, então o
@@ -178,4 +183,45 @@ test("initializePlanilha: turma CLOSED devolve 400 e nao faz upsert", async () =
   assert.equal(res.statusCode, 400);
   assert.match(res.body.message, /fechada|arquivada/i);
   assert.equal(templateUpsertCalls.length, 0);
+});
+
+test("updatePlanilhaTemplate: 400 em turma fechada/arquivada (nao faz upsert)", async () => {
+  for (const status of ["CLOSED", "ARCHIVED"]) {
+    installStubs();
+    resetState();
+    classResult = { id: "c1", trainerId: "trainer-dono", status };
+
+    const req = {
+      params: { classId: "c1" },
+      body: { columns: [{ id: "x", name: "X", weight: 1 }], isActive: true },
+      user: { id: "trainer-dono", role: "formador" },
+    };
+    const res = mockRes();
+
+    await updatePlanilhaTemplate(req, res);
+
+    assert.equal(res.statusCode, 400, `status ${status} devia dar 400`);
+    assert.match(res.body.message, /fechada|arquivada/i);
+    assert.equal(templateUpsertCalls.length, 0, "sem upsert em turma travada");
+  }
+});
+
+test("updatePlanilhaTemplate: dono atualiza template em turma OPEN", async () => {
+  installStubs();
+  resetState();
+  classResult = { id: "c1", trainerId: "trainer-dono", status: "OPEN" };
+  const columns = [{ id: "exame", name: "Exame", weight: 3 }];
+
+  const req = {
+    params: { classId: "c1" },
+    body: { columns, isActive: true },
+    user: { id: "trainer-dono", role: "formador" },
+  };
+  const res = mockRes();
+
+  await updatePlanilhaTemplate(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(templateUpsertCalls.length, 1);
+  assert.deepEqual(templateUpsertCalls[0].create.columns, columns);
 });

@@ -370,6 +370,13 @@ export const updatePlanilhaTemplate = async (req, res) => {
       return res.status(403).json({ message: "Acesso negado" });
     }
 
+    // Mesma regra do initializePlanilha e autoSaveGrade: em turma
+    // fechada/arquivada o template tambem fica so-leitura. Sem isto era o
+    // unico write que continuava vivo numa turma travada.
+    if (isLocked(classData.status)) {
+      return res.status(400).json({ message: lockedMessage("alterar a planilha") });
+    }
+
     const template = await prisma.gradebookTemplate.upsert({
       where: { classId },
       update: { columns, isActive },
