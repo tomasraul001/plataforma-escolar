@@ -6,6 +6,7 @@ const navItems = [
   { to: "/formador/turmas", label: "Minhas Turmas", icon: "🏫" },
   { to: "/formador/fichas", label: "Fichas", icon: "📋" },
   { to: "/formador/pautas", label: "Pautas", icon: "📋" },
+  { to: "/formador/contactos", label: "Contactos", icon: "📇" },
   { to: "/formador/perfil", label: "Meu Perfil", icon: "👤" },
 ];
 

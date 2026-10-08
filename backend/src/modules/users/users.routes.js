@@ -7,6 +7,8 @@ const userRouter = express.Router();
 
 // A rota '/lista' exige que o usuário esteja autenticado
 userRouter.get("/lista", auth, usersController.getAllUsers);
+// Contactos com telefone; GET so-leitura (nao gera auditLog, como o /lista)
+userRouter.get("/contactos", auth, usersController.getContacts);
 // Exclusão de usuários é exclusiva do coordenador
 userRouter.delete("/delete/:id", auth, authorize("coordenador"), auditLog("user.delete"), usersController.deleteUser);
 // Perfil proprio

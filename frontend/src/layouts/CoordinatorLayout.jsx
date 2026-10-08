@@ -7,6 +7,7 @@ const navItems = [
   { to: "/coordenador/formandos", label: "Formandos", icon: "🎓" },
   { to: "/coordenador/fichas", label: "Fichas", icon: "📋" },
   { to: "/coordenador/relatorios", label: "Relatórios", icon: "📈" },
+  { to: "/coordenador/contactos", label: "Contactos", icon: "📇" },
   { to: "/coordenador/perfil", label: "Meu Perfil", icon: "👤" },
 ];
 

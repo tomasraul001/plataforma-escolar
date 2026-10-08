@@ -10,6 +10,7 @@ const navItems = [
   { to: "/secretaria/fichas", label: "Fichas", icon: "📋" },
   { to: "/secretaria/pautas", label: "Pautas & PDFs", icon: "📄" },
   { to: "/secretaria/relatorios", label: "Relatórios", icon: "📈" },
+  { to: "/secretaria/contactos", label: "Contactos", icon: "📇" },
   { to: "/secretaria/perfil", label: "Meu Perfil", icon: "👤" },
 ];
 

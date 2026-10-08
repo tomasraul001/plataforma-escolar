@@ -49,6 +49,9 @@ import SecretaryPautas from "../pages/secretary/Pautas";
 import SecretaryRelatorios from "../pages/secretary/Relatorios";
 import SecretaryFichaFormando from "../pages/secretary/FichaFormando";
 
+// Shared Pages
+import Contactos from "../pages/contactos/Contactos";
+
 // Public Pages
 import LandingPage from "../pages/public/Landing";
 import Welcome from "../pages/public/Welcome";
@@ -104,6 +107,7 @@ export default function AppRouter() {
           <Route path="/coordenador/pautas/:classId" element={<PautaDeTurma color="blue" />} />
           <Route path="/coordenador/perfil" element={<Perfil />} />
           <Route path="/coordenador/fichas" element={<CoordinatorFichaFormando />} />
+          <Route path="/coordenador/contactos" element={<Contactos />} />
         </Route>
 
         {/* Trainer Routes */}
@@ -124,6 +128,7 @@ export default function AppRouter() {
           <Route path="/formador/pautas/:classId" element={<PautaDeTurma />} />
           <Route path="/formador/perfil" element={<Perfil />} />
           <Route path="/formador/fichas" element={<TrainerFichaFormando />} />
+          <Route path="/formador/contactos" element={<Contactos />} />
         </Route>
 
         {/* Student Routes */}
@@ -162,6 +167,7 @@ export default function AppRouter() {
           <Route path="/secretaria/pautas/:classId" element={<PautaDeTurma color="orange" />} />
           <Route path="/secretaria/perfil" element={<Perfil />} />
           <Route path="/secretaria/fichas" element={<SecretaryFichaFormando />} />
+          <Route path="/secretaria/contactos" element={<Contactos />} />
         </Route>
 
         {/* Catch all */}

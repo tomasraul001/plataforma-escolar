@@ -51,6 +51,78 @@ export const getAllUsers = async (req, res) => {
 
 }
 
+// Contactos para a pagina "Contactos" do frontend (nome, email, telefone).
+// Coordenador e secretaria veem toda a lista (incluindo coordenadores).
+// O formador ve so os seus formandos (inscricao ACTIVE) e os formadores com
+// turma OPEN/CLOSED nas regioes onde ele proprio tem turmas.
+export const getContacts = async (req, res) => {
+    const CONTACT_SELECT = { id: true, name: true, email: true, phone: true, role: true };
+
+    try {
+        if (req.user.role === "coordenador" || req.user.role === "secretaria") {
+            const users = await prisma.user.findMany({
+                where: {},
+                select: CONTACT_SELECT,
+                orderBy: { name: "asc" },
+            });
+            return res.status(200).json(users);
+        }
+
+        if (req.user.role === "formador") {
+            // Regioes onde este formador tem turmas (qualquer estado)
+            const myClasses = await prisma.class.findMany({
+                where: { trainerId: req.user.id },
+                select: { locationId: true },
+            });
+            const regionIds = [...new Set(myClasses.map((c) => c.locationId).filter(Boolean))];
+
+            const [formandos, formadores] = await Promise.all([
+                prisma.user.findMany({
+                    where: {
+                        role: "formando",
+                        enrollments: {
+                            some: {
+                                class: { trainerId: req.user.id },
+                                status: "ACTIVE",
+                            },
+                        },
+                    },
+                    select: CONTACT_SELECT,
+                    orderBy: { name: "asc" },
+                }),
+                prisma.user.findMany({
+                    where: {
+                        role: "formador",
+                        id: { not: req.user.id },
+                        classes: {
+                            some: {
+                                locationId: { in: regionIds },
+                                status: { in: ["OPEN", "CLOSED"] },
+                            },
+                        },
+                    },
+                    select: CONTACT_SELECT,
+                    orderBy: { name: "asc" },
+                }),
+            ]);
+
+            const seen = new Set();
+            const merged = [];
+            for (const user of [...formandos, ...formadores]) {
+                if (seen.has(user.id)) continue;
+                seen.add(user.id);
+                merged.push(user);
+            }
+            return res.status(200).json(merged);
+        }
+
+        return res.status(403).json({ message: "Acesso negado" });
+    } catch (error) {
+        console.error("Erro ao buscar contactos:", error);
+        res.status(500).json({ message: "Erro ao buscar contactos" });
+    }
+};
+
 // Deletar usuario (exclusivo do coordenador)
 export const deleteUser = async (req, res) => {
     try {
