@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import "dotenv/config";
 
-import { validateEnv } from './config/env.js';
+import { validateEnv, trustProxySetting } from './config/env.js';
 import { globalLimiter } from './middleware/rateLimit.middleware.js';
 import authRouter from './modules/auth/auth.routes.js';
 import userRouter from './modules/users/users.routes.js';
@@ -19,7 +19,12 @@ const app = express();
 
 validateEnv();
 
-app.set("trust proxy", 1);
+// TRUST_PROXY env-gated: confiar no X-Forwarded-For so atras de proxy
+// (Railway ou config explicita) — num deploy direto, confiar permitia
+// falsificar o IP e contornar o rate limit. Ver config/env.js.
+const trustProxy = trustProxySetting();
+app.set("trust proxy", trustProxy);
+console.log(`[env] trust proxy = ${JSON.stringify(trustProxy)}`);
 
 app.use(helmet());
 

@@ -17,7 +17,7 @@ router.get("/minhas", authorize("formando"), enrollmentsController.listMyClasses
 router.get("/turma/:classId/alunos", authorize("formador", "coordenador", "secretaria"), enrollmentsController.getClassStudents);
 
 // Formador/Coordenador adiciona aluno manual (sem conta)
-router.post("/turma/:classId/alunos", authorize("formador", "coordenador"), enrollmentsController.addStudentToClass);
+router.post("/turma/:classId/alunos", authorize("formador", "coordenador"), auditLog("enrollment.add_manual"), enrollmentsController.addStudentToClass);
 
 // Formador/Coordenador remove aluno
 router.delete("/turma/:classId/alunos/:enrollmentId", authorize("formador", "coordenador"), auditLog("enrollment.remove"), enrollmentsController.removeStudent);

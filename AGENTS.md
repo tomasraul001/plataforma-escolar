@@ -13,7 +13,8 @@ Two independent npm packages (no root workspace, no shared scripts):
   - Zero deps externas (rodam mesmo sem `npm install`): `assessmentWeights.test.js`, `validations.test.js`, `classStatus.test.js`.
   - Exigem `npm install` + `npx prisma generate` (importam controllers/singleton `prisma`): `auth.controller.test.js`, `refreshToken.test.js`, `users.controller.test.js`, `classes.controller.test.js`, `classesPrng.test.js`, `classesStats.test.js`, `createClass.test.js`, `assessments.controller.test.js`, `grades.controller.test.js`, `attendance.controller.test.js`, `fichaFormando.test.js`, `planilha.test.js`, `pautaPdf.test.js`, `auth.middleware.test.js`, `getProfile.test.js`, `updateProfile.test.js`.
   - Cobertura por área: IDOR em `attendance`, `assessments`, `grades`, `fichaFormando`, `planilha` (template); rotação/reuso de refresh token em `refreshToken`; regra `CLOSED || ARCHIVED` em `grades`, `attendance`, `classStatus`, `planilha` (GET só-leitura + `initializePlanilha`); escala 0–20 em `validations` e `grades`; `GET /users/perfil` em `getProfile` e o contrato `undefined`=manter / `null`=apagar de `updateProfile` em `updateProfile`; login com 401 único anti-enumeração em `auth.controller`; escopo do formador a formandos das suas turmas em `users.controller`; whitelist de status em `updateClass` e remoção de `secretKey` das respostas em `classes.controller`.
-  - Estado atual: **185 testes, 185 a passar**.
+  - Estado atual: **203 testes, 203 a passar**. Cobertura adicional (Fase 2): CAS atómico no refresh (`refreshToken`), rasto de auditoria nos routes (`auditLog`), `validateEnv`+`TRUST_PROXY` (`env`), peso de avaliação em (0,100] (`assessments.controller`), limite de login por conta (`loginLimiter` no route `auth`).
+  - `validateEnv` é injectável (`exit = process.exit`): os testes passam um spy e verificam que `DATABASE_URL`/`SECRET_KEY` em falta saem com código 1, nunca chamando o `process.exit` real.
 - Padrão de stubbing: `test/*.test.js` importa o mesmo singleton `prisma` que o controller, reatribui os delegates (`findUnique`, `findMany`, `create`, etc.), usa `mockRes()` e restaura via `after()`. Cada arquivo roda em processo próprio, então não há interferência entre eles. Se o delegate não existir no cliente gerado local (gitignored/desatualizado), recrie-o dentro do stub (ver `createClass.test.js` — cria `prisma.region`).
   - Ao stubbar `prisma.$transaction` tem de suportar as duas formas: `$transaction(callback)` e `$transaction([...promessas])`.
   - **O `tx` de dentro do `$transaction(callback)` não é o mesmo que `prisma`.** Se o stub passar `prisma` como `tx`, qualquer `tx.$transaction(...)` aninhado passa no teste rebenta em produção — o cliente transacional do Prisma não tem `$transaction`. Quando o código usar `tx`, faça o stub passar um `tx` mais pobre que o real (sem `$transaction`), senão o teste está a mentir. Ver o teste "nao aninha `$transaction`" em `attendance.controller.test.js`.
@@ -47,7 +48,8 @@ Two independent npm packages (no root workspace, no shared scripts):
 - Generated client is imported **with the `.ts` extension**: `import { PrismaClient } from "../../generated/prisma/client.ts"` (see `src/config/prisma.js`). This requires Node >= 23.6 (TS type stripping) — no ts-node or build step.
 
 ## Env
-- `backend/.env` (gitignored, not in repo) must define `DATABASE_URL` (PostgreSQL) and `SECRET_KEY` (JWT signing). Backend will not run without it.
+- `backend/.env` (gitignored, not in repo) must define `DATABASE_URL` (PostgreSQL) and `SECRET_KEY` (JWT signing). Backend will not run without it — `validateEnv` em `backend/src/config/env.js` sai com código 1 e mensagem legível (ver `env.test.js`), enquanto chaves de acesso em falta são só aviso.
+- `TRUST_PROXY` (deploy em `backend/src/app.js`): confia no `X-Forwarded-For` **só** se `TRUST_PROXY` explícito (`true`/`false`/inteiro) ou se os markers `RAILWAY_PUBLIC_DOMAIN`/`RAILWAY_ENVIRONMENT` existirem. **Default é não confiar** — num deploy direto, confiar deixaria qualquer cliente falsificar o IP e contornar o rate limit. O Railway injeta os markers, mas se a app correr sem eles, definir `TRUST_PROXY=1` na dashboard.
 
 ## Wiring
 - Backend entry: `backend/src/app.js` — mounts modular routers under `/`: `auth.js`, `users.js`, `classes.js`, `enrollments.js`, `assessments.js`, `grades.js`, `reports.js`. Public: `POST /register`, `POST /login`, `POST /refresh`, `POST /logout`. Private: `GET /users/lista`, expects JWT as `Authorization: Bearer <token>`.
@@ -59,7 +61,13 @@ Two independent npm packages (no root workspace, no shared scripts):
 ## Rate Limiting
 - Global: 300 req/15min per IP (`backend/src/middleware/rateLimit.middleware.js`).
 - Auth endpoints (`/auth/login`, `/auth/register`, `/auth/refresh`): 10 req/15min.
-- `trust proxy` enabled for Railway. 429 returns JSON PT-BR.
+- `POST /login` tem **também** um `loginLimiter` por conta (20 tentativas/15min, key = email normalizado): o limiter por IP não trava spraying distribuído. Tradeoff assente: um atacante consegue bloquear o login de uma conta por 15min (auto-recuperável). Atenção: a key regressa a "sem-email" se o body não tiver `email` — nunca usar `req.ip` no `keyGenerator` (v8 valida e rejeita sem o helper `ipKeyGenerator`).
+- `trust proxy` segue `TRUST_PROXY`/markers Railway (default `false`; ver secção Env). 429 returns JSON PT-BR.
+
+## Headers de segurança (frontend)
+- `frontend/nginx.conf` e `frontend/vercel.json` servem headers de segurança + CSP. A CSP é restrita: `'self'` + Google Fonts (`fonts.googleapis.com`/`gstatic`) + Firebase Analytics (`firebaselogging.googleapis.com`, `google-analytics.com`, `*.app-measurement.com`) + origem do backend em `connect-src`.
+- No `nginx.conf`, a origem do backend entra como `${BACKEND_URL}` (o `envsubst` do `entrypoint.sh` só substitui essa variável — a CSP **não** pode usar `$` de variáveis nginx fora disso). No `vercel.json` está hardcoded (`VITE_API_URL`).
+- `style-src` inclui `'unsafe-inline'` (atributo `style` do React); não há scripts externos, logo `script-src 'self'`. Se um dia carregares Google Fonts por `<link>`, o preconnect também precisa de `connect-src` para `fonts.googleapis.com`/`gstatic`.
 
 ## Pseudo-tempo real: polling de 60s (WebSocket descartado)
 O WebSocket foi **descartado por decisão de produto** — nunca chegou a existir em código (zero `socket.io`/`ws`/`EventSource`/`setInterval` no repo). Ver `estrutura-plataforma-gestao-escolar.md` secção 13 para o raciocínio. Não reintroduzir sem falar com o utilizador: a razão foi volume de alterações (notas = algumas/dia, presenças = 1/sessão) versus o custo de um canal bidirecional sempre aberto e de um servidor com estado partilhado que impediria escalar sem sticky sessions.

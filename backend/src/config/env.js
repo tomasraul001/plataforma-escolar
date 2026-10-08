@@ -24,15 +24,29 @@ function ausentes(definicoes) {
   return definicoes.filter(([nome]) => !process.env[nome]);
 }
 
-export function validateEnv() {
+export function validateEnv(exit = process.exit) {
   const faltamCriticas = ausentes(CRITICAS);
   const faltamChaves = ausentes(CHAVES_ACESSO);
 
-  if (faltamCriticas.length || faltamChaves.length) {
-    console.warn("\n[env] Variaveis de ambiente em falta:");
+  // Criticas: sem elas o servidor ate arranca, mas cada request autenticado
+  // rebenta (jwt malformed) ou o prisma nao liga — falha rapida com mensagem
+  // legivel em vez de arrancar partido. `exit` e injetavel para testes.
+  if (faltamCriticas.length) {
+    console.error("\n[env] Variaveis obrigatorias em falta — o servidor nao arranca:");
     for (const [nome, descricao] of faltamCriticas) {
-      console.warn(`  - ${nome}: ${descricao}`);
+      console.error(`  - ${nome}: ${descricao}`);
     }
+    console.error("  Ver backend/.env.example\n");
+    exit(1);
+    return {
+      criticas: faltamCriticas.map(([nome]) => nome),
+      chavesAcesso: faltamChaves.map(([nome]) => nome),
+      ok: false,
+    };
+  }
+
+  if (faltamChaves.length) {
+    console.warn("\n[env] Variaveis de ambiente em falta:");
     for (const [nome] of faltamChaves) {
       console.warn(`  - ${nome}: chave de acesso em falta, POST /register devolve 500`);
     }
@@ -60,8 +74,32 @@ export function validateEnv() {
   }
 
   return {
-    criticas: faltamCriticas.map(([nome]) => nome),
+    criticas: [],
     chavesAcesso: faltamChaves.map(([nome]) => nome),
-    ok: faltamCriticas.length === 0 && faltamChaves.length === 0,
+    ok: faltamChaves.length === 0,
   };
+}
+
+// Interpreta a env TRUST_PROXY.
+//   indefinida/vazia -> null (o chamador decide o default)
+//   "true" -> 1, "false"/"0" -> false, inteiro positivo -> esse nº de hops
+export function parseTrustProxy(value) {
+  if (value === undefined || value === null || String(value).trim() === "") return null;
+  const v = String(value).trim().toLowerCase();
+  if (v === "true") return 1;
+  if (v === "false" || v === "0") return false;
+  const n = Number(v);
+  if (Number.isInteger(n) && n > 0) return n;
+  return false;
+}
+
+// Confianca no X-Forwarded-For. Atras de proxy (Railway) e preciso confiar
+// para o rate limit ver o IP real; num deploy DIRETO confiar deixa qualquer
+// cliente falsificar o IP e contornar o rate limit, por isso o default e
+// nao confiar. Railway e detetado pelos markers RAILWAY_*.
+export function trustProxySetting(env = process.env) {
+  const explicito = parseTrustProxy(env.TRUST_PROXY);
+  if (explicito !== null) return explicito;
+  if (env.RAILWAY_PUBLIC_DOMAIN || env.RAILWAY_ENVIRONMENT) return 1;
+  return false;
 }

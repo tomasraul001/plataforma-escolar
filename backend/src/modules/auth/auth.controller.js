@@ -114,6 +114,18 @@ export const login = async (req, res) => {
     const isMatch = password !== null && (await bcrypt.compare(password, hash)) && userLogin !== null;
 
     if (!userLogin || !isMatch) {
+      // O middleware auditLog so escreve em respostas 2xx, por isso o
+      // falhado de login e registado aqui manualmente (fire-and-forget,
+      // nunca rejeita o request — mesmo padrao do auditLog.middleware).
+      prisma.auditLog
+        .create({
+          data: {
+            action: "auth.login_failed",
+            userId: userLogin ? userLogin.id : null,
+            metadata: email ? { attemptedEmail: email } : null,
+          },
+        })
+        .catch(() => {});
       return res.status(401).json({ message: "Email ou senha incorretos" });
     }
 
@@ -160,7 +172,22 @@ export const refresh = async (req, res) => {
       return res.status(401).json({ message: "Refresh token inválido!" });
     }
 
-    if (stored.revokedAt) {
+    if (stored.expiresAt < new Date()) {
+      return res.status(401).json({ message: "Refresh token expirado!" });
+    }
+
+    // CAS (compare-and-swap): so um dos refreshes CONCORRENTES com o
+    // mesmo token ganha — os restantes veem count 0 e nao chegam a
+    // emitir tokens. O mesmo caminho apanha reuso de token ja revogado,
+    // caso em que se revogam TODAS as sessoes do utilizador (deteccao de
+    // furto). Antes, o read-then-write deixava dois pedidos simultaneos
+    // passarem ambos.
+    const { count } = await prisma.refreshToken.updateMany({
+      where: { id: stored.id, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+
+    if (count === 0) {
       await prisma.refreshToken.updateMany({
         where: { userId: stored.userId, revokedAt: null },
         data: { revokedAt: new Date() },
@@ -168,20 +195,11 @@ export const refresh = async (req, res) => {
       return res.status(401).json({ message: "Refresh token revogado!" });
     }
 
-    if (stored.expiresAt < new Date()) {
-      return res.status(401).json({ message: "Refresh token expirado!" });
-    }
-
     const newAccessToken = jwt.sign(
       { id: stored.user.id, email: stored.user.email, role: stored.user.role },
       process.env.SECRET_KEY,
       { expiresIn: "1h" }
     );
-
-    await prisma.refreshToken.update({
-      where: { id: stored.id },
-      data: { revokedAt: new Date() },
-    });
 
     const newRefreshToken = await issueRefreshToken(stored.userId);
 

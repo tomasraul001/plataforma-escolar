@@ -27,11 +27,11 @@ router.patch("/:id", authorize("formador", "coordenador"), auditLog("grade.updat
 router.get("/planilha/:classId", authorize("formador", "coordenador", "formando"), planilhaController.getPlanilha);
 
 // Auto-save nota individual (focus out)
-router.post("/planilha/:classId/auto-save", authorize("formador", "coordenador"), planilhaController.autoSaveGrade);
+router.post("/planilha/:classId/auto-save", authorize("formador", "coordenador"), auditLog("grade.auto_save"), planilhaController.autoSaveGrade);
 
 // Inicializar/obter template da planilha
-router.post("/planilha/:classId/initialize", authorize("formador", "coordenador"), planilhaController.initializePlanilha);
+router.post("/planilha/:classId/initialize", authorize("formador", "coordenador"), auditLog("planilha.initialize"), planilhaController.initializePlanilha);
 router.get("/planilha/:classId/template", authorize("formador", "coordenador"), planilhaController.getPlanilhaTemplate);
-router.patch("/planilha/:classId/template", authorize("formador", "coordenador"), planilhaController.updatePlanilhaTemplate);
+router.patch("/planilha/:classId/template", authorize("formador", "coordenador"), auditLog("planilha.template_update"), planilhaController.updatePlanilhaTemplate);
 
 export default router;

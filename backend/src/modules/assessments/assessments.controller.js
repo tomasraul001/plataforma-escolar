@@ -1,6 +1,18 @@
 import prisma from "../../config/prisma.js";
 import { isLocked, lockedMessage } from "../../utils/classStatus.js";
 
+// Peso e uma percentagem valida em (0, 100]. Antes, `weight || 1.0`
+// aceitava strings e negativos (o Prisma rebentava no Float com 500) e o
+// update aceitava null. Devolve o numero validado ou null (invalido).
+function validateWeight(weight) {
+  if (typeof weight !== "number" || !Number.isFinite(weight) || weight <= 0 || weight > 100) {
+    return null;
+  }
+  return weight;
+}
+
+const PESO_INVALIDO = "Peso inválido. Deve ser um número maior que 0 e até 100.";
+
 export const createAssessment = async (req, res) => {
   const { classId, name, weight } = req.body;
 
@@ -18,10 +30,18 @@ export const createAssessment = async (req, res) => {
       return res.status(400).json({ message: lockedMessage("adicionar avaliações") });
     }
 
+    let resolvedWeight = 1.0;
+    if (weight !== undefined && weight !== null && weight !== "") {
+      resolvedWeight = validateWeight(weight);
+      if (resolvedWeight === null) {
+        return res.status(400).json({ message: PESO_INVALIDO });
+      }
+    }
+
     const assessment = await prisma.assessment.create({
       data: {
         name,
-        weight: weight || 1.0,
+        weight: resolvedWeight,
         classId,
       },
     });
@@ -89,6 +109,11 @@ export const updateAssessment = async (req, res) => {
 
     if (isLocked(assessment.class.status)) {
       return res.status(400).json({ message: lockedMessage("alterar avaliações") });
+    }
+
+    // weight presente tem de ser valido; ausente mantem o valor atual
+    if (weight !== undefined && validateWeight(weight) === null) {
+      return res.status(400).json({ message: PESO_INVALIDO });
     }
 
     const updated = await prisma.assessment.update({

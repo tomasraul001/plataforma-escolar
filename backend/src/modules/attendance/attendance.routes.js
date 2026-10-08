@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(auth);
 
 // Formador/Coordenador: criar sessão e marcar presenças (turma OPEN)
-router.post("/classes/:classId/sessions", authorize("formador", "coordenador"), attendanceController.createSession);
+router.post("/classes/:classId/sessions", authorize("formador", "coordenador"), auditLog("attendance.create_session"), attendanceController.createSession);
 router.get("/classes/:classId/sessions", authorize("formador", "coordenador", "secretaria"), attendanceController.listSessions);
 router.get("/classes/:classId/sessions/:sessionId", authorize("formador", "coordenador"), attendanceController.getSession);
 router.patch("/classes/:classId/sessions/:sessionId", authorize("formador", "coordenador"), auditLog("attendance.bulk_update"), attendanceController.bulkUpdateRecords);

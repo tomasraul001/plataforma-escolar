@@ -16,6 +16,7 @@ const storedUsers = [];
 let findUniqueCalls = [];
 let createCalls = [];
 let returnUser = null;
+let auditLogCalls = [];
 
 const storedRefreshTokens = [];
 
@@ -33,6 +34,12 @@ function installStubs() {
   backup.refreshTokenUpdateMany = prisma.refreshToken?.updateMany;
   backup.refreshTokenUpdate = prisma.refreshToken?.update;
   backup.refreshTokenDeleteMany = prisma.refreshToken?.deleteMany;
+  backup.auditLogCreate = prisma.auditLog?.create;
+
+  prisma.auditLog.create = async ({ data }) => {
+    auditLogCalls.push(data);
+    return { id: `log-${auditLogCalls.length}` };
+  };
 
   prisma.user.findUnique = async ({ where }) => {
     findUniqueCalls.push(where);
@@ -88,6 +95,7 @@ function restoreStubs() {
   if (backup.refreshTokenUpdateMany !== undefined) prisma.refreshToken.updateMany = backup.refreshTokenUpdateMany;
   if (backup.refreshTokenUpdate !== undefined) prisma.refreshToken.update = backup.refreshTokenUpdate;
   if (backup.refreshTokenDeleteMany !== undefined) prisma.refreshToken.deleteMany = backup.refreshTokenDeleteMany;
+  if (backup.auditLogCreate !== undefined) prisma.auditLog.create = backup.auditLogCreate;
 }
 
 function mockRes() {
@@ -108,6 +116,7 @@ function resetState() {
   storedRefreshTokens.length = 0;
   findUniqueCalls = [];
   createCalls = [];
+  auditLogCalls = [];
   returnUser = null;
 }
 
@@ -179,6 +188,12 @@ test("login: usuario inexistente devolve 401 generico (nao enumera contas)", asy
   // 404 com "Usuário não encontrado!" permitia enumerar emails registrados
   assert.equal(res.statusCode, 401);
   assert.equal(res.body.message, "Email ou senha incorretos");
+  // Falha de login fica registada no audit log (escrita manual: o
+  // middleware auditLog so cobre respostas 2xx)
+  assert.equal(auditLogCalls.length, 1);
+  assert.equal(auditLogCalls[0].action, "auth.login_failed");
+  assert.equal(auditLogCalls[0].userId, null);
+  assert.equal(auditLogCalls[0].metadata.attemptedEmail, "naoexiste@email.com");
 });
 
 test("login: retorna 401 quando a senha esta incorreta", async () => {
@@ -199,6 +214,9 @@ test("login: retorna 401 quando a senha esta incorreta", async () => {
 
   assert.equal(res.statusCode, 401);
   assert.equal(res.body.message, "Email ou senha incorretos");
+  assert.equal(auditLogCalls.length, 1);
+  assert.equal(auditLogCalls[0].action, "auth.login_failed");
+  assert.equal(auditLogCalls[0].userId, "user-123", "quando o utilizador existe, fica o id");
 });
 
 test("login: email nao-string devolve 401 (nao 500)", async () => {

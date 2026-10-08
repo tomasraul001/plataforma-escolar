@@ -33,9 +33,10 @@ function installStubs() {
   prisma.refreshToken.updateMany = async ({ where, data }) => {
     let count = 0;
     for (const t of storedRefreshTokens) {
+      const matchId = where.id && t.id === where.id;
       const matchUser = where.userId && t.userId === where.userId;
       const matchHash = where.tokenHash && t.tokenHash === where.tokenHash;
-      if ((matchUser || matchHash) && !t.revokedAt) {
+      if ((matchId || matchUser || matchHash) && !t.revokedAt) {
         Object.assign(t, data);
         count++;
       }
@@ -181,6 +182,53 @@ test("refresh: revoga todas as sessoes quando detecta reuso de token revogado", 
   assert.equal(res.statusCode, 401);
   assert.equal(res.body.message, "Refresh token revogado!");
   assert.ok(storedRefreshTokens.every((t) => t.revokedAt !== null));
+});
+
+test("refresh: CAS perdido (corrida perdida) devolve 401 e nao emite tokens", async () => {
+  installStubs();
+  resetState();
+  const { raw } = createStoredToken();
+
+  // Simula o outro pedido concorrente ja ter revogado o token: o CAS
+  // devolve count 0 mesmo tendo o token estado ativo no findUnique.
+  prisma.refreshToken.updateMany = async ({ where, data }) => {
+    if (where.id) return { count: 0 };
+    for (const t of storedRefreshTokens) {
+      if (where.userId && t.userId === where.userId && !t.revokedAt) Object.assign(t, data);
+    }
+    return { count: 0 };
+  };
+
+  const req = { body: { refreshToken: raw } };
+  const res = mockRes();
+
+  await refresh(req, res);
+
+  assert.equal(res.statusCode, 401);
+  assert.equal(res.body.message, "Refresh token revogado!");
+  assert.equal(res.body.token, undefined, "perdedor da corrida nao emite access token");
+  assert.equal(res.body.refreshToken, undefined, "perdedor da corrida nao emite refresh token");
+});
+
+test("refresh: segundo uso do mesmo token apos rotacao devolve 401 e mata a sessao", async () => {
+  installStubs();
+  resetState();
+  const { raw } = createStoredToken();
+
+  const first = mockRes();
+  await refresh({ body: { refreshToken: raw } }, first);
+  assert.equal(first.statusCode, 200);
+
+  // Mesmo token outra vez: ja esta revogado (rotacionado) -> CAS count 0
+  const second = mockRes();
+  await refresh({ body: { refreshToken: raw } }, second);
+
+  assert.equal(second.statusCode, 401);
+  assert.equal(second.body.message, "Refresh token revogado!");
+  assert.ok(
+    storedRefreshTokens.every((t) => t.revokedAt !== null),
+    "reuso revoga tambem o refresh token recem-emitido",
+  );
 });
 
 test("logout: revoga token e retorna 200", async () => {
